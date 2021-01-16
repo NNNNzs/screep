@@ -21,7 +21,12 @@ const upgrader = {
             }
         }
         else {
-            upgrader.getResourceByStructure(creep)
+            const target = Game.getObjectById('60011aef4171757e7314246d');
+            if(target.store.getUsedCapacity()>0){
+                creep.self_withdraw(target)
+            }else{
+                upgrader.getResourceByStructure(creep)
+            }
         }
     },
     // 从建筑物里面获取资源

@@ -16,19 +16,12 @@ const roleHarvester = {
         }
         else {
             // 转移目标
-            const targets = findTarget(creep)
+            const targets = findTarget(creep) || []
             if (targets.length > 0) {
                 if (creep.transfer(targets[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0], showDash);
                 }
             }
-        }
-    },
-    // 挖坑
-    harvest(creep, index = 0) {
-        const sources = creep.room.find(FIND_SOURCES);
-        if (creep.harvest(sources[index % 2]) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources[index % 2], showDash);
         }
     }
 };

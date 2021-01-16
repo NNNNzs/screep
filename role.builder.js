@@ -34,7 +34,7 @@ const roleBuilder = {
             roleBuilder.build(creep)
         }
         else {
-            roleUpgrader.getResourceByStructure(creep);
+            creep.getResourceByStructure();
         }
     }
 };

@@ -39,7 +39,9 @@ module.exports = {
   findSourceNear(){
     
   },
-  
+  calcRange(p1,p2){
+    // return Math
+  },
   findResourceTombstons(creep) {
     // const sources = creep.room.find(FIND_TOMBSTONES)
     // const sources = creep.room.find(FIND_STRUCTURES);

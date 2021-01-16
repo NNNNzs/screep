@@ -5,13 +5,18 @@ const creepExtension = {
   // 从建筑物里面拿出资源
   getResourceByStructure(rank = [STRUCTURE_CONTAINER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]) {
     const sources = findResourceStructure(this, rank);
-    if (this.withdraw(sources[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-      this.moveTo(sources[0], showDash);
-    }
+    this.self_withdraw(sources[0])
+    // if (this.withdraw(sources[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+    //   this.moveTo(sources[0], showDash);
+    // }
   },
   // 将资源送到建筑物
   sendRourceToStructure(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER], flag) {
-    const sources = findEmptyStructure(this, rank);
+    const sources = findEmptyStructure(this, rank) || []
+    if (sources.length == 0) {
+      this.say('所有资源都满了')
+      return false;
+    }
     if (this.transfer(sources[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
       this.moveTo(sources[0], showDash);
     }
@@ -23,14 +28,20 @@ const creepExtension = {
       this.moveTo(sources[index % 2], showDash);
     }
   },
+  // 挖矿
+  self_withdraw(sources) {
+    if (this.withdraw(sources, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+      this.moveTo(sources, showDash);
+    }
+  },
   // 修复建筑
   fixing() {
     // 如果身上还有能量，一次性用完
-    if (this.store.getUsedCapacity() > 0&& this.memory.objId) {
+    if (this.store.getUsedCapacity() > 0 && this.memory.objId) {
       const toFixObj = Game.getObjectById(this.memory.objId)
       this.repair(toFixObj);
       this.say('biubiubiu')
-      if(toFixObj.hits===toFixObj.hitsMax){
+      if (toFixObj.hits === toFixObj.hitsMax) {
         this.memory.objId = null
       }
       return false;
@@ -45,7 +56,7 @@ const creepExtension = {
       if (this.repair(targets[0]) == ERR_NOT_IN_RANGE) {
         this.moveTo(targets[0], { visualizePathStyle: { fill: '#000000' } });
       }
-      if (this.pos.inRangeTo(targets[0],3)) {
+      if (this.pos.inRangeTo(targets[0], 3)) {
         this.memory.objId = targets[0].id;
         this.say('biubiubiu')
       }
