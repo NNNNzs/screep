@@ -33,7 +33,6 @@ const creepExtension = {
       if(toFixObj.hits===toFixObj.hitsMax){
         this.memory.objId = null
       }
-
       return false;
     }
     const targets = this.room.find(FIND_STRUCTURES, {

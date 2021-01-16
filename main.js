@@ -14,6 +14,8 @@ module.exports.loop = function () {
     // const t = Game.time;
     autoCreate.run();
     let i = 0;
+    let work = 0;
+    let carry = 0;
     for (var name in Game.creeps) {
         const creep = Game.creeps[name];
         const role = creep.memory.role;
@@ -30,9 +32,11 @@ module.exports.loop = function () {
             roleBuilder.run(creep);
         }
         else if (role == 'onlyHarvester') {
-            roleOnlyHarvester.run(creep)
+            roleOnlyHarvester.run(creep, work)
+            work++
         } else if (role == 'carry') {
-            roleCarry.run(creep)
+            roleCarry.run(creep, carry)
+            carry++
         } else if (role == 'repair') {
             roleRepair.run(creep)
         }

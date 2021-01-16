@@ -1,5 +1,5 @@
 
-const { findEmptyStructure,findResourceTombstons } = require('tools')
+const { findEmptyStructure, findResourceTombstons } = require('tools')
 // 采集者
 const showDash = { visualizePathStyle: { stroke: '#ffaa00' } }
 function findTarget(creep) {
@@ -25,7 +25,7 @@ const roleHarvester = {
         }
     },
     // 挖坑
-    harvest(creep, index=0) {
+    harvest(creep, index = 0) {
         const sources = creep.room.find(FIND_SOURCES);
         if (creep.harvest(sources[index % 2]) == ERR_NOT_IN_RANGE) {
             creep.moveTo(sources[index % 2], showDash);

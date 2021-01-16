@@ -1,4 +1,39 @@
 
+const sourceMap = {
+  [MOVE]: {
+    cost: 50,
+    move: -2
+  },
+  [WORK]: {
+    cost: 100,
+  },
+  [CARRY]: {
+    cost: 50,
+  },
+  [ATTACK]: {
+    cost: 80
+  },
+  [RANGED_ATTACK]: {
+    cost: 150
+  },
+  [HEAL]: {
+    cost: 250
+  },
+  [CLAIM]: {
+    cost: 600
+  },
+  [TOUGH]: {
+    cost: 10
+  }
+}
+function getCost(list) {
+  let sum = 0;
+  _.forEach(list, (part) => {
+    // console.log(part)
+    sum += sourceMap[part].cost
+  })
+  console.log(sum)
+}
 function createHarvester() {
   //创建一个工人
   const code = Game.spawns['Spawn1'].spawnCreep([WORK, WORK, CARRY, MOVE, WORK, MOVE, WORK],
@@ -33,9 +68,9 @@ function createCarry() {
   });
   console.log('createcarry' + code)
 }
-function createOnlyHarvester() {
+function createOnlyHarvester(index) {
   Game.spawns['Spawn1'].spawnCreep([WORK, MOVE, WORK, WORK, WORK, WORK],
-    `work1`, {
+    `work${index}`, {
     memory: { role: 'onlyHarvester' }
   });
 }
@@ -57,29 +92,41 @@ function deleteCreepMemory() {
   }
 }
 module.exports.run = () => {
+  // const creepsList = {
+  //   harvester:'',
+  //   upgrader:'',
+  //   builder:'',
+  //   carry:'',
+  //   onlyHarvester:'',
+  //   repair:''
+  // }
+  // Game.creeps.forEach(creep=>{
+
+  // })
   const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
   const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
   const builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
   const carryers = _.filter(Game.creeps, (creep) => creep.memory.role == 'carry');
   const onlyHarvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'onlyHarvester');
   const repairs = _.filter(Game.creeps, (creep) => creep.memory.role == 'repair');
+
   if (Game.time % 100 === 0) {
     deleteCreepMemory()
   }
   // 收割者数量
-  if (harvesters.length < 3) {
+  if (harvesters.length < 2) {
     createHarvester()
   }
-  else if (onlyHarvesters.length < 1) {
-    createOnlyHarvester()
+  else if (onlyHarvesters.length < 2) {
+    createOnlyHarvester(onlyHarvesters.length - 1)
   }
-  else if (carryers.length < 3) {
+  else if (carryers.length < 4) {
     createCarry()
   }
   else if (repairs.length < 1) {
     createRepair()
   }
-  else if (upgraders.length < 2) {
+  else if (upgraders.length < 4) {
     createUpgrader()
   }
   else if (builders.length < 2) {
