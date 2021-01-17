@@ -6,19 +6,16 @@ const creepExtension = {
   getResourceByStructure(rank = [STRUCTURE_CONTAINER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]) {
     const sources = findResourceStructure(this, rank);
     this.self_withdraw(sources[0])
-    // if (this.withdraw(sources[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-    //   this.moveTo(sources[0], showDash);
-    // }
   },
   // 将资源送到建筑物
   sendRourceToStructure(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER], flag) {
     const sources = findEmptyStructure(this, rank) || []
     if (sources.length == 0) {
-      this.say('所有资源都满了')
-      return false;
+      return true;
     }
     if (this.transfer(sources[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
       this.moveTo(sources[0], showDash);
+      return false;
     }
   },
   // 挖矿

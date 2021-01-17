@@ -5,7 +5,7 @@ const upgrader = {
     run: function (creep) {
         // 如果正在升级，且携带的资源没有了
         if (creep.memory.upgrading && creep.store[RESOURCE_ENERGY] == 0) {
-            creep.signController(creep.room.controller,'我曾经翻过山和大海，也穿过人山人海。')
+            // creep.signController(creep.room.controller,'我曾经翻过山和大海，也穿过人山人海。')
             creep.memory.upgrading = false;
             creep.say('🔄 harvest');
         }

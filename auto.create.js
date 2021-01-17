@@ -2,7 +2,6 @@
 const sourceMap = {
   [MOVE]: {
     cost: 50,
-    move: -2
   },
   [WORK]: {
     cost: 100,
@@ -26,14 +25,58 @@ const sourceMap = {
     cost: 10
   }
 }
-function getCost(list) {
-  console.log()
+const creepsList = {
+  harvester: {
+    sum: 2,
+    current: 0,
+    body: [WORK, MOVE, WORK, WORK, WORK, WORK]
+  },
+  carry: {
+    sum: 4,
+    current: 0,
+    body: [CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE,MOVE]
+  },
+  upgrader: {
+    sum: 2,
+    current: 0,
+    body: [WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE]
+  },
+  builder: {
+    sum: 3,
+    current: 0,
+    body: [WORK, CARRY, CARRY, MOVE, WORK, MOVE, WORK, CARRY, WORK, MOVE]
+  },
+  repair: {
+    sum: 1,
+    current: 0,
+    body: [WORK, WORK, CARRY, CARRY, MOVE, MOVE]
+  }
+}
+const getCost = (bodys) => {
   let sum = 0;
-  _.forEach(list, (part) => {
+  _.forEach(bodys, (part) => {
     sum += sourceMap[part].cost
   })
+  const room = Game.spawns['Spawn1'].room;
+  const str = `${room.energyAvailable}/${room.energyCapacityAvailable}but ${sum} move${calcMove(bodys)}`
+  console.log(str)
   return sum
 }
+// 计算移动力
+const calcMove = (bodys) => {
+  let sum = 0;
+  _.forEach(bodys, (body) => {
+    if (body === MOVE) {
+      sum += 1;
+    } else {
+      sum -= 1;
+    }
+  })
+  return sum;
+}
+
+getCost(creepsList.carry.body)
+
 function createHarvester() {
   //创建一个工人
   const part = [WORK, WORK, CARRY, MOVE, WORK, MOVE, WORK]
@@ -57,7 +100,7 @@ function createUpgrader() {
 
 function createBuilder() {
   //建造者 
-  const code = Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, CARRY, MOVE, WORK, MOVE],
+  const code = Game.spawns['Spawn1'].spawnCreep([WORK, CARRY, CARRY, MOVE, WORK, MOVE, WORK, CARRY, WORK, MOVE],
     `Builder1${Game.time}`, {
     memory: { role: 'builder' }
   });
@@ -65,17 +108,19 @@ function createBuilder() {
 }
 // 资产转移
 function createCarry() {
-  const code = Game.spawns['Spawn1'].spawnCreep([WORK, MOVE, CARRY, CARRY, MOVE, MOVE, WORK],
+  const body = creepsList.carry.body;
+  const code = Game.spawns['Spawn1'].spawnCreep(body,
     `carry1${Game.time}`, {
     memory: { role: 'carry' }
   });
   console.log('createcarry' + code)
 }
 function createOnlyHarvester(index) {
-  Game.spawns['Spawn1'].spawnCreep([WORK, MOVE, WORK, WORK, WORK, WORK],
+  const code = Game.spawns['Spawn1'].spawnCreep([WORK, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK],
     `work${index}`, {
     memory: { role: 'onlyHarvester' }
   });
+  console.log(code)
 }
 function createRepair() {
   const code = Game.spawns['Spawn1'].spawnCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE],
@@ -96,53 +141,29 @@ function deleteCreepMemory() {
 }
 
 function autoCreate(name, spawns = 'Spawn1') {
-  const body = creepsList[name].body;
+  let creepsMap = Object.assign({}, creepsList)
+  const body = creepsMap[name].body;
   const code = Game.spawns[spawns].spawnCreep(body,
     `${name}${Game.time}`, {
     memory: { role: 'repair' }
   });
-  const rome = Game.spawns[spawns].room;
+  const room = Game.spawns[spawns].room;
   if (code == -6) {
-    const str = `create ${name} fail ${rome.energyAvailable}/${room.energyCapacityAvailable}`
+    const cost = getCost(body)
+    const str = `create ${name} fail ${room.energyAvailable}/${room.energyCapacityAvailable}but ${cost}`
     console.log(str)
   }
 }
 
-let creepsList = {
-  harvester: {
-    sum: 2,
-    current: 0,
-    body: [WORK, MOVE, WORK, WORK, WORK, WORK]
-  },
-  carry: {
-    sum: 4,
-    current: 0,
-    body: [WORK, MOVE, CARRY, CARRY, MOVE, MOVE, WORK]
-  },
-  upgrader: {
-    sum: 2,
-    current: 0,
-    body: [WORK, WORK, CARRY, CARRY, MOVE, MOVE, MOVE]
-  },
-  builder: {
-    sum: 3,
-    current: 0,
-    body: [WORK, CARRY, CARRY, MOVE, WORK, MOVE]
-  },
-  repair: {
-    sum: 1,
-    current: 0,
-    body: [WORK, WORK, CARRY, CARRY, MOVE, MOVE]
-  }
-}
+
 module.exports.run = () => {
 
-  _.forEach(Game.creeps, creep => {
-    const role = creep.memory.role;
-    // console.log(role)
-    // creepsList[role].current++;
-    // creepsList[creep.memory.role].current++;
-  })
+  // _.forEach(Game.creeps, creep => {
+  //   const role = creep.memory.role;
+  //   // console.log(role)
+  //   // creepsList[role].current++;
+  //   // creepsList[creep.memory.role].current++;
+  // })
 
   const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
   const onlyHarvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'onlyHarvester');
@@ -155,22 +176,22 @@ module.exports.run = () => {
     deleteCreepMemory()
   }
   // 收割者数量
-  if (harvesters.length < 2) {
+  if (harvesters.length < 1) {
     createHarvester()
   }
   else if (onlyHarvesters.length < 2) {
     createOnlyHarvester(onlyHarvesters.length - 1)
   }
-  else if (carryers.length < 4) {
+  else if (carryers.length < 5) {
     createCarry()
   }
   else if (repairs.length < 1) {
     createRepair()
   }
-  else if (upgraders.length < 5) {
+  else if (upgraders.length < 3) {
     createUpgrader()
   }
-  else if (builders.length < 2) {
+  else if (builders.length < 4) {
     createBuilder()
   }
 };
