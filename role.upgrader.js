@@ -21,22 +21,14 @@ const upgrader = {
             }
         }
         else {
-            const target = Game.getObjectById('60011aef4171757e7314246d');
+            const target = Game.getObjectById('6003bf8942c7e2223662c971');
             if(target.store.getUsedCapacity()>0){
                 creep.self_withdraw(target)
             }else{
-                upgrader.getResourceByStructure(creep)
+                creep.getResourceByStructure()
             }
         }
     },
-    // 从建筑物里面获取资源
-    getResourceByStructure(creep) {
-        const sources = findResourceStructure(creep, rank);
-        // console.log()
-        if (creep.withdraw(sources[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources[0], showDash);
-        }
-    }
 };
 
 module.exports = upgrader;

@@ -1,4 +1,3 @@
-const roleHarvester = require('role.harvester');
 const roleUpgrader = require('role.upgrader');
 const roleBuilder = require('role.builder');
 const roleCarry = require('role.carry');
@@ -19,25 +18,21 @@ module.exports.loop = function () {
     for (var name in Game.creeps) {
         const creep = Game.creeps[name];
         const role = creep.memory.role;
-        if (role == 'harvester') {
-            i++;
-            roleHarvester.run(creep, i);
+        if (role == 'carry') {
+            roleCarry.run(creep, carry)
+            carry++
+        }
+        else if (role == 'harvester') {
+            roleOnlyHarvester.run(creep, work)
+            work++
         }
         else if (role == 'upgrader') {
-            // i++
-            // roleHarvester.run(creep,i);
             roleUpgrader.run(creep);
         }
         else if (role == 'builder') {
             roleBuilder.run(creep);
         }
-        else if (role == 'onlyHarvester') {
-            roleOnlyHarvester.run(creep, work)
-            work++
-        } else if (role == 'carry') {
-            roleCarry.run(creep, carry)
-            carry++
-        } else if (role == 'repair') {
+        else if (role == 'repair') {
             roleRepair.run(creep)
         }
     }

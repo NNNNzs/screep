@@ -3,12 +3,12 @@ const showDash = { visualizePathStyle: { stroke: '#ffaa00' } }
 const { findResourceStructure, findEmptyStructure } = require('tools')
 const creepExtension = {
   // 从建筑物里面拿出资源
-  getResourceByStructure(rank = [STRUCTURE_CONTAINER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]) {
+  getResourceByStructure(rank = [STRUCTURE_STORAGE, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]) {
     const sources = findResourceStructure(this, rank);
     this.self_withdraw(sources[0])
   },
   // 将资源送到建筑物
-  sendRourceToStructure(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER], flag) {
+  sendRourceToStructure(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_STORAGE]) {
     const sources = findEmptyStructure(this, rank) || []
     if (sources.length == 0) {
       return true;

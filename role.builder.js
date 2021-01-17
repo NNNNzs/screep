@@ -5,7 +5,7 @@ const roleBuilder = {
     },
     build(creep) {
         // 待建造的工地
-        var targets = roleBuilder.toBuildStructure(creep);
+        const targets = roleBuilder.toBuildStructure(creep);
         // 如果有带建造的
         if (targets.length) {
             if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {

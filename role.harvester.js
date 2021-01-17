@@ -1,5 +1,5 @@
 
-const { findEmptyStructure, findResourceTombstons } = require('tools')
+const { findEmptyStructure } = require('tools')
 // 采集者
 const showDash = { visualizePathStyle: { stroke: '#ffaa00' } }
 function findTarget(creep) {
