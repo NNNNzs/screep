@@ -44,10 +44,13 @@ const creepExtension = {
       return false;
     }
     const targets = this.room.find(FIND_STRUCTURES, {
-      filter: object => object.hits < object.hitsMax
+      // 不修墙
+      filter: object => object.hits < object.hitsMax && object.structureType!==STRUCTURE_WALL
     });
-    // 升序
-    targets.sort((a, b) => a.hits - b.hits);
+    // 根据当前剩余能量升序
+    // 更改为根据能量剩余的比例，原因是有些建筑一次性掉血过多
+    // targets.sort((a, b) => a.hits - b.hits);
+    targets.sort((a, b) => a.hits/a.hitsMax - b.hits/b.hits);
 
     if (targets.length > 0) {
       if (this.repair(targets[0]) == ERR_NOT_IN_RANGE) {

@@ -9,10 +9,6 @@ module.exports = {
       });
       if (sources.length > 0) {
         sources.sort((a,b)=>a.store.getFreeCapacity() - b.store.getFreeCapacity())
-        // let list = sources.map(e=>{
-        //   return e.store.getFreeCapacity()
-        // });
-        // console.log(JSON.stringify(list))
         return sources;
       } else {
         continue;
@@ -34,10 +30,6 @@ module.exports = {
         continue;
       }
     }
-  },
-  // 找到最近的建筑矿物
-  findSourceNear(){
-    
   },
   calcRange(p1,p2){
     // return Math

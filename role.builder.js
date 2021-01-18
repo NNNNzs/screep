@@ -1,6 +1,7 @@
 const roleUpgrader = require('role.upgrader')
 const roleBuilder = {
     toBuildStructure(creep) {
+        // return [Game.getObjectById('60044b08bf014f6c65306905')]
         return creep.room.find(FIND_CONSTRUCTION_SITES);
     },
     build(creep) {
@@ -34,7 +35,13 @@ const roleBuilder = {
             roleBuilder.build(creep)
         }
         else {
-            creep.getResourceByStructure();
+            try {
+                creep.getResourceByStructure();
+            }
+            catch (e){
+                // console.log(e)
+                creep.self_harvest(1)
+            }
         }
     }
 };

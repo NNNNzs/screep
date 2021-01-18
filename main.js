@@ -4,7 +4,8 @@ const roleCarry = require('role.carry');
 const roleOnlyHarvester = require('role.onlyHarvester')
 const roleRepair = require('role.repair')
 const autoCreate = require('auto.create')
-
+const tower = require('tower')
+const {stateScanner} = require('stateScanner')
 
 require('mount')()
 // console.log(JSON.stringify(mount))
@@ -12,6 +13,8 @@ require('mount')()
 module.exports.loop = function () {
     // const t = Game.time;
     autoCreate.run();
+    tower.run();
+    stateScanner();
     let i = 0;
     let work = 0;
     let carry = 0;

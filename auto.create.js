@@ -29,17 +29,17 @@ const creepsList = {
   harvester: {
     sum: 2,
     current: 0,
-    body: [MOVE, WORK, WORK, WORK, WORK, WORK, WORK,WORK,WORK]
+    body: [MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK,WORK,WORK]
   },
   carry: {
     sum: 4,
     current: 0,
-    body: [CARRY, CARRY,CARRY,CARRY,CARRY,CARRY,MOVE,MOVE,MOVE, MOVE, MOVE]
+    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE]
   },
   upgrader: {
     sum: 2,
     current: 0,
-    body: [CARRY, CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
+    body: [CARRY, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
   },
   builder: {
     sum: 3,
@@ -82,7 +82,7 @@ function createHarvester(index) {
     `harvester${index}`, {
     memory: { role: 'harvester' }
   });
-  console.log(code)
+  console.log('harvester ' + code)
 }
 
 function createUpgrader() {
@@ -184,13 +184,13 @@ module.exports.run = () => {
     createHarvester(harvesters.length)
   }
 
-  else if (repairs.length < 1) {
-    createRepair()
-  }
+  // else if (repairs.length < 1) {
+  //   createRepair()
+  // }
   else if (upgraders.length < 2) {
     createUpgrader()
   }
-  else if (builders.length < 1) {
+  else if (builders.length < 2) {
     createBuilder()
   }
 };
