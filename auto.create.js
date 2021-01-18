@@ -27,27 +27,34 @@ const sourceMap = {
 }
 const creepsList = {
   harvester: {
+    index: 0,
     sum: 2,
     current: 0,
-    body: [MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK,WORK,WORK]
+    createBeforeDied: 70,
+    body: [MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK]
   },
   carry: {
+    index: 1,
     sum: 4,
     current: 0,
+    createBeforeDied: 10,
     body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE]
   },
   upgrader: {
+    index: 2,
+    sum: 3,
+    current: 10,
+    body: [CARRY, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
+  },
+  builder: {
+    index: 3,
     sum: 2,
     current: 0,
     body: [CARRY, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
   },
-  builder: {
-    sum: 3,
-    current: 0,
-    body: [CARRY, CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
-  },
   repair: {
-    sum: 1,
+    index: 4,
+    sum: 0,
     current: 0,
     body: [CARRY, CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
   }
@@ -58,10 +65,11 @@ const getCost = (bodys) => {
     sum += sourceMap[part].cost
   })
   const room = Game.spawns['Spawn1'].room;
-  const str = `${room.energyAvailable}/${room.energyCapacityAvailable}but ${sum} move${calcMove(bodys)}`
+  const str = `${room.energyAvailable}/${room.energyCapacityAvailable}but ${sum} ${calcMove(bodys)}tick/move`
   console.log(str)
   return sum
 }
+
 // 计算移动力，返回值表示满载的情况下多少tick移动一个格子
 const calcMove = (bodys) => {
   let sum = 1;
@@ -76,6 +84,8 @@ const calcMove = (bodys) => {
 }
 
 getCost(creepsList.harvester.body)
+
+
 function createHarvester(index) {
   const body = creepsList.harvester.body;
   const code = Game.spawns['Spawn1'].spawnCreep(body,
@@ -114,14 +124,6 @@ function createCarry() {
   });
   console.log('createcarry' + code)
 }
-function createOnlyHarvester(index) {
-  const body = creepsList.harvester.body;
-  const code = Game.spawns['Spawn1'].spawnCreep(body,
-    `harvester${index}`, {
-    memory: { role: 'onlyHarvester' }
-  });
-  console.log(code)
-}
 function createRepair() {
   const code = Game.spawns['Spawn1'].spawnCreep([WORK, WORK, CARRY, CARRY, MOVE, MOVE],
     `repair`, {
@@ -140,57 +142,87 @@ function deleteCreepMemory() {
   }
 }
 
-function autoCreate(name, spawns = 'Spawn1') {
+function autoCreate(creepName, spawns = 'Spawn1') {
   // 拷贝一份
   let creepsMap = Object.assign({}, creepsList)
-  const body = creepsMap[name].body;
+  const body = creepsMap[creepName].body;
   const code = Game.spawns[spawns].spawnCreep(body,
-    `${name}${Game.time}`, {
-    memory: { role: 'repair' }
+    `${creepName}${Game.time.toString(16)}`, {
+    memory: { role: creepName }
   });
   const room = Game.spawns[spawns].room;
   // 能量不够
   if (code == -6) {
     const cost = getCost(body)
-    const str = `create ${name} fail ${room.energyAvailable}/${room.energyCapacityAvailable}but ${cost}`
+    const str = `create ${creepName} fail ${room.energyAvailable}/${room.energyCapacityAvailable}but ${cost}`
     console.log(str)
   }
 }
 
 
 module.exports.run = () => {
+  // let currentCreep = Object.assign({},creepsList)
+  let currentCreep = _.cloneDeep(creepsList)
 
-  // _.forEach(Game.creeps, creep => {
-  //   const role = creep.memory.role;
-  //   // console.log(role)
-  //   // creepsList[role].current++;
-  //   // creepsList[creep.memory.role].current++;
-  // })
-
-  const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
-  const carryers = _.filter(Game.creeps, (creep) => creep.memory.role == 'carry');
-  const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
-  const builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
-  const repairs = _.filter(Game.creeps, (creep) => creep.memory.role == 'repair');
+  // 计算当前场上 有多少个creep
+  _.forEach(Game.creeps, creep => {
+    const role = creep.memory.role;
+    // 如果有一个快死了，那么这个tick就立即创建
+    if(currentCreep[role].createBeforeDied && (creep.ticksToLive < currentCreep[role].createBeforeDied)){
+      currentCreep[role].createNow = true
+    }
+    // 场上的creep计数
+    currentCreep[role].current++;
+  })
+  // 按照队列里面来计数
+  // const ll = Object.keys(creepsList)
+  // console.log(JSON.stringify(ll))
+  Object.keys(creepsList).some(creepName => {
+    const role = currentCreep[creepName]
+    if (role.createNow) {
+      console.log(` shoud create now ${creepName}`)
+      autoCreate(creepName)
+      return true;
+    }
+    if (role.sum > role.current) {
+      // console.log('should create ' + creepName)
+      autoCreate(creepName)
+      return true;
+    } else {
+      return false;
+    }
+  });
 
   if (Game.time % 400 === 0) {
     deleteCreepMemory()
   }
-  // 收割者数量
-  if (carryers.length < 4) {
-    createCarry()
-  }
-  else if (harvesters.length < 2) {
-    createHarvester(harvesters.length)
-  }
 
-  // else if (repairs.length < 1) {
-  //   createRepair()
+  // console.log(JSON.stringify(currentCreep))
+
+  // const harvesters = _.filter(Game.creeps, (creep) => creep.memory.role == 'harvester');
+  // const carryers = _.filter(Game.creeps, (creep) => creep.memory.role == 'carry');
+  // const upgraders = _.filter(Game.creeps, (creep) => creep.memory.role == 'upgrader');
+  // const builders = _.filter(Game.creeps, (creep) => creep.memory.role == 'builder');
+  // const repairs = _.filter(Game.creeps, (creep) => creep.memory.role == 'repair');
+
+  // if (Game.time % 400 === 0) {
+  //   deleteCreepMemory()
   // }
-  else if (upgraders.length < 2) {
-    createUpgrader()
-  }
-  else if (builders.length < 2) {
-    createBuilder()
-  }
+  // // 收割者数量
+  // if (carryers.length < 4) {
+  //   createCarry()
+  // }
+  // else if (harvesters.length < 2) {
+  //   createHarvester(harvesters.length)
+  // }
+
+  // // else if (repairs.length < 1) {
+  // //   createRepair()
+  // // }
+  // else if (upgraders.length < 2) {
+  //   createUpgrader()
+  // }
+  // else if (builders.length < 2) {
+  //   createBuilder()
+  // }
 };

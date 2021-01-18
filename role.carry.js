@@ -13,24 +13,64 @@ const roleCarry = {
     if (freeCapacity == 0) {
       creep.memory.carring = true
     }
+    // 从坑位里面拿货
     if (freeCapacity > 0 && !creep.memory.carring) {
+
       // 目标
-      let sources = Game.getObjectById(pointes[index%Length].container)
+      let sources = Game.getObjectById(pointes[index % Length].container)
       // 当自己的坑位空了的时候，去别人的坑位
-      if(sources.store.getUsedCapacity()==0){
+      if (sources.store.getUsedCapacity() == 0) {
         index++
-        sources = Game.getObjectById(pointes[index%Length].container)
+        sources = Game.getObjectById(pointes[index % Length].container)
       }
-      else if(sources.store.getUsedCapacity()==0){
-        sources = Game.getObjectById('6003bf8942c7e2223662c971')
+      // FIND_TOMBSTONES
+      // 所有container空了
+      const isContainersEmtyp = creep.isStructureEmpty(pointes.map(e => Game.getObjectById(e.container)));
+      // 还有
+      const isSpawnEmpty = creep.room.find(FIND_STRUCTURES, {
+        filter: (s) => {
+          return (
+            [STRUCTURE_EXTENSION, STRUCTURE_SPAWN].includes(s.structureType) &&
+            s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+          )
+        }
+      });
+      // 有资源的墓碑
+      const tombstones = creep.room.find(FIND_TOMBSTONES, {
+        filter: (s) => s.store.getUsedCapacity() > 0
+      });
+
+      // 如果container空了，但是spaw和extension空着的，从storage里面拿
+      if (isContainersEmtyp && isSpawnEmpty.length > 0) {
+        creep.say('空啦')
+        sources = Game.getObjectById(tt)
       }
-      if (creep.withdraw(sources, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+
+      // 从墓碑获取
+      if (tombstones.length > 0) {
+        sources = tombstones[0]
+        for (const resourceType in sources.creep.carry) {
+          if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(target);
+          }
+        }
+      }
+      else if (creep.withdraw(sources, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
         creep.moveTo(sources);
       }
     } else {
-      // 填充能量
-      const isFull = creep.sendRourceToStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION,STRUCTURE_TOWER])
-      if (isFull) {
+      // 给建筑充能,存放资源
+      const isFull = creep.sendRourceToStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER])
+      const hasOtherSource = Object.keys(creep.carry).some(e => e != RESOURCE_ENERGY)
+
+      if (hasOtherSource) {
+        for (const resourceType in creep.carry) {
+          if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(target);
+          }
+        }
+      }
+      else if (isFull) {
         const target = Game.getObjectById(tt)
         if (creep.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
           creep.moveTo(target);

@@ -25,11 +25,15 @@ const creepExtension = {
       this.moveTo(sources[index % 2], showDash);
     }
   },
-  // 挖矿
+  // 转移资源
   self_withdraw(sources) {
     if (this.withdraw(sources, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
       this.moveTo(sources, showDash);
     }
+  },
+  // 建筑是否空了
+  isStructureEmpty(structures = []) {
+    return structures.every(s => s.store.getUsedCapacity() == 0)
   },
   // 修复建筑
   fixing() {
@@ -45,12 +49,12 @@ const creepExtension = {
     }
     const targets = this.room.find(FIND_STRUCTURES, {
       // 不修墙
-      filter: object => object.hits < object.hitsMax && object.structureType!==STRUCTURE_WALL
+      filter: object => object.hits < object.hitsMax && object.structureType !== STRUCTURE_WALL
     });
     // 根据当前剩余能量升序
     // 更改为根据能量剩余的比例，原因是有些建筑一次性掉血过多
     // targets.sort((a, b) => a.hits - b.hits);
-    targets.sort((a, b) => a.hits/a.hitsMax - b.hits/b.hits);
+    targets.sort((a, b) => a.hits / a.hitsMax - b.hits / b.hits);
 
     if (targets.length > 0) {
       if (this.repair(targets[0]) == ERR_NOT_IN_RANGE) {
