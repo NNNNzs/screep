@@ -16,7 +16,7 @@ module.exports = {
       // 攻击
       var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
       if (closestHostile) {
-        Game.notify('敌人出现在你的房间')
+        Game.notify(`敌人出现在你的房间${Game.time}`)
         tower.attack(closestHostile);
         // Game.ms
       }

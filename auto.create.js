@@ -30,7 +30,7 @@ const creepsList = {
     index: 0,
     sum: 2,
     current: 0,
-    createBeforeDied: 70,
+    createBeforeDied: 50,
     body: [MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK]
   },
   carry: {

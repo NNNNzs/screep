@@ -49,9 +49,9 @@ const roleCarry = {
       // 从墓碑获取
       if (tombstones.length > 0) {
         sources = tombstones[0]
-        for (const resourceType in sources.creep.carry) {
-          if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(target);
+        for (const resourceType in sources.store) {
+          if (creep.withdraw(sources, resourceType) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(sources);
           }
         }
       }

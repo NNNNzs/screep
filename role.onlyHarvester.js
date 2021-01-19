@@ -8,8 +8,8 @@ const pointes = [
 const onlyHarvester = {
   run(creep, index = 0) {
     // 挖矿 
-    const sources = Game.getObjectById(pointes[index].source);
-    const container = Game.getObjectById(pointes[index].container)
+    const sources = Game.getObjectById(pointes[index%2].source);
+    const container = Game.getObjectById(pointes[index%2].container)
     // 移动到这个点
     if (creep.pos.isEqualTo(container)) {
       if (container.store.getFreeCapacity() == 0) {
