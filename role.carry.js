@@ -64,6 +64,7 @@ const roleCarry = {
       const hasOtherSource = Object.keys(creep.carry).some(e => e != RESOURCE_ENERGY)
 
       if (hasOtherSource) {
+        const target = Game.getObjectById(tt)
         for (const resourceType in creep.carry) {
           if (creep.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
             creep.moveTo(target);
