@@ -30,28 +30,35 @@ const creepsList = {
     index: 0,
     sum: 2,
     current: 0,
-    createBeforeDied: 10,
-    body: [MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK]
+    createBeforeDied: 20,
+    body: [MOVE, MOVE, MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK]
   },
   carry: {
     index: 1,
-    sum: 4,
+    sum: 2,
     current: 0,
     createBeforeDied: 10,
-    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE]
+    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
+  },
+  work: {
+    index: 1,
+    sum: 1,
+    current: 0,
+    createBeforeDied: 10,
+    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
   },
   upgrader: {
     index: 2,
-    sum: 2,
+    sum: 0,
     current: 0,
-    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY,CARRY, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
+    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
   },
   builder: {
     index: 3,
-    sum: 2,
+    sum: 1,
     current: 0,
     createBeforeDied: 10,
-    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY,CARRY, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE,MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
+    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
   },
   repair: {
     index: 4,
@@ -60,6 +67,30 @@ const creepsList = {
     body: [CARRY, CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
   }
 }
+
+// const data = {
+//   [CARRY]:3,
+//   [WORK]:3
+// }
+
+const createBody = (data = {}) => {
+  let bodys = [];
+  Object.keys(data).forEach(ele => {
+    let n = 0;
+    while (n < data[ele]) {
+      bodys.push(ele)
+      n++
+    }
+  })
+  return bodys;
+}
+// const bbb = createBody({
+//   [CARRY]: 9,
+//   [WORK]: 6,
+//   [MOVE]: 14
+// });
+// console.log(bbb);
+
 const getCost = (bodys) => {
   let sum = 0;
   _.forEach(bodys, (part) => {

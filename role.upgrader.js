@@ -1,5 +1,4 @@
 const showDash = { visualizePathStyle: { stroke: '#fffff' } }
-const { findResourceStructure } = require('tools');
 const rank = [STRUCTURE_CONTAINER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN];
 const upgrader = {
     run: function (creep) {

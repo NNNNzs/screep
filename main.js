@@ -6,6 +6,7 @@ const roleRepair = require('role.repair')
 const autoCreate = require('auto.create')
 const tower = require('tower')
 const { stateScanner } = require('stateScanner')
+const roleWork = require('role.harvester')
 
 require('mount')()
 // console.log(JSON.stringify(mount))
@@ -39,6 +40,9 @@ module.exports.loop = function () {
         }
         else if (role == 'repair') {
             roleRepair.run(creep)
+        }
+        else if (role === 'work') {
+            roleWork.run(creep)
         }
     }
 }
