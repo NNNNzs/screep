@@ -5,6 +5,7 @@ const stroage = Game.getObjectById('6003bf8942c7e2223662c971');
 
 const roleHarvester = {
     run: function (creep) {
+        // resource.store
         // 剩余存储空间大于0
         if (creep.store.getFreeCapacity() > 0) {
             // 挖矿

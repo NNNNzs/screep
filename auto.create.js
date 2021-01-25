@@ -25,54 +25,6 @@ const sourceMap = {
     cost: 10
   }
 }
-const creepsList = {
-  harvester: {
-    index: 0,
-    sum: 2,
-    current: 0,
-    createBeforeDied: 20,
-    body: [MOVE, MOVE, MOVE, MOVE, MOVE, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK, WORK]
-  },
-  carry: {
-    index: 1,
-    sum: 2,
-    current: 0,
-    createBeforeDied: 10,
-    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
-  },
-  work: {
-    index: 1,
-    sum: 1,
-    current: 0,
-    createBeforeDied: 10,
-    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
-  },
-  upgrader: {
-    index: 2,
-    sum: 0,
-    current: 0,
-    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
-  },
-  builder: {
-    index: 3,
-    sum: 1,
-    current: 0,
-    createBeforeDied: 10,
-    body: [CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, CARRY, WORK, WORK, WORK, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE, MOVE]
-  },
-  repair: {
-    index: 4,
-    sum: 0,
-    current: 0,
-    body: [CARRY, CARRY, CARRY, WORK, WORK, WORK, MOVE, MOVE, MOVE, MOVE, MOVE]
-  }
-}
-
-// const data = {
-//   [CARRY]:3,
-//   [WORK]:3
-// }
-
 const createBody = (data = {}) => {
   let bodys = [];
   Object.keys(data).forEach(ele => {
@@ -84,12 +36,74 @@ const createBody = (data = {}) => {
   })
   return bodys;
 }
-// const bbb = createBody({
-//   [CARRY]: 9,
-//   [WORK]: 6,
-//   [MOVE]: 14
-// });
-// console.log(bbb);
+const creepsList = {
+  carry: {
+    index: 1,
+    sum: 4,
+    current: 0,
+    createBeforeDied: 10,
+    body: createBody({
+      [CARRY]: 10,
+      [MOVE]: 9
+    })
+  },
+  harvester: {
+    index: 0,
+    sum: 2,
+    current: 0,
+    createBeforeDied: 20,
+    body: createBody({
+      [MOVE]: 8,
+      [WORK]: 8,
+      [CARRY]: 2,
+    })
+  },
+  work: {
+    index: 1,
+    sum: 1,
+    current: 0,
+    createBeforeDied: 10,
+    body: createBody({
+      [CARRY]: 6,
+      [WORK]: 5,
+      [MOVE]: 13
+    })
+  },
+  upgrader: {
+    index: 2,
+    sum: 1,
+    current: 0,
+    body: createBody({
+      [CARRY]: 8,
+      [WORK]: 6,
+      [MOVE]: 13
+    })
+  },
+  builder: {
+    index: 3,
+    sum: 1,
+    current: 0,
+    createBeforeDied: 10,
+    body: createBody({
+      [CARRY]: 8,
+      [WORK]: 6,
+      [MOVE]: 13
+    })
+  },
+  repair: {
+    index: 4,
+    sum: 0,
+    current: 0,
+    body: createBody({
+      [CARRY]: 8,
+      [WORK]: 6,
+      [MOVE]: 13
+    })
+  }
+}
+
+
+
 
 const getCost = (bodys) => {
   let sum = 0;
@@ -101,6 +115,7 @@ const getCost = (bodys) => {
   console.log(str)
   return sum
 }
+
 
 // 计算移动力，返回值表示满载的情况下多少tick移动一个格子
 const calcMove = (bodys) => {
@@ -115,9 +130,6 @@ const calcMove = (bodys) => {
   return sum;
 }
 
-getCost(creepsList.upgrader.body)
-
-
 function deleteCreepMemory() {
   for (var name in Memory.creeps) {
     if (!Game.creeps[name]) {
@@ -126,13 +138,32 @@ function deleteCreepMemory() {
   }
 }
 
-function autoCreate(creepName, spawns = 'Spawn1') {
+function autoCreate(creepName, spawns = 'Spawn1', autoIndex = -1) {
   // 拷贝一份
   let creepsMap = Object.assign({}, creepsList)
   const body = creepsMap[creepName].body;
+  const sum = creepsMap[creepName].sum;
+
+  // todo 自动编号
+  if (autoIndex === -1) {
+    // 当前存货的工人，他们的自增索引
+    // const autoIndexs = Object.keys(Memory.creeps).filter(name => Memory.creeps[name].role === creepName).map(name=>Memory.creeps[name].autoIndex).filter(e=>e);
+    // autoIndexs.sort();
+
+    // 需要创建的索引
+    // const sumIndexs = new Array(sum).fill('').map((ele,index)=>index);
+
+    // console.log(autoIndexs)
+    // autoIndex = creepsMap[creepName].
+
+    // console.log(creeps)
+    // while(autoIndex<sum)
+  }
+
+
   const code = Game.spawns[spawns].spawnCreep(body,
     `${creepName}${Game.time.toString(16)}`, {
-    memory: { role: creepName }
+    memory: { role: creepName, autoIndex }
   });
   const room = Game.spawns[spawns].room;
   // 能量不够
@@ -143,11 +174,11 @@ function autoCreate(creepName, spawns = 'Spawn1') {
   } else {
     console.log(code)
   }
+  deleteCreepMemory()
 }
 
 
 module.exports.run = () => {
-  // let currentCreep = Object.assign({},creepsList)
   let currentCreep = _.cloneDeep(creepsList)
 
   // 计算当前场上 有多少个creep
@@ -160,9 +191,7 @@ module.exports.run = () => {
     // 场上的creep计数
     currentCreep[role].current++;
   })
-  // 按照队列里面来计数
-  // const ll = Object.keys(creepsList)
-  // console.log(JSON.stringify(ll))
+
   Object.keys(creepsList).some(creepName => {
     const role = currentCreep[creepName]
     if (role.createNow) {

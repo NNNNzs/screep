@@ -2,7 +2,9 @@
 const pointes = [
   { source: '5bbcabec9099fc012e634837', container: '6004f9ce3f6e2c29a1dd9325' },
   { source: '5bbcabec9099fc012e634838', container: '6004ff8ff9b4b3c6f2c61684' },
+  // { source: '5bbcabec9099fc012e634838', container: '600c45f146267590a0dc3aeb' },
 ]
+// 600c45f146267590a0dc3aeb
 const tt = '6003bf8942c7e2223662c971'
 const roleCarry = {
   run: function (creep, index = 0) {
@@ -55,9 +57,16 @@ const roleCarry = {
           }
         }
       }
-      else if (creep.withdraw(sources, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(sources);
+      else{
+        for (const resourceType in sources.store) {
+          if (creep.withdraw(sources, resourceType) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(sources);
+          }
+        }
       }
+      // else if (creep.withdraw(sources, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+      //   creep.moveTo(sources);
+      // }
     } else {
       // 给建筑充能,存放资源
       const isFull = creep.sendRourceToStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER])
