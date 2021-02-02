@@ -1,7 +1,7 @@
 // const { findResourceStructure, findEmptyStructure } = require('tools')
 const pointes = [
-  { source: '5bbcabec9099fc012e634837', container: '6004f9ce3f6e2c29a1dd9325' },
-  { source: '5bbcabec9099fc012e634838', container: '6004ff8ff9b4b3c6f2c61684' },
+  { source: '5bbcab9b9099fc012e633f27', container: '6016384c77f12f38ec1b14a5' },
+  { source: '5bbcabec9099fc012e634838', container: '601658b66776c85cf0df8f2b' },
   // { source: '5bbcabec9099fc012e634838', container: '600c45f146267590a0dc3aeb' },
 ]
 // 600c45f146267590a0dc3aeb
@@ -45,7 +45,7 @@ const roleCarry = {
       // 如果container空了，但是spaw和extension空着的，从storage里面拿
       if (isContainersEmtyp && isSpawnEmpty.length > 0) {
         creep.say('空啦')
-        sources = Game.getObjectById(tt)
+        // sources = Game.getObjectById(tt)
       }
 
       // 从墓碑获取

@@ -1,5 +1,5 @@
 // var tower = Game.getObjectById('');
-const tower = ['6001fb3902531a28552a968f', '6007a3793f8fea560b1a11a1'].map(id => Game.getObjectById(id))
+const tower = [].map(id => Game.getObjectById(id))
 
 module.exports = {
   run() {
@@ -18,8 +18,8 @@ module.exports = {
 
       // 攻击
       if (closestHostile) {
-        Game.notify(`敌人出现在你的房间${Game.time}`)
-        console.log(`敌人出现在你的房间${Game.time}`)
+        // Game.notify(`敌人出现在你的房间${Game.time}`)
+        // console.log(`敌人出现在你的房间${Game.time}`)
         tower.forEach(t => t.attack(closestHostile))
       }
     }

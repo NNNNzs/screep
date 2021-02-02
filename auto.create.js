@@ -39,65 +39,65 @@ const createBody = (data = {}) => {
 const creepsList = {
   carry: {
     index: 1,
-    sum: 4,
+    sum: 2,
     current: 0,
     createBeforeDied: 10,
     body: createBody({
-      [CARRY]: 10,
-      [MOVE]: 9
+      [CARRY]: 2,
+      [MOVE]: 2
     })
   },
   harvester: {
     index: 0,
     sum: 2,
     current: 0,
-    createBeforeDied: 20,
+    createBeforeDied: 0,
     body: createBody({
-      [MOVE]: 8,
-      [WORK]: 8,
-      [CARRY]: 2,
+      [MOVE]: 2,
+      [WORK]: 4,
+      [CARRY]: 0,
     })
   },
   work: {
     index: 1,
-    sum: 1,
+    sum: 0,
     current: 0,
     createBeforeDied: 10,
     body: createBody({
-      [CARRY]: 6,
-      [WORK]: 5,
-      [MOVE]: 13
+      [CARRY]: 2,
+      [WORK]: 1,
+      [MOVE]: 2
     })
   },
   upgrader: {
     index: 2,
-    sum: 1,
+    sum: 3,
     current: 0,
     body: createBody({
-      [CARRY]: 8,
-      [WORK]: 6,
-      [MOVE]: 13
+      [CARRY]: 4,
+      [WORK]: 2,
+      [MOVE]: 5
     })
   },
   builder: {
     index: 3,
-    sum: 1,
+    sum: 3,
     current: 0,
     createBeforeDied: 10,
     body: createBody({
-      [CARRY]: 8,
-      [WORK]: 6,
-      [MOVE]: 13
+      [CARRY]: 2,
+      [WORK]: 2,
+      [MOVE]: 3
     })
   },
   repair: {
     index: 4,
-    sum: 0,
+    sum: 1,
     current: 0,
     body: createBody({
-      [CARRY]: 8,
-      [WORK]: 6,
-      [MOVE]: 13
+      [CARRY]: 1,
+      [WORK]: 1,
+      [MOVE]: 2
     })
   }
 }
@@ -138,7 +138,7 @@ function deleteCreepMemory() {
   }
 }
 
-function autoCreate(creepName, spawns = 'Spawn1', autoIndex = -1) {
+function autoCreate(creepName, autoIndex = -1, spawns = 'Spawn1',) {
   // 拷贝一份
   let creepsMap = Object.assign({}, creepsList)
   const body = creepsMap[creepName].body;
@@ -146,6 +146,7 @@ function autoCreate(creepName, spawns = 'Spawn1', autoIndex = -1) {
 
   // todo 自动编号
   if (autoIndex === -1) {
+    autoIndex = Object.keys(Memory.creeps).filter(name => Memory.creeps[name].role === creepName).length;
     // 当前存货的工人，他们的自增索引
     // const autoIndexs = Object.keys(Memory.creeps).filter(name => Memory.creeps[name].role === creepName).map(name=>Memory.creeps[name].autoIndex).filter(e=>e);
     // autoIndexs.sort();
@@ -186,7 +187,7 @@ module.exports.run = () => {
     const role = creep.memory.role;
     // 如果有一个快死了，那么这个tick就立即创建
     if (currentCreep[role].createBeforeDied && (creep.ticksToLive < currentCreep[role].createBeforeDied)) {
-      currentCreep[role].createNow = true
+      currentCreep[role].createNow = creep.memory.autoIndex
     }
     // 场上的creep计数
     currentCreep[role].current++;
@@ -196,7 +197,7 @@ module.exports.run = () => {
     const role = currentCreep[creepName]
     if (role.createNow) {
       console.log(` shoud create ${creepName} now`)
-      autoCreate(creepName)
+      autoCreate(creepName,role.createNow)
       return true;
     }
     if (role.sum > role.current) {
