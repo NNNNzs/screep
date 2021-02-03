@@ -1,11 +1,11 @@
 // const { findResourceStructure, findEmptyStructure } = require('tools')
 const pointes = [
-  { source: '5bbcab9b9099fc012e633f27', container: '6016384c77f12f38ec1b14a5' },
-  { source: '5bbcabec9099fc012e634838', container: '601658b66776c85cf0df8f2b' },
+  { source: '5bbcab9b9099fc012e633f27', container: '601ab37d84c3c11bf26dd607' },
+  { source: '5bbcabec9099fc012e634838', container: '601ab97484c3c14f2f6dd7bd' },
   // { source: '5bbcabec9099fc012e634838', container: '600c45f146267590a0dc3aeb' },
 ]
 // 600c45f146267590a0dc3aeb
-const tt = '6003bf8942c7e2223662c971'
+const tt = '60199445a8628c34e4c3bc81'
 const roleCarry = {
   run: function (creep, index = 0) {
     const Length = pointes.length
@@ -45,7 +45,7 @@ const roleCarry = {
       // 如果container空了，但是spaw和extension空着的，从storage里面拿
       if (isContainersEmtyp && isSpawnEmpty.length > 0) {
         creep.say('空啦')
-        // sources = Game.getObjectById(tt)
+        sources = Game.getObjectById(tt)
       }
 
       // 从墓碑获取
@@ -71,7 +71,7 @@ const roleCarry = {
       // 给建筑充能,存放资源
       const isFull = creep.sendRourceToStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER])
       const hasOtherSource = Object.keys(creep.carry).some(e => e != RESOURCE_ENERGY)
-
+      // console.log(isFull)
       if (hasOtherSource) {
         const target = Game.getObjectById(tt)
         for (const resourceType in creep.carry) {

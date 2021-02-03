@@ -1,11 +1,10 @@
 // var tower = Game.getObjectById('');
-const tower = [].map(id => Game.getObjectById(id))
+const tower = ['60179752f2e11f0cc6d7c97c'].map(id => Game.getObjectById(id))
 
 module.exports = {
   run() {
     if (tower) {
       // 待修复的建筑
-
       const closestDamagedStructure = tower[0].pos.findClosestByRange(FIND_STRUCTURES, {
         filter: (structure) => structure.hits + 200 < structure.hitsMax && structure.structureType !== STRUCTURE_WALL
       })

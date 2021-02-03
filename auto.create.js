@@ -38,23 +38,23 @@ const createBody = (data = {}) => {
 }
 const creepsList = {
   carry: {
-    index: 1,
-    sum: 2,
+    index: 0,
+    sum: 3,
     current: 0,
-    createBeforeDied: 10,
+    createBeforeDied: 40,
     body: createBody({
-      [CARRY]: 2,
-      [MOVE]: 2
+      [CARRY]: 12,
+      [MOVE]: 11
     })
   },
   harvester: {
     index: 0,
     sum: 2,
     current: 0,
-    createBeforeDied: 0,
+    createBeforeDied: 30,
     body: createBody({
-      [MOVE]: 2,
-      [WORK]: 4,
+      [MOVE]: 7,
+      [WORK]: 8,
       [CARRY]: 0,
     })
   },
@@ -64,35 +64,36 @@ const creepsList = {
     current: 0,
     createBeforeDied: 10,
     body: createBody({
-      [CARRY]: 2,
-      [WORK]: 1,
-      [MOVE]: 2
-    })
-  },
-  upgrader: {
-    index: 2,
-    sum: 3,
-    current: 0,
-    body: createBody({
-      [CARRY]: 4,
-      [WORK]: 2,
-      [MOVE]: 5
+      [CARRY]: 3,
+      [WORK]: 3,
+      [MOVE]: 6
     })
   },
   builder: {
     index: 3,
-    sum: 3,
+    sum: 2,
     current: 0,
     createBeforeDied: 10,
     body: createBody({
-      [CARRY]: 2,
-      [WORK]: 2,
-      [MOVE]: 3
+      [CARRY]: 4,
+      [WORK]: 4,
+      [MOVE]: 8
+    })
+  },
+  upgrader: {
+    index: 2,
+    sum: 2,
+    current: 0,
+    createBeforeDied: 10,
+    body: createBody({
+      [CARRY]: 4,
+      [WORK]: 4,
+      [MOVE]: 8
     })
   },
   repair: {
     index: 4,
-    sum: 1,
+    sum: 0,
     current: 0,
     body: createBody({
       [CARRY]: 1,
@@ -146,19 +147,14 @@ function autoCreate(creepName, autoIndex = -1, spawns = 'Spawn1',) {
 
   // todo 自动编号
   if (autoIndex === -1) {
-    autoIndex = Object.keys(Memory.creeps).filter(name => Memory.creeps[name].role === creepName).length;
-    // 当前存货的工人，他们的自增索引
-    // const autoIndexs = Object.keys(Memory.creeps).filter(name => Memory.creeps[name].role === creepName).map(name=>Memory.creeps[name].autoIndex).filter(e=>e);
-    // autoIndexs.sort();
+    // 还活着的的名单
+    const liveList = Object.keys(Memory.creeps).filter(name => Memory.creeps[name].role === creepName).map(creep => Memory.creeps[creep].autoIndex)
 
-    // 需要创建的索引
-    // const sumIndexs = new Array(sum).fill('').map((ele,index)=>index);
+    // 求第一个不连续的数
+    const sumList = Array.from({ length: sum }).map((e, index) => index);
 
-    // console.log(autoIndexs)
-    // autoIndex = creepsMap[creepName].
+    autoIndex = sumList.find(index => !liveList.includes(index))
 
-    // console.log(creeps)
-    // while(autoIndex<sum)
   }
 
 
@@ -173,7 +169,7 @@ function autoCreate(creepName, autoIndex = -1, spawns = 'Spawn1',) {
     const str = `create ${creepName} fail ${room.energyAvailable}/${room.energyCapacityAvailable}but ${cost}`
     console.log(str)
   } else {
-    console.log(code)
+    // console.log(code)
   }
   deleteCreepMemory()
 }
@@ -195,13 +191,17 @@ module.exports.run = () => {
 
   Object.keys(creepsList).some(creepName => {
     const role = currentCreep[creepName]
-    if (role.createNow) {
-      console.log(` shoud create ${creepName} now`)
-      autoCreate(creepName,role.createNow)
+    // 是否超生
+    const beyondSum = role.current + 1 > role.sum
+    // 立即创建
+    if (!beyondSum && (role.createNow || role.createNow === 0)) {
+      // console.log(` shoud create ${creepName} now`)
+      autoCreate(creepName, role.createNow)
       return true;
     }
+    // 死亡创建，阻塞创建
     if (role.sum > role.current) {
-      console.log('should create ' + creepName)
+      // console.log('should create ' + creepName)
       autoCreate(creepName)
       return true;
     } else {

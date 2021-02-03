@@ -15,7 +15,7 @@ module.exports.loop = function () {
     // return false;
     // const t = Game.time;
     autoCreate.run();
-    // tower.run();
+    tower.run();
     // stateScanner();
     let i = 0;
     let work = 0;
