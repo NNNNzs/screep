@@ -1,5 +1,5 @@
 // var tower = Game.getObjectById('');
-const tower = ['60179752f2e11f0cc6d7c97c'].map(id => Game.getObjectById(id))
+const tower = ['60179752f2e11f0cc6d7c97c','601cd2276d64f166f9193280'].map(id => Game.getObjectById(id))
 
 module.exports = {
   run() {

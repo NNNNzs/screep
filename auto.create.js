@@ -39,45 +39,46 @@ const createBody = (data = {}) => {
 const creepsList = {
   carry: {
     index: 0,
-    sum: 3,
+    sum: 2,
     current: 0,
-    createBeforeDied: 40,
+    createBeforeDied: 20,
     body: createBody({
-      [CARRY]: 12,
-      [MOVE]: 11
+      [CARRY]: 18,
+      [MOVE]: 17
     })
   },
   harvester: {
     index: 0,
     sum: 2,
     current: 0,
-    createBeforeDied: 30,
+    createBeforeDied: 20,
     body: createBody({
-      [MOVE]: 7,
-      [WORK]: 8,
+      [MOVE]: 8,
+      [WORK]: 9,
       [CARRY]: 0,
     })
   },
   work: {
     index: 1,
-    sum: 0,
-    current: 0,
-    createBeforeDied: 10,
-    body: createBody({
-      [CARRY]: 3,
-      [WORK]: 3,
-      [MOVE]: 6
-    })
-  },
-  builder: {
-    index: 3,
-    sum: 2,
+    sum: 1,
     current: 0,
     createBeforeDied: 10,
     body: createBody({
       [CARRY]: 4,
       [WORK]: 4,
-      [MOVE]: 8
+      [MOVE]: 8,
+      [HEAL]:2,
+    })
+  },
+  builder: {
+    index: 3,
+    sum: 1,
+    current: 0,
+    createBeforeDied: 10,
+    body: createBody({
+      [CARRY]: 4,
+      [WORK]: 4,
+      [MOVE]: 8,
     })
   },
   upgrader: {
@@ -89,6 +90,23 @@ const creepsList = {
       [CARRY]: 4,
       [WORK]: 4,
       [MOVE]: 8
+    })
+  },
+  soldier:{
+    sum:0,
+    current: 0,
+    body:createBody({
+      [ATTACK]:9,
+      [HEAL]:2,
+      [MOVE]:11,
+    })
+  },
+  doctor:{
+    sum:0,
+    current: 0,
+    body:createBody({
+      [HEAL]:5,
+      [MOVE]:5,
     })
   },
   repair: {
@@ -194,14 +212,12 @@ module.exports.run = () => {
     // 是否超生
     const beyondSum = role.current + 1 > role.sum
     // 立即创建
-    if (!beyondSum && (role.createNow || role.createNow === 0)) {
-      // console.log(` shoud create ${creepName} now`)
+    if (!beyondSum && (role.createNow>=0)) {
       autoCreate(creepName, role.createNow)
       return true;
     }
     // 死亡创建，阻塞创建
     if (role.sum > role.current) {
-      // console.log('should create ' + creepName)
       autoCreate(creepName)
       return true;
     } else {
@@ -212,4 +228,14 @@ module.exports.run = () => {
   if (Game.time % 400 === 0) {
     deleteCreepMemory()
   }
+  // renew逻辑
+  Object.keys(Game.spawns).forEach(s=>{
+    const spawn =  Game.spawns[s]
+    const creeps = spawn.pos.findInRange(FIND_MY_CREEPS,1).filter(creeps=>creeps.ticksToLive<1000);
+    if(creeps.length>0){
+      const creep = creeps[0]
+      const code = spawn.renewCreep(creep);
+      creep.say(creep.ticksToLive)
+    }
+  })
 };

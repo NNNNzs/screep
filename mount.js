@@ -3,12 +3,47 @@ const showDash = { visualizePathStyle: { stroke: '#ffaa00' } }
 const { findResourceStructure, findEmptyStructure } = require('tools')
 const creepExtension = {
   // 从建筑物里面拿出资源
-  getResourceByStructure(rank = [STRUCTURE_STORAGE,STRUCTURE_CONTAINER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]) {
+  getResourceByStructure(rank = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]) {
     const sources = findResourceStructure(this, rank);
     this.self_withdraw(sources[0])
   },
+  // 找到最近的建筑物
+  findClosestBatch(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER, STRUCTURE_STORAGE]) {
+    let res = false;
+
+    let flag = rank.some(structureType => {
+      const targets = this.room.find(FIND_STRUCTURES, {
+        filter: s => s.structureType === structureType && s.store.getFreeCapacity() > 0
+      })
+      if (targets.length > 0) {
+        res = this.pos.findClosestByPath(targets);
+        return true;
+      }
+    });
+    return res;
+  },
+  // 把资源送到存储仓库
+  sendSourceToSroage() {
+    if (!Memory.storage) {
+      const structureSotrage = this.room.find(FIND_STRUCTURES, {
+        filter: s => s.structureType === STRUCTURE_STORAGE
+      })
+      Memory.storage = structureSotrage[0].id;
+    }
+    const id = Memory.storage;
+    const target = Game.getObjectById(id)
+    for (const resourceType in this.carry) {
+      if (this.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
+        this.moveTo(target);
+      }
+    }
+  },
+  sendSourceToLink(){
+    
+  },
+
   // 将资源送到建筑物
-  sendRourceToStructure(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER,STRUCTURE_STORAGE]) {
+  sendRourceToStructure(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER, STRUCTURE_STORAGE]) {
     const sources = findEmptyStructure(this, rank) || []
     if (sources.length == 0) {
       return true;

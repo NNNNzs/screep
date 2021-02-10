@@ -1,4 +1,3 @@
-// const { findResourceStructure, findEmptyStructure } = require('tools')
 const pointes = [
   { source: '5bbcab9b9099fc012e633f27', container: '601ab37d84c3c11bf26dd607' },
   { source: '5bbcabec9099fc012e634838', container: '601ab97484c3c14f2f6dd7bd' },
@@ -57,11 +56,9 @@ const roleCarry = {
           }
         }
       }
-      else{
-        for (const resourceType in sources.store) {
-          if (creep.withdraw(sources, resourceType) == ERR_NOT_IN_RANGE) {
-            creep.moveTo(sources);
-          }
+      else {
+        if (creep.withdraw(sources, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(sources);
         }
       }
       // else if (creep.withdraw(sources, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
@@ -70,8 +67,9 @@ const roleCarry = {
     } else {
       // 给建筑充能,存放资源
       const isFull = creep.sendRourceToStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER])
+      
       const hasOtherSource = Object.keys(creep.carry).some(e => e != RESOURCE_ENERGY)
-      // console.log(isFull)
+
       if (hasOtherSource) {
         const target = Game.getObjectById(tt)
         for (const resourceType in creep.carry) {
@@ -86,11 +84,19 @@ const roleCarry = {
           creep.moveTo(target);
         }
       }
+
+
       // 如果可用能量空了，则去挖矿
       if (creep.store.getUsedCapacity() == 0) {
         creep.memory.carring = false
       }
     }
+
+    // try {
+    //   const sdsd = creep.findClosestBatch([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_STORAGE]);
+    // } catch (error) {
+    //   console.log(error)
+    // }
 
   },
 };

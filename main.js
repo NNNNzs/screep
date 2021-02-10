@@ -6,6 +6,7 @@ const roleRepair = require('role.repair')
 const autoCreate = require('auto.create')
 const roleWork = require('role.work')
 const tower = require('tower')
+const soldier = require('role.soldier')
 const { stateScanner } = require('stateScanner')
 
 require('mount')()
@@ -17,13 +18,15 @@ module.exports.loop = function () {
     autoCreate.run();
     tower.run();
     // stateScanner();
+
     let i = 0;
     let work = 0;
     let carry = 0;
     for (const name in Game.creeps) {
         const creep = Game.creeps[name];
-        const ticksToLive = creep.ticksToLive
-        creep.say(`${ticksToLive}`)
+        // const ticksToLive = creep.memory.autoIndex
+        // creep.say(`${ticksToLive}`)
+
         const role = creep.memory.role;
         if (role == 'carry') {
             roleCarry.run(creep, carry)
@@ -45,6 +48,8 @@ module.exports.loop = function () {
         else if (role === 'work') {
             roleWork.run(creep,i)
             i++
+        }else if(role==='soldier'){
+            soldier.run(creep)
         }
     }
 }
