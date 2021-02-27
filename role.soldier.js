@@ -9,6 +9,8 @@ module.exports = {
     
   },
   run(creep) {
+    // const target = creep.pos.findClosestByRange(FIND_HOST);
+
     const target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
     if (!target) {
       creep.moveTo(downRoom);
@@ -20,7 +22,7 @@ module.exports = {
     }
     // 自我治疗
     const healNumber = creep.getActiveBodyparts(HEAL) * 12;
-    const lowHits = creep.hits + healNumber < creep.hitsMax;
+    const lowHits = creep.hits + healNumber +120 < creep.hitsMax;
     if (lowHits) {
       creep.heal(creep)
     }

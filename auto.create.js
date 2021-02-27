@@ -76,29 +76,30 @@ const creepsList = {
     current: 0,
     createBeforeDied: 10,
     body: createBody({
-      [CARRY]: 4,
-      [WORK]: 4,
-      [MOVE]: 8,
+      [CARRY]: 12,
+      [WORK]: 12,
+      [MOVE]: 24,
     })
   },
   upgrader: {
-    index: 2,
+    index: 4,
     sum: 2,
     current: 0,
     createBeforeDied: 10,
     body: createBody({
-      [CARRY]: 4,
-      [WORK]: 4,
-      [MOVE]: 8
+      [CARRY]: 12,
+      [WORK]: 12,
+      [MOVE]: 24
     })
   },
   soldier:{
     sum:0,
     current: 0,
     body:createBody({
-      [ATTACK]:9,
-      [HEAL]:2,
-      [MOVE]:11,
+      [ATTACK]:11,
+      [HEAL]:11,
+      [MOVE]:24,
+      [TOUGH]:2
     })
   },
   doctor:{
@@ -134,7 +135,7 @@ const getCost = (bodys) => {
   console.log(str)
   return sum
 }
-
+module.exports.getCost = getCost;
 
 // 计算移动力，返回值表示满载的情况下多少tick移动一个格子
 const calcMove = (bodys) => {

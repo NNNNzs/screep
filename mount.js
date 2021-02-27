@@ -1,7 +1,10 @@
 
 const showDash = { visualizePathStyle: { stroke: '#ffaa00' } }
 const { findResourceStructure, findEmptyStructure } = require('tools')
+const { getCost } = require('auto.create')
 const creepExtension = {
+  //计算消耗
+  getCost: getCost,
   // 从建筑物里面拿出资源
   getResourceByStructure(rank = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]) {
     const sources = findResourceStructure(this, rank);
@@ -38,8 +41,8 @@ const creepExtension = {
       }
     }
   },
-  sendSourceToLink(){
-    
+  sendSourceToLink() {
+
   },
 
   // 将资源送到建筑物
@@ -66,9 +69,14 @@ const creepExtension = {
       this.moveTo(sources, showDash);
     }
   },
-  // 建筑是否空了
+  // 当前房间是否全都空的
   isStructureEmpty(structures = []) {
     return structures.every(s => s.store.getUsedCapacity() == 0)
+  },
+  // 建筑是否满了
+  isStructureFull(structures = []){
+    // return structures.every(s => s.store.getFreeCapacity() == 0)
+    return false;
   },
   // 修复建筑
   fixing() {

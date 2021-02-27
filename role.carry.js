@@ -14,6 +14,7 @@ const roleCarry = {
     if (freeCapacity == 0) {
       creep.memory.carring = true
     }
+
     // 从坑位里面拿货
     if (freeCapacity > 0 && !creep.memory.carring) {
 
@@ -61,12 +62,12 @@ const roleCarry = {
           creep.moveTo(sources);
         }
       }
-      // else if (creep.withdraw(sources, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-      //   creep.moveTo(sources);
-      // }
     } else {
+      const isFu = creep.isStructureFull([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER]);
+      // console.log(isFu)
       // 给建筑充能,存放资源
       const isFull = creep.sendRourceToStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER])
+
       
       const hasOtherSource = Object.keys(creep.carry).some(e => e != RESOURCE_ENERGY)
 

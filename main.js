@@ -8,15 +8,20 @@ const roleWork = require('role.work')
 const tower = require('tower')
 const soldier = require('role.soldier')
 const { stateScanner } = require('stateScanner')
+const market = require('market')
 
 require('mount')()
 // console.log(JSON.stringify(mount))
 
 module.exports.loop = function () {
+    const t = Game.time;
     // return false;
     // const t = Game.time;
     autoCreate.run();
     tower.run();
+    if(t%3===0){
+        market.run();
+    }
     // stateScanner();
 
     let i = 0;
