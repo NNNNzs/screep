@@ -24,6 +24,7 @@ const roleHarvester = {
             creep.memory.harvest = false;
         }
         if (!creep.memory.harvest) {
+            // creep.self_harvest(0);
             const minerals = creep.room.find(FIND_MINERALS, {
                 filter: m => m.mineralAmount > 0
             });
@@ -36,6 +37,7 @@ const roleHarvester = {
         }
         else {
             creep.sendSourceToSroage()
+            // creep.sendRourceToStructure();
         }
     }
 };

@@ -37,16 +37,7 @@ const createBody = (data = {}) => {
   return bodys;
 }
 const creepsList = {
-  carry: {
-    index: 0,
-    sum: 2,
-    current: 0,
-    createBeforeDied: 20,
-    body: createBody({
-      [CARRY]: 18,
-      [MOVE]: 17
-    })
-  },
+  
   harvester: {
     index: 0,
     sum: 2,
@@ -58,6 +49,16 @@ const creepsList = {
       [CARRY]: 0,
     })
   },
+  carry: {
+    index: 0,
+    sum: 2,
+    current: 0,
+    createBeforeDied: 20,
+    body: createBody({
+      [CARRY]: 18,
+      [MOVE]: 17
+    })
+  },
   work: {
     index: 1,
     sum: 1,
@@ -66,7 +67,7 @@ const creepsList = {
     body: createBody({
       [CARRY]: 4,
       [WORK]: 4,
-      [MOVE]: 8,
+      [MOVE]: 5,
       [HEAL]:2,
     })
   },
@@ -83,13 +84,13 @@ const creepsList = {
   },
   upgrader: {
     index: 4,
-    sum: 2,
+    sum: 1,
     current: 0,
     createBeforeDied: 10,
     body: createBody({
-      [CARRY]: 12,
-      [WORK]: 12,
-      [MOVE]: 24
+      [CARRY]: 2,
+      [WORK]: 2,
+      [MOVE]: 4
     })
   },
   soldier:{
@@ -112,7 +113,7 @@ const creepsList = {
   },
   repair: {
     index: 4,
-    sum: 0,
+    sum: 1,
     current: 0,
     body: createBody({
       [CARRY]: 1,
@@ -179,7 +180,8 @@ function autoCreate(creepName, autoIndex = -1, spawns = 'Spawn1',) {
 
   const code = Game.spawns[spawns].spawnCreep(body,
     `${creepName}${Game.time.toString(16)}`, {
-    memory: { role: creepName, autoIndex }
+    memory: { role: creepName, autoIndex },
+    directions:[BOTTOM]
   });
   const room = Game.spawns[spawns].room;
   // 能量不够
@@ -232,7 +234,7 @@ module.exports.run = () => {
   // renew逻辑
   Object.keys(Game.spawns).forEach(s=>{
     const spawn =  Game.spawns[s]
-    const creeps = spawn.pos.findInRange(FIND_MY_CREEPS,1).filter(creeps=>creeps.ticksToLive<1000);
+    const creeps = spawn.pos.findInRange(FIND_MY_CREEPS,1).filter(creeps=>creeps.ticksToLive<800);
     if(creeps.length>0){
       const creep = creeps[0]
       const code = spawn.renewCreep(creep);

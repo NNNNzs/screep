@@ -13,7 +13,6 @@ const creepExtension = {
   // 找到最近的建筑物
   findClosestBatch(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER, STRUCTURE_STORAGE]) {
     let res = false;
-
     let flag = rank.some(structureType => {
       const targets = this.room.find(FIND_STRUCTURES, {
         filter: s => s.structureType === structureType && s.store.getFreeCapacity() > 0
@@ -46,11 +45,17 @@ const creepExtension = {
   },
 
   // 将资源送到建筑物
-  sendRourceToStructure(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER, STRUCTURE_STORAGE]) {
-    const sources = findEmptyStructure(this, rank) || []
+  sendRourceToStructure(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER, STRUCTURE_STORAGE],reverse=false) {
+    let sources = findEmptyStructure(this, rank) || [];
+    
     if (sources.length == 0) {
       return true;
     }
+    // 倒着来
+    if(reverse){
+      sources.reverse();
+    }
+
     if (this.transfer(sources[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
       this.moveTo(sources[0], showDash);
       return false;
@@ -109,6 +114,7 @@ const creepExtension = {
       }
     } else {
       this.say('偷懒中')
+      this.moveTo(new RoomPosition(42,25,'W24S33'))
     }
   }
 }

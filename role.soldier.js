@@ -1,5 +1,5 @@
 
-const downRoom = new RoomPosition(31, 1, 'W24S34');
+const downRoom = new RoomPosition(31, 1, 'W24S32');
 
 module.exports = {
   soliderRun(){
@@ -12,6 +12,7 @@ module.exports = {
     // const target = creep.pos.findClosestByRange(FIND_HOST);
 
     const target = creep.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
+    // const target = Game.getObjectById('5bbcab9b9099fc012e633f22')
     if (!target) {
       creep.moveTo(downRoom);
     }
@@ -21,8 +22,8 @@ module.exports = {
       };
     }
     // 自我治疗
-    const healNumber = creep.getActiveBodyparts(HEAL) * 12;
-    const lowHits = creep.hits + healNumber +120 < creep.hitsMax;
+    const healNumber = creep.getActiveBodyparts(HEAL) * 14;
+    const lowHits = creep.hits + healNumber  < creep.hitsMax;
     if (lowHits) {
       creep.heal(creep)
     }

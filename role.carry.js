@@ -1,6 +1,6 @@
 const pointes = [
-  { source: '5bbcab9b9099fc012e633f27', container: '601ab37d84c3c11bf26dd607' },
-  { source: '5bbcabec9099fc012e634838', container: '601ab97484c3c14f2f6dd7bd' },
+  { source: '5bbcab9b9099fc012e633f27', container: '6040fca31095dfc39b93f4fd' },
+  { source: '5bbcabec9099fc012e634838', container: '60410e9d66bfca891921f741' },
   // { source: '5bbcabec9099fc012e634838', container: '600c45f146267590a0dc3aeb' },
 ]
 // 600c45f146267590a0dc3aeb
@@ -13,6 +13,22 @@ const roleCarry = {
     // 如果存储空间为0，则应该去送货
     if (freeCapacity == 0) {
       creep.memory.carring = true
+    }
+    // 转移模式
+    if (Memory.showTransfer && index === 0) {
+      const sourceType = RESOURCE_ENERGY;
+      const terminal = Game.getObjectById('60219ee55a1b60469b3c8861');
+
+      if (freeCapacity == 0) {
+        if (creep.transfer(terminal, sourceType) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(terminal);
+        }
+      } else {
+        creep.say(freeCapacity)
+        creep.getResourceByStructure();
+      }
+
+      return false;
     }
 
     // 从坑位里面拿货
@@ -63,12 +79,12 @@ const roleCarry = {
         }
       }
     } else {
-      const isFu = creep.isStructureFull([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER]);
+      // const isFu = creep.isStructureFull([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER]);
       // console.log(isFu)
       // 给建筑充能,存放资源
-      const isFull = creep.sendRourceToStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER])
+      const isFull = creep.sendRourceToStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER], index % 2 === 0)
 
-      
+
       const hasOtherSource = Object.keys(creep.carry).some(e => e != RESOURCE_ENERGY)
 
       if (hasOtherSource) {

@@ -1,8 +1,8 @@
 // 只会采集的采集者
 const showDash = { visualizePathStyle: { stroke: '#ffaa00' } }
 const pointes = [
-  { source: '5bbcab9b9099fc012e633f27', container: '601ab37d84c3c11bf26dd607' },
-  { source: '5bbcab9b9099fc012e633f26', container: '601ab97484c3c14f2f6dd7bd' },
+  { source: '5bbcab9b9099fc012e633f27', container: '6040fca31095dfc39b93f4fd' },
+  { source: '5bbcab9b9099fc012e633f26', container: '60410e9d66bfca891921f741' },
   // { source: '5bbcb23f40062e4259e93814', container: '600c45f146267590a0dc3aeb' },
 ]
 const L = pointes.length
