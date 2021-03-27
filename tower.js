@@ -6,7 +6,7 @@ module.exports = {
     if (tower) {
       // 待修复的建筑
       const closestDamagedStructure = tower[0].pos.findClosestByRange(FIND_STRUCTURES, {
-        filter: (structure) => structure.hits + 200 < structure.hitsMax && structure.structureType !== STRUCTURE_WALL
+        filter: (structure) => structure.hits + 200 < structure.hitsMax && structure.structureType !== STRUCTURE_WALL&&structure.structureType !==STRUCTURE_RAMPART
       })
       // 攻击
       const closestHostile = tower[0].pos.findClosestByRange(FIND_HOSTILE_CREEPS);

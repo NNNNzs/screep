@@ -37,7 +37,18 @@ const createBody = (data = {}) => {
   return bodys;
 }
 const creepsList = {
-  
+  work: {
+    index: 1,
+    sum: 1,
+    current: 0,
+    createBeforeDied: 10,
+    body: createBody({
+      [CARRY]: 4,
+      [WORK]: 4,
+      [MOVE]: 5,
+      [HEAL]:2,
+    })
+  },
   harvester: {
     index: 0,
     sum: 2,
@@ -59,18 +70,7 @@ const creepsList = {
       [MOVE]: 17
     })
   },
-  work: {
-    index: 1,
-    sum: 1,
-    current: 0,
-    createBeforeDied: 10,
-    body: createBody({
-      [CARRY]: 4,
-      [WORK]: 4,
-      [MOVE]: 5,
-      [HEAL]:2,
-    })
-  },
+  
   builder: {
     index: 3,
     sum: 1,
@@ -116,9 +116,9 @@ const creepsList = {
     sum: 1,
     current: 0,
     body: createBody({
-      [CARRY]: 1,
-      [WORK]: 1,
-      [MOVE]: 2
+      [CARRY]: 5,
+      [WORK]: 6,
+      [MOVE]: 10
     })
   }
 }

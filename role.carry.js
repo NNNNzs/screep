@@ -1,10 +1,11 @@
 const pointes = [
-  { source: '5bbcab9b9099fc012e633f27', container: '6040fca31095dfc39b93f4fd' },
-  { source: '5bbcabec9099fc012e634838', container: '60410e9d66bfca891921f741' },
+  { source: '5bbcab9b9099fc012e633f27', container: '60574a561d26a9519ae39b8c' },
+  { source: '5bbcabec9099fc012e634838', container: '60574df3d0d3a84a56181797' },
   // { source: '5bbcabec9099fc012e634838', container: '600c45f146267590a0dc3aeb' },
 ]
 // 600c45f146267590a0dc3aeb
 const tt = '60199445a8628c34e4c3bc81'
+const terminal = '60219ee55a1b60469b3c8861';
 const roleCarry = {
   run: function (creep, index = 0) {
     const Length = pointes.length
@@ -35,13 +36,20 @@ const roleCarry = {
     if (freeCapacity > 0 && !creep.memory.carring) {
 
       // 目标
-      let sources = Game.getObjectById(pointes[index % Length].container)
+      let  sources;
+      try {
+         sources = Game.getObjectById(pointes[index % Length].container)
+      } catch (error) {
+        // sources = Game.getObjectById(pointes[0].container)
+        sources = Game.getObjectById(terminal);
+      }
+
       // 当自己的坑位空了的时候，去别人的坑位
       if (sources.store.getUsedCapacity() == 0) {
         index++
         sources = Game.getObjectById(pointes[index % Length].container)
       }
-      // FIND_TOMBSTONES
+
       // 所有container空了
       const isContainersEmtyp = creep.isStructureEmpty(pointes.map(e => Game.getObjectById(e.container)));
       // 还有
@@ -53,6 +61,8 @@ const roleCarry = {
           )
         }
       });
+      
+      // FIND_TOMBSTONES
       // 有资源的墓碑
       const tombstones = creep.room.find(FIND_TOMBSTONES, {
         filter: (s) => s.store.getUsedCapacity() > 0
@@ -61,7 +71,7 @@ const roleCarry = {
       // 如果container空了，但是spaw和extension空着的，从storage里面拿
       if (isContainersEmtyp && isSpawnEmpty.length > 0) {
         creep.say('空啦')
-        sources = Game.getObjectById(tt)
+        sources = Game.getObjectById(terminal)
       }
 
       // 从墓碑获取

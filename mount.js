@@ -6,7 +6,7 @@ const creepExtension = {
   //计算消耗
   getCost: getCost,
   // 从建筑物里面拿出资源
-  getResourceByStructure(rank = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]) {
+  getResourceByStructure(rank = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER, STRUCTURE_TERMINAL, STRUCTURE_EXTENSION, STRUCTURE_SPAWN]) {
     const sources = findResourceStructure(this, rank);
     this.self_withdraw(sources[0])
   },
@@ -45,14 +45,14 @@ const creepExtension = {
   },
 
   // 将资源送到建筑物
-  sendRourceToStructure(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER, STRUCTURE_STORAGE],reverse=false) {
+  sendRourceToStructure(rank = [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_CONTAINER, STRUCTURE_STORAGE], reverse = false) {
     let sources = findEmptyStructure(this, rank) || [];
-    
+
     if (sources.length == 0) {
       return true;
     }
     // 倒着来
-    if(reverse){
+    if (reverse) {
       sources.reverse();
     }
 
@@ -79,7 +79,7 @@ const creepExtension = {
     return structures.every(s => s.store.getUsedCapacity() == 0)
   },
   // 建筑是否满了
-  isStructureFull(structures = []){
+  isStructureFull(structures = []) {
     // return structures.every(s => s.store.getFreeCapacity() == 0)
     return false;
   },
@@ -97,7 +97,7 @@ const creepExtension = {
     }
     const targets = this.room.find(FIND_STRUCTURES, {
       // 不修墙
-      filter: object => object.hits < object.hitsMax && object.structureType !== STRUCTURE_WALL
+      filter: object => object.hits < object.hitsMax && object.structureType !== STRUCTURE_WALL && object.structureType !== STRUCTURE_RAMPART
     });
     // 根据当前剩余能量升序
     // 更改为根据能量剩余的比例，原因是有些建筑一次性掉血过多
@@ -114,6 +114,23 @@ const creepExtension = {
       }
     } else {
       this.say('偷懒中')
+      this.fixWall()
+    }
+  },
+  fixWall() {
+    const targets = this.room.find(FIND_STRUCTURES, {
+      // 不修墙
+      filter: object => object.hits < 10000 && object.structureType === STRUCTURE_RAMPART
+    });
+    if (targets.length > 0) {
+
+      targets.sort((a, b) => a.hits / a.hitsMax - b.hits / b.hits);
+      
+      if (this.repair(targets[0]) == ERR_NOT_IN_RANGE) {
+        this.say('修墙')
+        this.moveTo(targets[0], { visualizePathStyle: { fill: '#000000' } });
+      }
+    }else{
       this.moveTo(new RoomPosition(42,25,'W24S33'))
     }
   }
