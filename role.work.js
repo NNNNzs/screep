@@ -32,6 +32,8 @@ const roleHarvester = {
                 if (creep.harvest(minerals[0]) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(minerals[0],showDash);
                 }
+            }else{
+                creep.self_withdraw()
             }
 
         }

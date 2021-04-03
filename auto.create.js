@@ -57,7 +57,6 @@ const creepsList = {
     body: createBody({
       [MOVE]: 8,
       [WORK]: 9,
-      [CARRY]: 0,
     })
   },
   carry: {
