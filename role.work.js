@@ -1,5 +1,6 @@
 // 特殊资源采集
 const showDash = { visualizePathStyle: { stroke: '#ffaa00' } }
+const roleCarry = require('role.carry');
 
 const resource = Game.getObjectById('5bbcab9b9099fc012e633f2b');
 const stroage = Game.getObjectById('60199445a8628c34e4c3bc81');
@@ -33,7 +34,8 @@ const roleHarvester = {
                     creep.moveTo(minerals[0],showDash);
                 }
             }else{
-                creep.self_withdraw()
+                // creep.self_withdraw()
+                roleCarry.run(creep,0)
             }
 
         }

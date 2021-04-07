@@ -39,7 +39,7 @@ const createBody = (data = {}) => {
 const creepsList = {
   work: {
     index: 1,
-    sum: 1,
+    sum: 0,
     current: 0,
     createBeforeDied: 10,
     body: createBody({
@@ -96,10 +96,10 @@ const creepsList = {
     sum:0,
     current: 0,
     body:createBody({
-      [ATTACK]:11,
-      [HEAL]:11,
+      [TOUGH]:2,
+      [RANGED_ATTACK]:11,
+      [HEAL]:9,
       [MOVE]:24,
-      [TOUGH]:2
     })
   },
   doctor:{

@@ -9,10 +9,9 @@ const L = pointes.length
 const onlyHarvester = {
   run(creep,index) {
     const i = index%pointes.length;
-    const newAutoIndex = creep.memory.autoIndex;
     // 挖矿 
     const sources = Game.getObjectById(pointes[i].source);
-    const container = Game.getObjectById(pointes[i].container)
+    const container = Game.getObjectById(Memory.containerList[i].id)
     // 移动到这个点
     if (creep.pos.isEqualTo(container)) {
       if (container.store.getFreeCapacity() == 0) {
