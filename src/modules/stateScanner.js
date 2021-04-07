@@ -2,11 +2,18 @@
  * 全局统计信息扫描器
  * 负责搜集关于 cpu、memory、GCL、GPL 的相关信息
  */
-module.exports.stateScanner = function () {
+export const stateScanner = () => {
     // 每 20 tick 运行一次
     if (Game.time % 20) return
 
-    if (!Memory.stats) Memory.stats = {}
+    if (!Memory.stats) Memory.stats = {
+        gcl:0,
+        gclLevel:0,
+        gpl:0,
+        gplLevel:0,
+        cpu:0,
+        bucket:0
+    }
 
     // 统计 GCL / GPL 的升级百分比和等级
     Memory.stats.gcl = (Game.gcl.progress / Game.gcl.progressTotal) * 100

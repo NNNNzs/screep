@@ -37,4 +37,4 @@ const upgrader = {
     },
 };
 
-module.exports = upgrader;
+export default  upgrader;

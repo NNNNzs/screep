@@ -1,7 +1,7 @@
 
 const showDash = { visualizePathStyle: { stroke: '#ffaa00' } }
-const { findResourceStructure, findEmptyStructure } = require('tools')
-const { getCost } = require('auto.create')
+import { findResourceStructure, findEmptyStructure } from './utils'
+import { getCost } from './autoCreate'
 const creepExtension = {
   //计算消耗
   getCost: getCost,
@@ -125,18 +125,18 @@ const creepExtension = {
     if (targets.length > 0) {
 
       targets.sort((a, b) => a.hits / a.hitsMax - b.hits / b.hits);
-      
+
       if (this.repair(targets[0]) == ERR_NOT_IN_RANGE) {
         this.say('修墙')
         this.moveTo(targets[0], { visualizePathStyle: { fill: '#000000' } });
       }
-    }else{
-      this.moveTo(new RoomPosition(42,25,'W24S33'))
+    } else {
+      this.moveTo(new RoomPosition(42, 25, 'W24S33'))
     }
   }
 }
 // 挂载所有的额外属性和方法
-module.exports = function () {
+export default function () {
   console.log('mounted')
   _.assign(Creep.prototype, creepExtension)
 

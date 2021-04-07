@@ -14,4 +14,4 @@ const transfer = {
   }
 }
 
-modules.export = transfer
+export default transfer

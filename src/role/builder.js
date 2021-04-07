@@ -1,7 +1,7 @@
-const roleUpgrader = require('role.upgrader')
+// const roleUpgrader = require('role.upgrader')
+import roleUpgrader from './upgrader'
 const roleBuilder = {
     toBuildStructure(creep) {
-        // return [Game.getObjectById('60044b08bf014f6c65306905')]
         return creep.room.find(FIND_CONSTRUCTION_SITES);
     },
     build(creep) {
@@ -38,7 +38,7 @@ const roleBuilder = {
             try {
                 creep.getResourceByStructure();
             }
-            catch (e){
+            catch (e) {
                 // console.log(e)
                 creep.self_harvest(1)
             }
@@ -46,4 +46,4 @@ const roleBuilder = {
     }
 };
 
-module.exports = roleBuilder;
+export default roleBuilder;

@@ -1,4 +1,4 @@
-module.exports = {
+export default  {
   run(creep) {
     // 已使用的容量，即可用资源
     if (creep.store.getUsedCapacity() == 0) {

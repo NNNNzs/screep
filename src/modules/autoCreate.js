@@ -38,7 +38,7 @@ const createBody = (data = {}) => {
 }
 const creepsList = {
   work: {
-    index: 1,
+    index: 0,
     sum: 1,
     current: 0,
     createBeforeDied: 10,
@@ -46,7 +46,7 @@ const creepsList = {
       [CARRY]: 4,
       [WORK]: 4,
       [MOVE]: 5,
-      [HEAL]:2,
+      [HEAL]: 2,
     })
   },
   harvester: {
@@ -57,7 +57,6 @@ const creepsList = {
     body: createBody({
       [MOVE]: 8,
       [WORK]: 9,
-      [CARRY]: 0,
     })
   },
   carry: {
@@ -70,7 +69,7 @@ const creepsList = {
       [MOVE]: 17
     })
   },
-  
+
   builder: {
     index: 3,
     sum: 1,
@@ -93,22 +92,22 @@ const creepsList = {
       [MOVE]: 4
     })
   },
-  soldier:{
-    sum:0,
+  soldier: {
+    sum: 0,
     current: 0,
-    body:createBody({
-      [ATTACK]:11,
-      [HEAL]:11,
-      [MOVE]:24,
-      [TOUGH]:2
+    body: createBody({
+      [TOUGH]: 2,
+      [RANGED_ATTACK]: 11,
+      [HEAL]: 9,
+      [MOVE]: 24,
     })
   },
-  doctor:{
-    sum:0,
+  doctor: {
+    sum: 0,
     current: 0,
-    body:createBody({
-      [HEAL]:5,
-      [MOVE]:5,
+    body: createBody({
+      [HEAL]: 5,
+      [MOVE]: 5,
     })
   },
   repair: {
@@ -124,9 +123,16 @@ const creepsList = {
 }
 
 
+const shouldCreateHarvester = () => {
+  const room = Game.spawns['Spawn1'].room;
 
+  const containers = room.find(FIND_STRUCTURES, {
+    filter: s => s.structureType === STRUCTURE_CONTAINER
+  });
+  Memory.containerList = containers
+}
 
-const getCost = (bodys) => {
+export const getCost = (bodys) => {
   let sum = 0;
   _.forEach(bodys, (part) => {
     sum += sourceMap[part].cost
@@ -136,7 +142,6 @@ const getCost = (bodys) => {
   console.log(str)
   return sum
 }
-module.exports.getCost = getCost;
 
 // 计算移动力，返回值表示满载的情况下多少tick移动一个格子
 const calcMove = (bodys) => {
@@ -159,29 +164,16 @@ function deleteCreepMemory() {
   }
 }
 
-function autoCreate(creepName, autoIndex = -1, spawns = 'Spawn1',) {
+function autoCreate(creepName, spawns = 'Spawn1',) {
   // 拷贝一份
   let creepsMap = Object.assign({}, creepsList)
   const body = creepsMap[creepName].body;
-  const sum = creepsMap[creepName].sum;
-
-  // todo 自动编号
-  if (autoIndex === -1) {
-    // 还活着的的名单
-    const liveList = Object.keys(Memory.creeps).filter(name => Memory.creeps[name].role === creepName).map(creep => Memory.creeps[creep].autoIndex)
-
-    // 求第一个不连续的数
-    const sumList = Array.from({ length: sum }).map((e, index) => index);
-
-    autoIndex = sumList.find(index => !liveList.includes(index))
-
-  }
-
+  const costTime = body.length * 3
 
   const code = Game.spawns[spawns].spawnCreep(body,
     `${creepName}${Game.time.toString(16)}`, {
-    memory: { role: creepName, autoIndex },
-    directions:[BOTTOM]
+    memory: { role: creepName, costTime },
+    directions: [BOTTOM,TOP_RIGHT]
   });
   const room = Game.spawns[spawns].room;
   // 能量不够
@@ -196,49 +188,52 @@ function autoCreate(creepName, autoIndex = -1, spawns = 'Spawn1',) {
 }
 
 
-module.exports.run = () => {
-  let currentCreep = _.cloneDeep(creepsList)
+export default {
+  run() {
+    let currentCreep = _.cloneDeep(creepsList)
 
-  // 计算当前场上 有多少个creep
-  _.forEach(Game.creeps, creep => {
-    const role = creep.memory.role;
-    // 如果有一个快死了，那么这个tick就立即创建
-    if (currentCreep[role].createBeforeDied && (creep.ticksToLive < currentCreep[role].createBeforeDied)) {
-      currentCreep[role].createNow = creep.memory.autoIndex
-    }
-    // 场上的creep计数
-    currentCreep[role].current++;
-  })
+    shouldCreateHarvester()
 
-  Object.keys(creepsList).some(creepName => {
-    const role = currentCreep[creepName]
-    // 是否超生
-    const beyondSum = role.current + 1 > role.sum
-    // 立即创建
-    if (!beyondSum && (role.createNow>=0)) {
-      autoCreate(creepName, role.createNow)
-      return true;
-    }
-    // 死亡创建，阻塞创建
-    if (role.sum > role.current) {
-      autoCreate(creepName)
-      return true;
-    } else {
-      return false;
-    }
-  });
 
-  if (Game.time % 400 === 0) {
-    deleteCreepMemory()
+    // 计算当前场上 有多少个creep
+    _.forEach(Game.creeps, creep => {
+      const role = creep.memory.role;
+      const costTime = creep.memory.costTime;
+
+      // 如果有一个快死了，那么这个tick就立即创建
+      if(costTime&&costTime>=creep.ticksToLive){
+        console.log('should create')
+        creep.say('我快死了')
+        autoCreate(role)
+      }
+      // 场上的creep计数
+      currentCreep[role].current++;
+    })
+
+    Object.keys(creepsList).some(creepName => {
+      const role = currentCreep[creepName]
+
+      // 死亡创建，阻塞创建
+      if (role.sum > role.current) {
+        autoCreate(creepName)
+        return true;
+      } else {
+        return false;
+      }
+    });
+
+    if (Game.time % 400 === 0) {
+      deleteCreepMemory()
+    }
+    // renew逻辑
+    // Object.keys(Game.spawns).forEach(s => {
+    //   const spawn = Game.spawns[s]
+    //   const creeps = spawn.pos.findInRange(FIND_MY_CREEPS, 1).filter(creeps => creeps.ticksToLive < 800);
+    //   if (creeps.length > 0) {
+    //     const creep = creeps[0]
+    //     const code = spawn.renewCreep(creep);
+    //     creep.say(creep.ticksToLive.toString())
+    //   }
+    // })
   }
-  // renew逻辑
-  Object.keys(Game.spawns).forEach(s=>{
-    const spawn =  Game.spawns[s]
-    const creeps = spawn.pos.findInRange(FIND_MY_CREEPS,1).filter(creeps=>creeps.ticksToLive<800);
-    if(creeps.length>0){
-      const creep = creeps[0]
-      const code = spawn.renewCreep(creep);
-      creep.say(creep.ticksToLive)
-    }
-  })
-};
+}

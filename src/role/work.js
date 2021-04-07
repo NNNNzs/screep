@@ -1,8 +1,8 @@
 // 特殊资源采集
 const showDash = { visualizePathStyle: { stroke: '#ffaa00' } }
-
-const resource = Game.getObjectById('5bbcab9b9099fc012e633f2b');
-const stroage = Game.getObjectById('60199445a8628c34e4c3bc81');
+import roleCarry from './carry'
+// const resource = Game.getObjectById('5bbcab9b9099fc012e633f2b');
+// const stroage = Game.getObjectById('60199445a8628c34e4c3bc81');
 
 const roleHarvester = {
     run: function (creep, i) {
@@ -30,8 +30,11 @@ const roleHarvester = {
             });
             if (minerals.length > 0) {
                 if (creep.harvest(minerals[0]) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(minerals[0],showDash);
+                    creep.moveTo(minerals[0], showDash);
                 }
+            } else {
+                // creep.self_withdraw()
+                roleCarry.run(creep,0)
             }
 
         }
@@ -41,4 +44,4 @@ const roleHarvester = {
         }
     }
 };
-module.exports = roleHarvester;
+export default roleHarvester;
