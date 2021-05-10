@@ -1,3 +1,7 @@
+
+const terminal = Game.getObjectById(Memory.terminal);
+const storage = Game.getObjectById(Memory.storage)
+
 const market = {
   // 计算收益
   sortFun(a, b) {
@@ -10,11 +14,15 @@ const market = {
     return profitA > profitB ? -1 : 1;
   },
   getOrder() {
-    const order = Game.market.getAllOrders({
-      type: ORDER_BUY,
-      resourceType: RESOURCE_ENERGY
-    }).sort(market.sortFun).filter(o => o.profit > 0)
-    return order
+    const orders = Memory.transferList.map(ele => {
+      const { sourceType, profit } = ele;
+      const order = Game.market.getAllOrders({
+        type: ORDER_BUY,
+        resourceType: sourceType
+      }).sort(market.sortFun).filter(o => o.profit > profit)
+      return order
+    })
+    return orders
   },
   // 创建出售的订单，这个要收费
   createSellOrder() {
@@ -26,40 +34,45 @@ const market = {
       roomName: "W24S33"
     });
   },
-  // 执行别人买的订单
-  dealSellOrder() {
-    Game.market.deal()
-  },
-  // 计算传输费用
-  calcTransactionCost() {
-    const cost = Game.market.calcTransactionCost(1000, 'W0N0', 'W10N5');
-  },
   // 交易
   deal(arr = []) {
     // Game.market.deal('606dc5adf5ceb112d9c1d522', 26309, "W24S33");
-    const res = arr.map(order => {
+    arr.map(order => {
       return Game.market.deal(order.id, order.amount, "W24S33");
     });
-    if(arr.length>0){
-      Game.notify(JSON.stringify(arr),JSON.stringify(res))
+    if (arr.length > 0) {
+      Game.notify(JSON.stringify(arr))
     }
   },
   showTransfer() {
-    const storage = Game.getObjectById(Memory.storage);
-    const terminal = Game.getObjectById('60219ee55a1b60469b3c8861');
-    const sourceType = RESOURCE_ENERGY;
-    const mount = 300000;
-    // 转移准备卖了
-    if (storage.store.getUsedCapacity(sourceType) > mount && terminal.store.getUsedCapacity(sourceType) < mount) {
-      Memory.showTransfer = true;
-    } else {
-      Memory.showTransfer = false;
+    const taskList = Memory.transferList;
+    const shouldTransfer = (taskList) => {
+      return taskList.some(task => {
+        const { sourceType, mount } = task;
+        // store里面超过一定的数量，且terminal还可以存这么多
+        const flag = storage.store.getUsedCapacity(sourceType) > mount && terminal.store.getFreeCapacity() > mount;
+        if (flag) {
+          Memory.transferSrouceType = sourceType
+        }
+        return flag
+      })
     }
+    const shouldTransferFlag = shouldTransfer(taskList);
+    Memory.showTransfer = shouldTransferFlag
+    // console.log('shouldTransferFlag', shouldTransferFlag)
+    // 转移准备卖了
+    return false;
   },
   run() {
-    market.showTransfer()
-    market.deal(market.getOrder())
-    // const order = market.getOrder();
+    market.showTransfer();
+
+    market.getOrder().forEach(orders => {
+      if(orders.length>0){
+        console.log('orders',JSON.stringify(orders))
+        market.deal(orders)
+      }
+    });
+
   }
 }
 export default market

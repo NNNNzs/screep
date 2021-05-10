@@ -1,10 +1,12 @@
 const tt = '60199445a8628c34e4c3bc81'
-const terminal = '60219ee55a1b60469b3c8861';
 
 const roleCarry = {
   run: function (creep, index = 0) {
     const Length = Memory.containerList.length
     // 工人的可存储空间
+    /**
+     * 存储空间
+     */
     const freeCapacity = creep.store.getFreeCapacity()
     // 如果存储空间为0，则应该去送货
     if (freeCapacity == 0) {
@@ -12,18 +14,24 @@ const roleCarry = {
     }
     // 转移模式
     if (Memory.showTransfer && index === 0) {
-      const sourceType = RESOURCE_ENERGY;
-      const terminal = Game.getObjectById('60219ee55a1b60469b3c8861');
+      const sourceType = Memory.transferSrouceType;
+      const terminal = Game.getObjectById(Memory.terminal);
 
       if (freeCapacity == 0) {
-        if (creep.transfer(terminal, sourceType) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(terminal);
-        }
-      } else {
-        creep.say(freeCapacity)
-        creep.getResourceByStructure();
-      }
 
+        Object.keys(creep.carry).forEach(carrySrouceType => {
+          if (creep.transfer(terminal, carrySrouceType) == ERR_NOT_IN_RANGE) {
+            creep.moveTo(terminal);
+          }
+        })
+
+      } else {
+        const storage = Game.getObjectById(Memory.storage);
+        creep.say(freeCapacity)
+        if (creep.withdraw(storage, sourceType) == ERR_NOT_IN_RANGE) {
+          creep.moveTo(sources);
+        }
+      }
       return false;
     }
 

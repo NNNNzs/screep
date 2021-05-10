@@ -12,19 +12,19 @@ import tower from './building/tower'
 import market from './modules/market'
 import mount from './modules/mount'
 import { stateScanner } from './modules/stateScanner'
+import { init } from './modules/init'
 
 mount()
 export const loop = errorMapper(() => {
   const t = Game.time;
-  // return false;
-  // const t = Game.time;
+  init()
   autoCreate.run();
   tower.run();
   if (t % 3 === 0) {
     market.run();
   }
   stateScanner();
-
+  // return false;
   let i = 0;
   let work = 0;
   let carry = 0;

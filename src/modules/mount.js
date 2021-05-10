@@ -135,10 +135,12 @@ const creepExtension = {
     }
   }
 }
+
 // 挂载所有的额外属性和方法
 export default function () {
   console.log('mounted')
-  console.log(new Date().toLocaleString()) 
+  console.log(new Date().toLocaleString())
+  Memory.lastModified =  new Date().toLocaleString()
   _.assign(Creep.prototype, creepExtension)
 
   // mountFlag()
