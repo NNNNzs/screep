@@ -1,4 +1,5 @@
 
+import { createBody, calcMove } from '../utils';
 const sourceMap = {
   [MOVE]: {
     cost: 50,
@@ -25,17 +26,7 @@ const sourceMap = {
     cost: 10
   }
 }
-const createBody = (data = {}) => {
-  let bodys = [];
-  Object.keys(data).forEach(ele => {
-    let n = 0;
-    while (n < data[ele]) {
-      bodys.push(ele)
-      n++
-    }
-  })
-  return bodys;
-}
+
 const creepsList = {
   work: {
     index: 0,
@@ -139,22 +130,13 @@ export const getCost = (bodys) => {
   })
   const room = Game.spawns['Spawn1'].room;
   const str = `${room.energyAvailable}/${room.energyCapacityAvailable}but ${sum} ${calcMove(bodys)}tick/move`
-  console.log(str)
+  if (room.energyAvailable < room.energyCapacityAvailable / 2) {
+    Game.notify('能量低于一般，注意上线查看' + str)
+  }
+  // console.log(str)
   return sum
 }
 
-// 计算移动力，返回值表示满载的情况下多少tick移动一个格子
-const calcMove = (bodys) => {
-  let sum = 1;
-  _.forEach(bodys, (body) => {
-    if (body === MOVE) {
-      sum -= 1;
-    } else {
-      sum += 1;
-    }
-  })
-  return sum;
-}
 
 function deleteCreepMemory() {
   for (var name in Memory.creeps) {
@@ -173,7 +155,7 @@ function autoCreate(creepName, spawns = 'Spawn1',) {
   const code = Game.spawns[spawns].spawnCreep(body,
     `${creepName}-${Game.time.toString(16)}`, {
     memory: { role: creepName, costTime },
-    directions: [BOTTOM, TOP_RIGHT]
+    directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT]
   });
   const room = Game.spawns[spawns].room;
   // 能量不够

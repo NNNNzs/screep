@@ -41,7 +41,7 @@ const market = {
       return Game.market.deal(order.id, order.amount, "W24S33");
     });
     if (arr.length > 0) {
-      Game.notify(JSON.stringify(arr))
+      // Game.notify(JSON.stringify(arr))
     }
   },
   showTransfer() {

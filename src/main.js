@@ -11,13 +11,16 @@ import roleWork from './role/work'
 import tower from './building/tower'
 import market from './modules/market'
 import mount from './modules/mount'
-import { stateScanner } from './modules/stateScanner'
-import { init } from './modules/init'
-
+import { stateScanner } from './modules/stateScanner.ts'
+import { init } from './modules/init.ts'
+import { roomScanner } from './modules/Scanner.ts'
 mount()
+
+init()
 export const loop = errorMapper(() => {
   const t = Game.time;
-  init()
+  roomScanner();
+
   autoCreate.run();
   tower.run();
   if (t % 3 === 0) {
@@ -28,6 +31,7 @@ export const loop = errorMapper(() => {
   let i = 0;
   let work = 0;
   let carry = 0;
+
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
     // const ticksToLive = creep.memory.autoIndex

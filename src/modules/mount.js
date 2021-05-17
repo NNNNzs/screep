@@ -95,10 +95,8 @@ const creepExtension = {
       }
       return false;
     }
-    const targets = this.room.find(FIND_STRUCTURES, {
-      // 不修墙
-      filter: object => object.hits < object.hitsMax && object.structureType !== STRUCTURE_WALL && object.structureType !== STRUCTURE_RAMPART
-    });
+    const targets = Memory.toFixedStructures;
+    
     // 根据当前剩余能量升序
     // 更改为根据能量剩余的比例，原因是有些建筑一次性掉血过多
     // targets.sort((a, b) => a.hits - b.hits);
@@ -140,7 +138,7 @@ const creepExtension = {
 export default function () {
   console.log('mounted')
   console.log(new Date().toLocaleString())
-  Memory.lastModified =  new Date().toLocaleString()
+  Memory.lastModified = new Date().toLocaleString()
   _.assign(Creep.prototype, creepExtension)
 
   // mountFlag()

@@ -52,7 +52,7 @@ export default {
         // 模块化依赖
         commonjs(),
 
-        // typescript({ tsconfig: "./tsconfig.json" }),
+        typescript({ tsconfig: "./tsconfig.json" }),
         // 执行上传或者复制
         pluginDeploy
     ]

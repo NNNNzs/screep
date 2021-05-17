@@ -34,7 +34,7 @@ const roleHarvester = {
                 }
             } else {
                 // creep.self_withdraw()
-                roleCarry.run(creep,0)
+                roleCarry.run(creep,1)
             }
 
         }

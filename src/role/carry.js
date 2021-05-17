@@ -2,6 +2,7 @@ const tt = '60199445a8628c34e4c3bc81'
 
 const roleCarry = {
   run: function (creep, index = 0) {
+
     const Length = Memory.containerList.length
     // 工人的可存储空间
     /**
@@ -13,7 +14,7 @@ const roleCarry = {
       creep.memory.carring = true
     }
     // 转移模式
-    if (Memory.showTransfer && index === 0) {
+    if (Memory.showTransfer && Memory.showTransfer && index === 0) {
       const sourceType = Memory.transferSrouceType;
       const terminal = Game.getObjectById(Memory.terminal);
 
@@ -29,7 +30,7 @@ const roleCarry = {
         const storage = Game.getObjectById(Memory.storage);
         creep.say(freeCapacity)
         if (creep.withdraw(storage, sourceType) == ERR_NOT_IN_RANGE) {
-          creep.moveTo(sources);
+          creep.moveTo(storage);
         }
       }
       return false;

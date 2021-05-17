@@ -1,4 +1,6 @@
-export const terminalMount = (sourceType) => {
+const defaultRoom = Game.spawns['Spawn1'].room;
+
+export const terminalMount = () => {
   if (!Memory.terminal) {
     // Game.spawns.room;
   }
@@ -15,11 +17,17 @@ export const transferMount = () => {
     { sourceType: RESOURCE_ENERGY, mount: 150000, profit: 0.5 },
     { sourceType: RESOURCE_UTRIUM, mount: 150000, profit: 0.2 },
   ]
+}
 
+export const townerMount = (pos: Room = defaultRoom) => {
+  Memory.towerList = pos.find(FIND_STRUCTURES, {
+    filter: s => s.structureType === STRUCTURE_TOWER
+  }).map(e => e.id)
 }
 
 export const init = () => {
   terminalMount()
   storageMount()
   transferMount()
+  townerMount()
 }
