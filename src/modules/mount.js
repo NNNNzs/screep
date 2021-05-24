@@ -95,8 +95,9 @@ const creepExtension = {
       }
       return false;
     }
-    const targets = Memory.toFixedStructures;
-    
+    // const targets = Memory.toFixedStructures;
+    const targets = Memory.toFixedStructures
+
     // 根据当前剩余能量升序
     // 更改为根据能量剩余的比例，原因是有些建筑一次性掉血过多
     // targets.sort((a, b) => a.hits - b.hits);
@@ -136,11 +137,15 @@ const creepExtension = {
 
 // 挂载所有的额外属性和方法
 export default function () {
+  const startCpu = Game.cpu.getUsed();
+
   console.log('mounted')
   console.log(new Date().toLocaleString())
   Memory.lastModified = new Date().toLocaleString()
   _.assign(Creep.prototype, creepExtension)
 
+  const elapsed = Game.cpu.getUsed() - startCpu;
+  console.log('mounted ' + elapsed + ' CPU time');
   // mountFlag()
   // mountRoom()
   // 其他更多拓展...

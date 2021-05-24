@@ -1,127 +1,6 @@
 
-import { createBody, calcMove } from '../utils';
-const sourceMap = {
-  [MOVE]: {
-    cost: 50,
-  },
-  [WORK]: {
-    cost: 100,
-  },
-  [CARRY]: {
-    cost: 50,
-  },
-  [ATTACK]: {
-    cost: 80
-  },
-  [RANGED_ATTACK]: {
-    cost: 150
-  },
-  [HEAL]: {
-    cost: 250
-  },
-  [CLAIM]: {
-    cost: 600
-  },
-  [TOUGH]: {
-    cost: 10
-  }
-}
-
-const creepsList = {
-  work: {
-    index: 0,
-    sum: 1,
-    current: 0,
-    createBeforeDied: 10,
-    body: createBody({
-      [CARRY]: 4,
-      [WORK]: 4,
-      [MOVE]: 5,
-      [HEAL]: 2,
-    })
-  },
-  harvester: {
-    index: 0,
-    sum: 2,
-    current: 0,
-    createBeforeDied: 20,
-    body: createBody({
-      [MOVE]: 8,
-      [WORK]: 9,
-    })
-  },
-  carry: {
-    index: 0,
-    sum: 2,
-    current: 0,
-    createBeforeDied: 20,
-    body: createBody({
-      [CARRY]: 18,
-      [MOVE]: 17
-    })
-  },
-
-  builder: {
-    index: 3,
-    sum: 0,
-    current: 0,
-    createBeforeDied: 10,
-    body: createBody({
-      [CARRY]: 12,
-      [WORK]: 12,
-      [MOVE]: 24,
-    })
-  },
-  upgrader: {
-    index: 4,
-    sum: 1,
-    current: 0,
-    createBeforeDied: 10,
-    body: createBody({
-      [CARRY]: 2,
-      [WORK]: 2,
-      [MOVE]: 4
-    })
-  },
-  soldier: {
-    sum: 0,
-    current: 0,
-    body: createBody({
-      [TOUGH]: 2,
-      [RANGED_ATTACK]: 11,
-      [HEAL]: 9,
-      [MOVE]: 24,
-    })
-  },
-  doctor: {
-    sum: 0,
-    current: 0,
-    body: createBody({
-      [HEAL]: 5,
-      [MOVE]: 5,
-    })
-  },
-  repair: {
-    index: 4,
-    sum: 1,
-    current: 0,
-    body: createBody({
-      [CARRY]: 5,
-      [WORK]: 6,
-      [MOVE]: 10
-    })
-  }
-}
-
-
-const shouldCreateHarvester = () => {
-  const room = Game.spawns['Spawn1'].room;
-
-  const containers = room.find(FIND_STRUCTURES, {
-    filter: s => s.structureType === STRUCTURE_CONTAINER
-  });
-  Memory.containerList = containers
-}
+import { calcMove } from '../utils.ts';
+import { sourceMap, creepsList } from '../var.ts'
 
 export const getCost = (bodys) => {
   let sum = 0;
@@ -173,8 +52,6 @@ function autoCreate(creepName, spawns = 'Spawn1',) {
 export default {
   run() {
     let currentCreep = _.cloneDeep(creepsList)
-
-    shouldCreateHarvester()
 
     // 计算当前场上 有多少个creep
     _.forEach(Game.creeps, creep => {

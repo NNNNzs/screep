@@ -3,11 +3,17 @@ const unHealList = [STRUCTURE_WALL, STRUCTURE_RAMPART, 'extension'];
 const defaultRoom = Game.spawns['Spawn1'];
 
 export const toFixedList = (pos: AnyStructure = defaultRoom) => {
+  // 不修墙
+  const toFixedStructures = pos.room.find(FIND_STRUCTURES, {
+    filter: object => {
+      // 
+      const undo = unHealList.includes(object.structureType);
 
-  const toFixedStructures = pos.room.find(FIND_MY_STRUCTURES, {
-    filter: (structure) => structure.hits + 200 < structure.hitsMax && !unHealList.includes(structure.structureType)
-  })
-  
+      return object.hits < object.hitsMax && !undo
+    }
+  });
+  toFixedStructures.sort((a, b) => a.hits / a.hitsMax - b.hits / b.hits);
+
   Memory.toFixedStructures = toFixedStructures;
 
 }

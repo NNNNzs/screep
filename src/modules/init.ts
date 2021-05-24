@@ -14,8 +14,8 @@ export const storageMount = () => {
 }
 export const transferMount = () => {
   Memory.transferList = [
-    { sourceType: RESOURCE_ENERGY, mount: 150000, profit: 0.5 },
-    { sourceType: RESOURCE_UTRIUM, mount: 150000, profit: 0.2 },
+    { sourceType: RESOURCE_ENERGY, mount: 120000, remain: 20000, profit: 0.5 },
+    { sourceType: RESOURCE_UTRIUM, mount: 120000, remain: 10000, profit: 0.2 },
   ]
 }
 
@@ -23,6 +23,13 @@ export const townerMount = (pos: Room = defaultRoom) => {
   Memory.towerList = pos.find(FIND_STRUCTURES, {
     filter: s => s.structureType === STRUCTURE_TOWER
   }).map(e => e.id)
+}
+
+export const containerListMount = (pos: Room = defaultRoom) => {
+  const containers = pos.find(FIND_STRUCTURES, {
+    filter: s => s.structureType === STRUCTURE_CONTAINER
+  });
+  Memory.containerList = containers
 }
 
 export const init = () => {

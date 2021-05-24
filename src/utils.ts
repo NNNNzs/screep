@@ -4,7 +4,7 @@
  * @description 根据一个对象，返回生成的body
  * @returns {Array}
  */
-export const createBody = (data = {}) => {
+export const createBody = (data = {}): BodyPartConstant[] => {
   let bodys = [];
   Object.keys(data).forEach(ele => {
     let n = 0;
@@ -22,7 +22,7 @@ export const createBody = (data = {}) => {
  * @description 计算移动力，返回值表示满载的情况下多少tick移动一个格子
  * @returns {Number} 满载情况下 n tick移动一个格子
  */
-export const calcMove = (bodys) => {
+export const calcMove = (bodys: BodyPartConstant[]): number => {
   let sum = 1;
   _.forEach(bodys, (body) => {
     if (body === MOVE) {
@@ -42,29 +42,36 @@ export const sendAllSrouce = (creep, store) => {
 
 }
 
+
 /**
  * 
  * @param {*} creep 
- * @param {*} structureList 
- * @description 找到第一个空的
+ * @param {array} structureList 
+ * @description 找到第一个能量未满的建筑
  * @returns 
  */
-export const findFirstEmptyStruct = (creep, structureList = []) => {
-  for (let i in structureList) {
-    const structureType = structureList[i];
-    const target = creep.room.find(FIND_STRUCTURES, {
-      filter: (s) => {
-        return (s.structureType === structureType && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
-      }
-    });
+export const findFirstEmptyStruct = (creep: Creep, structureList: BuildableStructureConstant[] = []) => {
 
-    if (target.length > 0) {
-      return target
-    } else {
-      continue;
-    }
-  }
+  // for (let i in structureList) {
+  //   const structureType = structureList[i];
+
+  //   const target = creep.room.find(FIND_MY_STRUCTURES, {
+  //     filter: (s) => {
+
+  //       const hasStore = s.structureType;
+
+  //       return (s.structureType === structureType && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
+  //     }
+  //   });
+
+  //   if (target.length > 0) {
+  //     return target
+  //   } else {
+  //     continue;
+  //   }
+  // }
 }
+// findFirstEmptyStruct(creep,[STRUCTURE_STORAGE, STRUCTURE_CONTAINER])
 
 
 export const findClosestByRange = (creep, type) => {
