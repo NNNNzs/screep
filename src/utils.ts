@@ -78,3 +78,13 @@ export const findClosestByRange = (creep, type) => {
   return creep.pos.findClosestByRange(type);
 }
 
+/**
+ * @description 自动删除已经不存在的creep内存
+ */
+export function deleteCreepMemory() {
+  for (var name in Memory.creeps) {
+    if (!Game.creeps[name]) {
+      delete Memory.creeps[name];
+    }
+  }
+}

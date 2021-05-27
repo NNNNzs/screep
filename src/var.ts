@@ -34,7 +34,6 @@ export const sourceMap = {
 
 export const creepsList = {
   work: {
-    index: 0,
     sum: 1,
     current: 0,
     createBeforeDied: 10,
@@ -46,7 +45,6 @@ export const creepsList = {
     })
   },
   harvester: {
-    index: 0,
     sum: 2,
     current: 0,
     createBeforeDied: 20,
@@ -56,7 +54,6 @@ export const creepsList = {
     })
   },
   carry: {
-    index: 0,
     sum: 2,
     current: 0,
     createBeforeDied: 20,
@@ -67,15 +64,17 @@ export const creepsList = {
   },
 
   builder: {
-    index: 3,
-    sum: 0,
+    sum: 1,
     current: 0,
     createBeforeDied: 10,
     body: createBody({
       [CARRY]: 12,
       [WORK]: 12,
       [MOVE]: 24,
-    })
+    }),
+    checkShouldCreate() {
+
+    }
   },
   upgrader: {
     index: 4,

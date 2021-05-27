@@ -18,7 +18,7 @@ export const toFixedList = (pos: AnyStructure = defaultRoom) => {
 
 }
 
-export const toKillList = (pos: RoomPosition = defaultRoom.pos) => {
+export const setToKillList = (pos: RoomPosition = defaultRoom.pos) => {
 
   const closestHostile = pos.findClosestByRange(FIND_HOSTILE_CREEPS);
 
@@ -26,7 +26,13 @@ export const toKillList = (pos: RoomPosition = defaultRoom.pos) => {
 
 }
 
+export const toBuildList = (room: Room = defaultRoom.room) => {
+  const list = room.find(FIND_CONSTRUCTION_SITES);
+  Memory.toConstructionSite = list;
+}
 
 export const roomScanner = () => {
-  toFixedList()
+  toFixedList();
+  setToKillList();
+  toBuildList();
 }

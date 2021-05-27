@@ -71,16 +71,19 @@ const market = {
       return taskList.some(task => {
         const { sourceType, mount, remain } = task;
         // store里面超过一定的数量
-        const storageExis = storage.store.getUsedCapacity(sourceType) > mount + remain;
+        const storageExis = storage.store.getUsedCapacity(sourceType)
+        const isStorageExisEnough = storageExis > mount + remain;
         //terminal还可以存这么多
-        const terminalCanSave = terminal.store.getFreeCapacity(sourceType) > mount;
+        const terminalFree = terminal.store.getFreeCapacity(sourceType)
+        const isTerminalCanSave = terminalFree > mount;
         //terminal已经存在这么多
-        const terminalExis = terminal.store.getUsedCapacity(sourceType) < mount;
+        const terminalExis = terminal.store.getUsedCapacity(sourceType);
+        const isTerminalExis = terminalExis < mount;
 
-        const flag = storageExis && terminalCanSave && terminalExis;
-        console.log(storageExis, terminalCanSave, terminalExis)
+        const flag = isStorageExisEnough && isTerminalCanSave && isTerminalExis;
         // 这里有问题，TODO
         if (flag) {
+          console.log(sourceType, 'storageExis', storageExis, 'terminalFree', terminalFree, 'terminalExis', terminalExis)
           // console.log(storageExis, terminalCanSave, sourceType)
           Memory.transferSrouceType = sourceType
         }

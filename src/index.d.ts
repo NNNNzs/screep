@@ -25,14 +25,17 @@ interface Memory {
   transferList: transferItem[]
   // 塔的列表
   towerList: string[]
-
-  containerList:AnyStructure[] //
+  //容器列表
+  containerList: AnyStructure[]
+  //待建造的建筑
+  toConstructionSite: ConstructionSite[]
   // 敌人的creep
   toKillList: Creep
+  // 状态
   stats: stateItem
   // 资源类型
   transferSrouceType: string
-
+  // 是否需要转移资源
   showTransfer: boolean
 }
 

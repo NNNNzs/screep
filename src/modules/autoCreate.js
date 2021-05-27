@@ -1,5 +1,5 @@
 
-import { calcMove } from '../utils.ts';
+import { calcMove,deleteCreepMemory } from '../utils.ts';
 import { sourceMap, creepsList } from '../var.ts'
 
 export const getCost = (bodys) => {
@@ -16,14 +16,6 @@ export const getCost = (bodys) => {
   return sum
 }
 
-
-function deleteCreepMemory() {
-  for (var name in Memory.creeps) {
-    if (!Game.creeps[name]) {
-      delete Memory.creeps[name];
-    }
-  }
-}
 
 function autoCreate(creepName, spawns = 'Spawn1',) {
   // 拷贝一份
@@ -58,6 +50,8 @@ export default {
       const role = creep.memory.role;
       const costTime = creep.memory.costTime;
 
+      currentCreep[role].current++;
+
       // 如果有一个快死了，那么这个tick就立即创建
       if (costTime && costTime >= creep.ticksToLive) {
         // console.log('should create')
@@ -71,7 +65,6 @@ export default {
       //   const { name } = creep
       //   creep.memory.role = name.substring(0,name.length-7);
       // }
-      currentCreep[role].current++;
     })
 
 

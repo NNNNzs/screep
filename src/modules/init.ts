@@ -14,7 +14,7 @@ export const storageMount = () => {
 }
 export const transferMount = () => {
   Memory.transferList = [
-    { sourceType: RESOURCE_ENERGY, mount: 120000, remain: 20000, profit: 0.5 },
+    { sourceType: RESOURCE_ENERGY, mount: 120000, remain: 200000, profit: 0.5 },
     { sourceType: RESOURCE_UTRIUM, mount: 120000, remain: 10000, profit: 0.2 },
   ]
 }
@@ -32,9 +32,11 @@ export const containerListMount = (pos: Room = defaultRoom) => {
   Memory.containerList = containers
 }
 
+
 export const init = () => {
   terminalMount()
   storageMount()
   transferMount()
   townerMount()
+  containerListMount()
 }

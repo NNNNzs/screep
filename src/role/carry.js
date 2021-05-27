@@ -46,9 +46,8 @@ const roleCarry = {
       } catch (error) {
         sources = Game.getObjectById(tt);
       }
-
       // 当自己的坑位空了的时候，去别人的坑位
-      if (sources.store.getUsedCapacity() == 0) {
+      if (sources.store.getUsedCapacity() == 0&&Length!==0) {
         index++
         sources = Game.getObjectById(Memory.containerList[index % Length].id)
       }
@@ -105,7 +104,7 @@ const roleCarry = {
       // const isFu = creep.isStructureFull([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER]);
       // console.log(isFu)
       // 给建筑充能,存放资源
-      const isFull = creep.sendRourceToStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER], index % 2 === 0)
+      const isFull = creep.sendRourceToStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER,STRUCTURE_POWER_SPAWN], index % 2 === 0)
 
 
       const hasOtherSource = Object.keys(creep.carry).some(e => e != RESOURCE_ENERGY)
