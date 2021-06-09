@@ -12,8 +12,7 @@ export const toFixedList = (pos: AnyStructure = defaultRoom) => {
       return object.hits < object.hitsMax && !undo
     }
   });
-  toFixedStructures.sort((a, b) => a.hits / a.hitsMax - b.hits / b.hits);
-
+  toFixedStructures.sort((a, b) => a.hits / a.hitsMax > b.hits / b.hitsMax ? 1 : -1);
   Memory.toFixedStructures = toFixedStructures;
 
 }

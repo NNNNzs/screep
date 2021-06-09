@@ -74,10 +74,6 @@ export const findFirstEmptyStruct = (creep: Creep, structureList: BuildableStruc
 // findFirstEmptyStruct(creep,[STRUCTURE_STORAGE, STRUCTURE_CONTAINER])
 
 
-export const findClosestByRange = (creep, type) => {
-  return creep.pos.findClosestByRange(type);
-}
-
 /**
  * @description 自动删除已经不存在的creep内存
  */
@@ -86,5 +82,37 @@ export function deleteCreepMemory() {
     if (!Game.creeps[name]) {
       delete Memory.creeps[name];
     }
+  }
+}
+
+export const findEmptyStructure = (creep: Creep, rank: StructureConstant[]) => {
+  // for (let i in rank) {
+  //   const structure = rank[i]
+  //   let sources = creep.room.find(FIND_STRUCTURES, {
+  //     filter: (s) => {
+  //       return (s.structureType === structure && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
+  //     }
+  //   });
+
+  //   if (sources.length > 0) {
+  //     sources.sort((a, b) => a.store.getFreeCapacity() - b.store.getFreeCapacity())
+  //     return sources;
+  //   } else {
+  //     continue;
+  //   }
+  // }
+}
+
+interface Role {
+  sum: number
+  current: number
+  creepShouldCreate: () => boolean
+}
+
+export const shouldCreate = (role: Role): boolean => {
+  if (role.creepShouldCreate) {
+    return role.creepShouldCreate()
+  } else {
+    return role.sum > role.current
   }
 }

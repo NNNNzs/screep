@@ -14,9 +14,9 @@ export default {
         towerList.forEach(t => t.attack(closestHostile))
       }
       const toFixedList = Memory.toFixedStructures;
-      const first = toFixedList[0];
-      
-      if (toFixedList.length > 0 && first.hits < 1000) {
+
+      if (toFixedList.length > 5) {
+        const first = toFixedList[1];
         towerList[0].repair(first)
       }
     }

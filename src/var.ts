@@ -31,6 +31,13 @@ export const sourceMap = {
   }
 }
 
+interface CreepItem {
+  string: {
+    sum: number,
+    current: number,
+    createBeforeDied: number,
+  }
+}
 
 export const creepsList = {
   work: {
@@ -72,8 +79,14 @@ export const creepsList = {
       [WORK]: 12,
       [MOVE]: 24,
     }),
-    checkShouldCreate() {
-
+    creepShouldCreate(alivedNum: number) {
+      // 场上待建造的建筑大于0，且场上没有，则创建
+      const length = Memory.toConstructionSite.length;
+      const max = creepsList.builder.sum;
+      if (alivedNum < max && length > 0) {
+        return true
+      }
+      return false;
     }
   },
   upgrader: {
@@ -116,3 +129,4 @@ export const creepsList = {
     })
   }
 }
+

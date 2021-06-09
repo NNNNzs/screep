@@ -56,7 +56,10 @@ const market = {
       const has = terminal.store.getUsedCapacity(resourceType)
       // const mount = order.amount > terminal.store.getUsedCapacity()
       console.log(resourceType, has, order.amount)
-      return Game.market.deal(order.id, order.amount, "W24S33");
+      //梭哈，不留
+      const num = has < order.amount ? has : order.amount
+      console.log(num);
+      return Game.market.deal(order.id, num, "W24S33");
     });
     if (arr.length > 0) {
       // Game.notify(JSON.stringify(arr))

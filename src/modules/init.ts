@@ -15,7 +15,7 @@ export const storageMount = () => {
 export const transferMount = () => {
   Memory.transferList = [
     { sourceType: RESOURCE_ENERGY, mount: 120000, remain: 200000, profit: 0.5 },
-    { sourceType: RESOURCE_UTRIUM, mount: 120000, remain: 10000, profit: 0.2 },
+    { sourceType: RESOURCE_UTRIUM, mount: 120000, remain: 10000, profit: 0.3 },
   ]
 }
 
