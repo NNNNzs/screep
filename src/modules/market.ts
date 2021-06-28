@@ -1,6 +1,6 @@
 
-const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
-const storage: StructureStorage = Game.getObjectById(Memory.storage)
+// const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
+// const storage: StructureStorage = Game.getObjectById(Memory.storage)
 
 const market = {
   // 计算收益
@@ -14,6 +14,7 @@ const market = {
     return profitA > profitB ? -1 : 1;
   },
   getOrder() {
+    const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
     // const transferList: transferItem[] = Memory.transferList;
     const orders = Memory.transferList.map(ele => {
       const { sourceType, profit } = ele;
@@ -49,6 +50,7 @@ const market = {
   },
   // 交易
   deal(arr = []) {
+    const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
 
     // Game.market.deal('606dc5adf5ceb112d9c1d522', 26309, "W24S33");
     const status = arr.map(order => {
@@ -67,6 +69,9 @@ const market = {
     }
   },
   showTransfer() {
+    const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
+    const storage: StructureStorage = Game.getObjectById(Memory.storage)
+    
     const taskList = Memory.transferList;
     const terminalNotFull = terminal.store.getFreeCapacity() > 10000
     // console.log(terminalNotFull)
