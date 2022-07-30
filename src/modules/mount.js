@@ -1,7 +1,7 @@
 
 const showDash = { visualizePathStyle: { stroke: '#ffaa00' } }
 import { findResourceStructure, findEmptyStructure } from './utils'
-import { getCost } from './autoCreate'
+import { getCost } from './autoCreate.ts'
 const creepExtension = {
   //计算消耗
   getCost: getCost,

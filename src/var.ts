@@ -1,5 +1,4 @@
-import { createBody, calcMove } from './utils';
-
+import { createBody, calcMove } from "./utils";
 
 /**
  *  @description 每个身体部件消耗的能量
@@ -15,31 +14,32 @@ export const sourceMap = {
     cost: 50,
   },
   [ATTACK]: {
-    cost: 80
+    cost: 80,
   },
   [RANGED_ATTACK]: {
-    cost: 150
+    cost: 150,
   },
   [HEAL]: {
-    cost: 250
+    cost: 250,
   },
   [CLAIM]: {
-    cost: 600
+    cost: 600,
   },
   [TOUGH]: {
-    cost: 10
-  }
-}
+    cost: 10,
+  },
+};
 
 interface CreepItem {
-  string: {
-    sum: number,
-    current: number,
-    createBeforeDied: number,
-  }
+  index?: number;
+  sum: number;
+  current: number;
+  body: BodyPartConstant[];
+  createBeforeDied?: number;
+  creepShouldCreate?: (number) => boolean;
 }
 
-export const creepsList = {
+export const creepsList: Record<string, CreepItem> = {
   work: {
     sum: 1,
     current: 0,
@@ -49,7 +49,7 @@ export const creepsList = {
       [WORK]: 4,
       [MOVE]: 5,
       [HEAL]: 2,
-    })
+    }),
   },
   harvester: {
     sum: 2,
@@ -58,7 +58,7 @@ export const creepsList = {
     body: createBody({
       [MOVE]: 8,
       [WORK]: 9,
-    })
+    }),
   },
   carry: {
     sum: 2,
@@ -66,8 +66,8 @@ export const creepsList = {
     createBeforeDied: 20,
     body: createBody({
       [CARRY]: 18,
-      [MOVE]: 17
-    })
+      [MOVE]: 17,
+    }),
   },
 
   builder: {
@@ -84,10 +84,10 @@ export const creepsList = {
       const length = Memory.toConstructionSite.length;
       const max = creepsList.builder.sum;
       if (alivedNum < max && length > 0) {
-        return true
+        return true;
       }
       return false;
-    }
+    },
   },
   upgrader: {
     index: 4,
@@ -97,8 +97,8 @@ export const creepsList = {
     body: createBody({
       [CARRY]: 2,
       [WORK]: 2,
-      [MOVE]: 4
-    })
+      [MOVE]: 4,
+    }),
   },
   soldier: {
     sum: 0,
@@ -108,7 +108,7 @@ export const creepsList = {
       [RANGED_ATTACK]: 11,
       [HEAL]: 9,
       [MOVE]: 24,
-    })
+    }),
   },
   doctor: {
     sum: 0,
@@ -116,7 +116,7 @@ export const creepsList = {
     body: createBody({
       [HEAL]: 5,
       [MOVE]: 5,
-    })
+    }),
   },
   repair: {
     index: 4,
@@ -125,8 +125,7 @@ export const creepsList = {
     body: createBody({
       [CARRY]: 9,
       [WORK]: 10,
-      [MOVE]: 20
-    })
-  }
-}
-
+      [MOVE]: 20,
+    }),
+  },
+};

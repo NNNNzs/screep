@@ -57,15 +57,15 @@ const market = {
       const { resourceType } = order
       const has = terminal.store.getUsedCapacity(resourceType)
       // const mount = order.amount > terminal.store.getUsedCapacity()
-      console.log(resourceType, has, order.amount)
+      // console.log(resourceType, has, order.amount)
       //梭哈，不留
       const num = has < order.amount ? has : order.amount
-      console.log(num);
+      // console.log(num);
       return Game.market.deal(order.id, num, "W24S33");
     });
     if (arr.length > 0) {
       // Game.notify(JSON.stringify(arr))
-      console.log(status)
+      // console.log(status)
     }
   },
   showTransfer() {
@@ -91,7 +91,7 @@ const market = {
         const flag = isStorageExisEnough && isTerminalCanSave && isTerminalExis;
         // 这里有问题，TODO
         if (flag) {
-          console.log(sourceType, 'storageExis', storageExis, 'terminalFree', terminalFree, 'terminalExis', terminalExis)
+          // console.log(sourceType, 'storageExis', storageExis, 'terminalFree', terminalFree, 'terminalExis', terminalExis)
           // console.log(storageExis, terminalCanSave, sourceType)
           Memory.transferSrouceType = sourceType
         }

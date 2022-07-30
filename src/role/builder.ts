@@ -1,7 +1,7 @@
 // const roleUpgrader = require('role.upgrader')
 import roleUpgrader from './upgrader'
 const roleBuilder = {
-    toBuildStructure(creep) {
+    toBuildStructure(creep:Creep) {
         return creep.room.find(FIND_CONSTRUCTION_SITES);
     },
     build(creep) {

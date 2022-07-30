@@ -1,11 +1,11 @@
 import { errorMapper } from './modules/errorMapper'
 
 import roleUpgrader from './role/upgrader'
-import roleBuilder from './role/builder'
+import roleBuilder from './role/builder.ts'
 import roleCarry from './role/carry'
 import roleOnlyHarvester from './role/harvester'
 import roleRepair from './role/repair'
-import autoCreate from './modules/autoCreate'
+import autoCreate from './modules/autoCreate.ts'
 import soldier from './role/soldier'
 import roleWork from './role/work'
 import tower from './building/tower'
