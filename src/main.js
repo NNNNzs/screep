@@ -12,7 +12,7 @@ import tower from './building/tower'
 import market from './modules/market.ts'
 import mount from './modules/mount'
 import { stateScanner } from './modules/stateScanner.ts'
-import { init } from './modules/init.ts'
+import { init, containerListMount } from './modules/init.ts'
 import { roomScanner } from './modules/Scanner.ts'
 mount()
 
@@ -21,10 +21,15 @@ export const loop = errorMapper(() => {
   const t = Game.time;
   roomScanner();
 
+
+
   autoCreate.run();
   tower.run();
   if (t % 3 === 0) {
     market.run();
+    if (Memory.containerList.length < 2) {
+      containerListMount();
+    }
   }
   stateScanner();
   // return false;

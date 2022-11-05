@@ -40,6 +40,34 @@ interface CreepItem {
 }
 
 export const creepsList: Record<string, CreepItem> = {
+  builder: {
+    sum: 1,
+    current: 0,
+    createBeforeDied: 10,
+    body: createBody({
+      [CARRY]: 12,
+      [WORK]: 12,
+      [MOVE]: 24,
+    }),
+    creepShouldCreate(alivedNum: number) {
+      // 场上待建造的建筑大于0，且场上没有，则创建
+      const length = Memory.toConstructionSite.length;
+      const max = creepsList.builder.sum;
+      if (alivedNum < max && length > 0) {
+        return true;
+      }
+      return false;
+    },
+  },
+  carry: {
+    sum: 2,
+    current: 0,
+    createBeforeDied: 20,
+    body: createBody({
+      [CARRY]: 18,
+      [MOVE]: 17,
+    }),
+  },
   work: {
     sum: 1,
     current: 0,
@@ -59,35 +87,6 @@ export const creepsList: Record<string, CreepItem> = {
       [MOVE]: 8,
       [WORK]: 9,
     }),
-  },
-  carry: {
-    sum: 2,
-    current: 0,
-    createBeforeDied: 20,
-    body: createBody({
-      [CARRY]: 18,
-      [MOVE]: 17,
-    }),
-  },
-
-  builder: {
-    sum: 1,
-    current: 0,
-    createBeforeDied: 10,
-    body: createBody({
-      [CARRY]: 12,
-      [WORK]: 12,
-      [MOVE]: 24,
-    }),
-    creepShouldCreate(alivedNum: number) {
-      // 场上待建造的建筑大于0，且场上没有，则创建
-      const length = Memory.toConstructionSite.length;
-      const max = creepsList.builder.sum;
-      if (alivedNum < max && length > 0) {
-        return true;
-      }
-      return false;
-    },
   },
   upgrader: {
     index: 4,
