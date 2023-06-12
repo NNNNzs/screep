@@ -40,6 +40,24 @@ interface CreepItem {
 }
 
 export const creepsList: Record<string, CreepItem> = {
+  harvester: {
+    sum: 2,
+    current: 0,
+    createBeforeDied: 20,
+    body: createBody({
+      [MOVE]: 8,
+      [WORK]: 9,
+    }),
+  },
+  carry: {
+    sum: 2,
+    current: 0,
+    createBeforeDied: 20,
+    body: createBody({
+      [CARRY]: 18,
+      [MOVE]: 17,
+    }),
+  },
   builder: {
     sum: 1,
     current: 0,
@@ -59,15 +77,6 @@ export const creepsList: Record<string, CreepItem> = {
       return false;
     },
   },
-  carry: {
-    sum: 2,
-    current: 0,
-    createBeforeDied: 20,
-    body: createBody({
-      [CARRY]: 18,
-      [MOVE]: 17,
-    }),
-  },
   work: {
     sum: 1,
     current: 0,
@@ -77,15 +86,6 @@ export const creepsList: Record<string, CreepItem> = {
       [WORK]: 4,
       [MOVE]: 5,
       [HEAL]: 2,
-    }),
-  },
-  harvester: {
-    sum: 2,
-    current: 0,
-    createBeforeDied: 20,
-    body: createBody({
-      [MOVE]: 8,
-      [WORK]: 9,
     }),
   },
   upgrader: {

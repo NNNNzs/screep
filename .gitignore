@@ -1,3 +1,4 @@
 node_modules
 .sercet.json
 dist
+.secret.json
