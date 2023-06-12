@@ -17,7 +17,9 @@ interface transferItem {
 interface CreepMemory {
   role: string;
   costTime: number;
+  building?: boolean;
 }
+
 
 interface Memory {
   // 待修复的列表
@@ -46,4 +48,10 @@ interface Memory {
 
 interface Order {
   profit?: number;
+}
+
+
+interface Creep {
+  getResourceByStructure: () => void,
+  self_harvest: (index: number) => void
 }

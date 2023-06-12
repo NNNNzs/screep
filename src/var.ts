@@ -88,17 +88,6 @@ export const creepsList: Record<string, CreepItem> = {
       [HEAL]: 2,
     }),
   },
-  upgrader: {
-    index: 4,
-    sum: 1,
-    current: 0,
-    createBeforeDied: 10,
-    body: createBody({
-      [CARRY]: 2,
-      [WORK]: 2,
-      [MOVE]: 4,
-    }),
-  },
   soldier: {
     sum: 0,
     current: 0,

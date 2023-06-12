@@ -1,17 +1,17 @@
 import { calcMove, deleteCreepMemory, shouldCreate } from "../utils";
 import { sourceMap, creepsList } from "../var";
 
+/**  */
 export const getCost = (bodys) => {
   let sum = 0;
   _.forEach(bodys, (part) => {
     sum += sourceMap[part].cost;
   });
   const room = Game.spawns["Spawn1"].room;
-  const str = `${room.energyAvailable}/${
-    room.energyCapacityAvailable
-  }but ${sum} ${calcMove(bodys)}tick/move`;
+  const str = `${room.energyAvailable}/${room.energyCapacityAvailable
+    }but ${sum} ${calcMove(bodys)}tick/move`;
   if (room.energyAvailable < room.energyCapacityAvailable / 2) {
-    Game.notify("能量低于一般，注意上线查看" + str);
+    Game.notify("能量低于一半，注意上线查看" + str);
   }
   // console.log(str)
   return sum;
@@ -50,7 +50,10 @@ export default {
       const role = creep.memory.role;
       const costTime = creep.memory.costTime;
 
-      currentCreep[role].current++;
+      // console.log('currentCreep[role]', role, currentCreep[role])
+      if (currentCreep[role]) {
+        currentCreep[role].current++;
+      }
 
       // 如果有一个快死了，那么这个tick就立即创建
       if (costTime && costTime >= creep.ticksToLive) {
