@@ -7,10 +7,15 @@ interface stateItem {
   bucket: number;
 }
 
-interface transferItem {
+/** 需要转移并且出售的资源 */
+declare interface transferItem {
+  /** 资源类型 */
   sourceType: ResourceConstant;
-  mount: number; //可以出售
-  remain: number; //storage需要剩余
+  /** 可以出售的数量 */
+  mount: number;
+  /** storage需要剩余 */
+  remain: number;
+  /** 一个比例 */
   profit: number;
 }
 
@@ -44,6 +49,8 @@ interface Memory {
   transferSrouceType: string;
   // 是否需要转移资源
   showTransfer: boolean;
+
+
 }
 
 interface Order {
