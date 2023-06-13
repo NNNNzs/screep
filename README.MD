@@ -1,4 +1,7 @@
 
+
+[中文文档](https://screeps-cn.github.io/api/)
+
 ### 自动renew设计
 1. screep空闲的时候，去spawn附近
 2. 更改spawn的renewTargetId，进行renew
