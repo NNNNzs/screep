@@ -1,6 +1,6 @@
 import { errorMapper } from './modules/errorMapper'
 
-import roleUpgrader from './role/upgrader'
+import roleUpgrader from './role/upgrader.ts'
 import roleBuilder from './role/builder.ts'
 import roleCarry from './role/carry'
 import roleOnlyHarvester from './role/harvester.ts'

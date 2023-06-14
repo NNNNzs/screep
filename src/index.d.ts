@@ -25,6 +25,10 @@ interface CreepMemory {
   building?: boolean;
 }
 
+/** 工具人 Memory */
+interface CreepMemory {
+  working: boolean
+}
 
 interface Memory {
   // 待修复的列表
@@ -59,6 +63,7 @@ interface Order {
 
 
 interface Creep {
+  /** 从建筑物里面拿出资源 */
   getResourceByStructure: () => void,
   self_harvest: (index: number) => void
 }
