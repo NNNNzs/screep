@@ -19,6 +19,7 @@ declare interface transferItem {
   profit: number;
 }
 
+/** 通用的CreepMemory */
 interface CreepMemory {
   role: string;
   costTime: number;
@@ -27,7 +28,9 @@ interface CreepMemory {
 
 /** 工具人 Memory */
 interface CreepMemory {
-  working: boolean
+  working?: boolean
+  job?: 'build' | 'fix' | 'upgrader'
+  target?: string;
 }
 
 interface Memory {
@@ -54,13 +57,38 @@ interface Memory {
   // 是否需要转移资源
   showTransfer: boolean;
 
+  /** 房间名称 */
+  rooms: {
+    [name: string]: {
+      terminalId: string;
+      storageId: string;
+      transferList: transferItem[];
+
+      /**塔的列表 */
+      towerIdList: string[];
+
+      /** 容器id列表 */
+      containerIdList: string[];
+
+      /** 待建造列表 */
+      toConstructionSite: ConstructionSite[];
+
+      /** 待修复列表 */
+      toFixedStructures: AnyStructure[];
+
+      /** 需要转移的资源，目前没想好 */
+      carryList?: any[]
+
+      /** 待治疗的screepId */
+      toHealCreepId: string[]
+    }
+  }
 
 }
 
 interface Order {
   profit?: number;
 }
-
 
 interface Creep {
   /** 从建筑物里面拿出资源 */

@@ -15,6 +15,17 @@ export const toFixedList = (pos: AnyStructure = defaultRoom) => {
   toFixedStructures.sort((a, b) => a.hits / a.hitsMax > b.hits / b.hitsMax ? 1 : -1);
   Memory.toFixedStructures = toFixedStructures;
 
+  Memory.rooms[pos.room.name].toFixedStructures = toFixedStructures;
+
+}
+
+export const toBuildList = (room: Room = defaultRoom.room) => {
+  const list = room.find(FIND_CONSTRUCTION_SITES);
+  Memory.toConstructionSite = list;
+
+  /** 带建造列表 */
+  Memory.rooms[room.name].toConstructionSite = list;
+
 }
 
 export const setToKillList = (pos: RoomPosition = defaultRoom.pos) => {
@@ -25,10 +36,7 @@ export const setToKillList = (pos: RoomPosition = defaultRoom.pos) => {
 
 }
 
-export const toBuildList = (room: Room = defaultRoom.room) => {
-  const list = room.find(FIND_CONSTRUCTION_SITES);
-  Memory.toConstructionSite = list;
-}
+
 
 export const roomScanner = () => {
   toFixedList();

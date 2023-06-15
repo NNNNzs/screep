@@ -1,5 +1,7 @@
 import { createBody, calcMove } from "./utils";
 
+export const showDash = { visualizePathStyle: { stroke: "#fffff" } };
+
 /**
  *  @description 每个身体部件消耗的能量
  */

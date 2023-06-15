@@ -1,12 +1,13 @@
 // const roleUpgrader = require('role.upgrader')
 import roleUpgrader from './upgrader'
 const roleBuilder = {
-    toBuildStructure(creep: Creep) {
-        return creep.room.find(FIND_CONSTRUCTION_SITES);
+    toBuildStructure() {
+        // return creep.room.find(FIND_CONSTRUCTION_SITES);
+        return Memory.toConstructionSite
     },
     build(creep) {
         // 待建造的工地
-        const targets = roleBuilder.toBuildStructure(creep);
+        const targets = roleBuilder.toBuildStructure();
         // 如果有带建造的
         if (targets.length) {
             if (creep.build(targets[0]) == ERR_NOT_IN_RANGE) {
@@ -16,7 +17,7 @@ const roleBuilder = {
     },
     run: function (creep: Creep) {
         // 如果没有待建设的建筑，执行升级
-        if (!roleBuilder.toBuildStructure(creep).length) {
+        if (!roleBuilder.toBuildStructure().length) {
             roleUpgrader.run(creep);
             return;
         }
