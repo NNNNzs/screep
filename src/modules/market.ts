@@ -2,6 +2,8 @@
 // const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
 // const storage: StructureStorage = Game.getObjectById(Memory.storage)
 
+import { useCpu } from "@/utils";
+
 const market = {
   // 计算收益
   sortFun(a: Order, b: Order) {
@@ -20,7 +22,7 @@ const market = {
       const { sourceType, profit } = ele;
       // terminal库存为0 直接跳过该类型的订单
       const used = terminal.store.getUsedCapacity(sourceType);
-      // console.log(used)
+
       if (used === 0) {
         return []
       }
@@ -31,8 +33,7 @@ const market = {
       }).sort(market.sortFun).filter(o => {
         return o.profit > profit
       });
-      // const elapsed = Game.cpu.getUsed() - startCpu;
-      // console.log('Creep ' + 'order' + ' has used ' + elapsed + ' CPU time');
+
       return order
     })
     // console.log(orders)
@@ -71,7 +72,7 @@ const market = {
   showTransfer() {
     const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
     const storage: StructureStorage = Game.getObjectById(Memory.storage)
-    
+
     const taskList = Memory.transferList;
     const terminalNotFull = terminal.store.getFreeCapacity() > 10000
     // console.log(terminalNotFull)
@@ -103,13 +104,14 @@ const market = {
     Memory.showTransfer = shouldTransferFlag
   },
   run() {
-    market.showTransfer();
-
+    market.showTransfer()
     market.getOrder().forEach(orders => {
       if (orders.length > 0) {
         market.deal(orders)
       }
     });
+
+
 
   }
 }

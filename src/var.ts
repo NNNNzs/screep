@@ -38,7 +38,6 @@ interface CreepItem {
   current: number;
   body: BodyPartConstant[];
   createBeforeDied?: number;
-  creepShouldCreate?: (number) => boolean;
 }
 
 export const creepsList: Record<string, CreepItem> = {
@@ -69,15 +68,6 @@ export const creepsList: Record<string, CreepItem> = {
       [WORK]: 12,
       [MOVE]: 24,
     }),
-    creepShouldCreate(alivedNum: number) {
-      // 场上待建造的建筑大于0，且场上没有，则创建
-      const length = Memory.toConstructionSite.length;
-      const max = creepsList.builder.sum;
-      if (alivedNum < max && length > 0) {
-        return true;
-      }
-      return false;
-    },
   },
   work: {
     sum: 1,

@@ -1,6 +1,9 @@
 lockfileVersion: '6.0'
 
 dependencies:
+  '@types/node':
+    specifier: ^20.3.1
+    version: registry.npmjs.org/@types/node@20.3.1
   lodash:
     specifier: ^4.17.20
     version: registry.npmjs.org/lodash@4.17.20
@@ -151,7 +154,7 @@ packages:
     name: '@types/fs-extra'
     version: 8.1.2
     dependencies:
-      '@types/node': registry.npmjs.org/@types/node@20.3.0
+      '@types/node': registry.npmjs.org/@types/node@20.3.1
     dev: true
 
   registry.npmjs.org/@types/glob@7.2.0:
@@ -160,7 +163,7 @@ packages:
     version: 7.2.0
     dependencies:
       '@types/minimatch': registry.npmjs.org/@types/minimatch@5.1.2
-      '@types/node': registry.npmjs.org/@types/node@20.3.0
+      '@types/node': registry.npmjs.org/@types/node@20.3.1
     dev: true
 
   registry.npmjs.org/@types/lodash@3.10.1:
@@ -175,18 +178,17 @@ packages:
     version: 5.1.2
     dev: true
 
-  registry.npmjs.org/@types/node@20.3.0:
-    resolution: {integrity: sha512-cumHmIAf6On83X7yP+LrsEyUOf/YlociZelmpRYaGFydoaPdxdt80MAbu6vWerQT2COCp2nPvHdsbD7tHn/YlQ==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/@types/node/-/node-20.3.0.tgz}
+  registry.npmjs.org/@types/node@20.3.1:
+    resolution: {integrity: sha512-EhcH/wvidPy1WeML3TtYFGR83UzjxeWRen9V402T8aUGYsCHOmfoisV3ZSg03gAFIbLq8TnWOJ0f4cALtnSEUg==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/@types/node/-/node-20.3.1.tgz}
     name: '@types/node'
-    version: 20.3.0
-    dev: true
+    version: 20.3.1
 
   registry.npmjs.org/@types/resolve@1.17.1:
     resolution: {integrity: sha512-yy7HuzQhj0dhGpD8RLXSZWEkLsV9ibvxvi6EiJ3bkqLAO1RGo0WbkWQiwpRlSFymTJRz0d3k5LM3kkx8ArDbLw==, registry: https://registry.yarnpkg.com/, tarball: https://registry.npmjs.org/@types/resolve/-/resolve-1.17.1.tgz}
     name: '@types/resolve'
     version: 1.17.1
     dependencies:
-      '@types/node': registry.npmjs.org/@types/node@20.3.0
+      '@types/node': registry.npmjs.org/@types/node@20.3.1
     dev: true
 
   registry.npmjs.org/@types/screeps@3.2.2:

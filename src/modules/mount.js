@@ -1,6 +1,8 @@
 const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
 import { findResourceStructure, findEmptyStructure } from "./utils";
+
 import { getCost } from "./autoCreate.ts";
+
 export const creepExtension = {
   //计算消耗
   getCost: getCost,
@@ -116,8 +118,7 @@ export const creepExtension = {
       }
       return false;
     }
-    // const targets = Memory.toFixedStructures;
-    const targets = Memory.toFixedStructures;
+    const targets = global.toFixedStructures;
 
     // 根据当前剩余能量升序
     // 更改为根据能量剩余的比例，原因是有些建筑一次性掉血过多
@@ -159,10 +160,12 @@ export const creepExtension = {
 // 挂载所有的额外属性和方法
 export default function () {
   const startCpu = Game.cpu.getUsed();
-
+  const t = new Date();
+  const date = new Date(t.setHours(t.getHours() + 8));
+  
   console.log("mounted");
-  console.log(new Date().toLocaleString());
-  Memory.lastModified = new Date().toLocaleString();
+  console.log(date.toLocaleString());
+  Memory.lastModified = date.toLocaleString();
   _.assign(Creep.prototype, creepExtension);
 
   const elapsed = Game.cpu.getUsed() - startCpu;

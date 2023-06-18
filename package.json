@@ -4,6 +4,7 @@
   "description": "screpp游戏的源代码",
   "main": "main.js",
   "dependencies": {
+    "@types/node": "^20.3.1",
     "lodash": "^4.17.20",
     "source-map": "^0.6.1"
   },

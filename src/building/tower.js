@@ -13,7 +13,7 @@ export default {
         // console.log(`敌人出现在你的房间${Game.time}`)
         towerList.forEach(t => t.attack(closestHostile))
       }
-      const toFixedList = Memory.toFixedStructures;
+      const toFixedList = global.toFixedStructures;
 
       if (toFixedList.length > 5) {
         const first = toFixedList[1];

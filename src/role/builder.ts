@@ -3,7 +3,7 @@ import roleUpgrader from './upgrader'
 const roleBuilder = {
     toBuildStructure() {
         // return creep.room.find(FIND_CONSTRUCTION_SITES);
-        return Memory.toConstructionSite
+        return global.toConstructionSite
     },
     build(creep) {
         // 待建造的工地

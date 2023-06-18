@@ -1,8 +1,4 @@
 const showDash = { visualizePathStyle: { stroke: "#fffff" } };
-/**
- * 1. 建造建筑
- * 2. 维修建筑
- */
 
 
 /**

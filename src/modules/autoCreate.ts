@@ -1,4 +1,4 @@
-import { calcMove, deleteCreepMemory, shouldCreate } from "../utils";
+import { calcMove, deleteCreepMemory } from "../utils";
 import { sourceMap, creepsList } from "../var";
 
 /**  */

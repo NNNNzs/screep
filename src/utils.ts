@@ -103,16 +103,17 @@ export const findEmptyStructure = (creep: Creep, rank: StructureConstant[]) => {
   // }
 }
 
-interface Role {
-  sum: number
-  current: number
-  creepShouldCreate: () => boolean
+
+/**
+ * 
+ * @param {Function} fun 传入函数
+ */
+export const useCpu = (fun: () => any) => {
+  const startCpu = Game.cpu.getUsed();
+  const res = fun();
+  const elapsed = Game.cpu.getUsed() - startCpu;
+  console.log(fun.name, 'cost', elapsed)
+  return res;
 }
 
-export const shouldCreate = (role: Role): boolean => {
-  if (role.creepShouldCreate) {
-    return role.creepShouldCreate()
-  } else {
-    return role.sum > role.current
-  }
-}
+/** */

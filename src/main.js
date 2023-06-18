@@ -1,37 +1,36 @@
-import { errorMapper } from './modules/errorMapper'
+// import { errorMapper } from './modules/errorMapper'
+import { ErrorMapper } from "./modules/errorMappere.ts";
 
-import roleUpgrader from './role/upgrader.ts'
-import roleBuilder from './role/builder.ts'
-import roleCarry from './role/carry'
-import roleOnlyHarvester from './role/harvester.ts'
-import roleRepair from './role/repair'
-import autoCreate from './modules/autoCreate.ts'
-import soldier from './role/soldier'
-import roleWork from './role/work'
-import tower from './building/tower'
-import market from './modules/market.ts'
-import mount from './modules/mount'
-import { stateScanner } from './modules/stateScanner.ts'
-import { init, containerListMount } from './modules/init.ts'
-import { roomScanner } from './modules/Scanner.ts'
-mount()
+import roleUpgrader from "./role/upgrader.ts";
+import roleBuilder from "./role/builder.ts";
+import roleCarry from "./role/carry";
+import roleOnlyHarvester from "./role/harvester.ts";
+import roleRepair from "./role/repair";
+import autoCreate from "./modules/autoCreate.ts";
+import soldier from "./role/soldier";
+import roleWork from "./role/work.ts";
+import tower from "./building/tower";
+import market from "./modules/market.ts";
+import mount from "./modules/mount";
+import { stateScanner } from "./modules/stateScanner.ts";
+import { init, containerListMount } from "./modules/init.ts";
+import { roomScanner } from "./modules/Scanner.ts";
+mount();
+init();
 
-init()
-export const loop = errorMapper(() => {
+export const loop = ErrorMapper.wrapLoop(() => {
   const t = Game.time;
   roomScanner();
-
-
+  stateScanner();
 
   autoCreate.run();
   tower.run();
+
   if (t % 3 === 0) {
     market.run();
-    if (Memory.containerList.length < 2) {
-      containerListMount();
-    }
+    containerListMount();
   }
-  stateScanner();
+
   // return false;
   let i = 0;
   let work = 0;
@@ -43,28 +42,21 @@ export const loop = errorMapper(() => {
     // creep.say(`${ticksToLive}`)
 
     const role = creep.memory.role;
-    if (role == 'carry') {
-      roleCarry.run(creep, carry)
-      carry++
-    }
-    else if (role == 'harvester') {
-      roleOnlyHarvester.run(creep, work)
-      work++
-    }
-    else if (role == 'upgrader') {
-      roleUpgrader.run(creep);
-    }
-    else if (role == 'builder') {
+    if (role == "carry") {
+      roleCarry.run(creep, carry);
+      carry++;
+    } else if (role == "harvester") {
+      roleOnlyHarvester.run(creep, work);
+      work++;
+    } else if (role == "builder") {
       roleBuilder.run(creep);
-    }
-    else if (role == 'repair') {
-      roleRepair.run(creep)
-    }
-    else if (role === 'work') {
-      roleWork.run(creep, i)
-      i++
-    } else if (role === 'soldier') {
-      soldier.run(creep)
+    } else if (role == "repair") {
+      roleRepair.run(creep);
+    } else if (role === "work") {
+      roleWork.run(creep, i);
+      i++;
+    } else if (role === "soldier") {
+      soldier.run(creep);
     }
   }
-})
+});
