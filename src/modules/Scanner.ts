@@ -2,6 +2,11 @@
 const unHealList = [STRUCTURE_WALL, STRUCTURE_RAMPART, 'extension'];
 const defaultRoom = Game.spawns['Spawn1'];
 
+export const findSpawns = () => {
+  // Object.keys(Game.spawns);
+  console.log('spawns', JSON.stringify(Game.spawns));
+}
+
 const setRoomsMemory = <K extends keyof RoomMemory>(roomName: string, key: K, value: RoomMemory[K]) => {
   // if (!Memory.rooms) Memory.rooms = {};
   // if (!Memory.rooms[roomName]) Memory.rooms[roomName] = {};
@@ -45,7 +50,7 @@ export const toBuildList = (room: Room = defaultRoom.room) => {
 
 
 export const roomScanner = () => {
-
-  toFixedList();
-  toBuildList();
+  findSpawns();
+  // toFixedList();
+  // toBuildList();
 }

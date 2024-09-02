@@ -11,35 +11,22 @@ import { ErrorMapper } from "./modules/errorMappere.ts";
 // import roleWork from "./role/work.ts";
 // import tower from "./building/tower";
 // import market from "./modules/market.ts";
-// import { stateScanner } from "./modules/stateScanner.ts";
 // import { init, containerListMount } from "./modules/init.ts";
-// import { roomScanner } from "./modules/Scanner.ts";
-// import mount from "./modules/mount";  
+// import { stateScanner } from "./modules/stateScanner.ts";
+import { roomScanner } from "./modules/Scanner.ts";
+import mount from "./modules/mount";
 // init();
 
+mount();
 
 export const loop = ErrorMapper.wrapLoop(() => {
 
-  const t = Game.time;
-
-  const startCpu = Game.cpu.getUsed();
-  const date = new Date(new Date().setHours(new Date().getHours() + 8));
-  console.log("mounted");
-  console.log(date.toLocaleString());
-  Memory.lastModified = date.toLocaleString();
-  const elapsed = Game.cpu.getUsed() - startCpu;
-  console.log("mounted " + elapsed + " CPU time");
-
-  // roomScanner();
+  roomScanner();
+  console.log("loop");
   // stateScanner();
-  // mount();
-
   // autoCreate.run();
   // tower.run();
   // return false;
-  let i = 0;
-  let work = 0;
-  let carry = 0;
 
   // for (const name in Game.creeps) {
   //   const creep = Game.creeps[name];

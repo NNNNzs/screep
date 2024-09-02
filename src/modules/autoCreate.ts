@@ -1,5 +1,6 @@
 import { calcMove, deleteCreepMemory } from "../utils";
 import { sourceMap, creepsList } from "../var";
+import { findSpawns } from "./Scanner";
 
 /**  */
 export const getCost = (bodys) => {
@@ -41,10 +42,11 @@ function autoCreate(creepName, spawns = "Spawn1") {
   deleteCreepMemory();
 }
 
+
 export default {
   run() {
-    let currentCreep = _.cloneDeep(creepsList);
 
+    let currentCreep = _.cloneDeep(creepsList);
     // 计算当前场上 有多少个creep
     _.forEach(Game.creeps, (creep) => {
       const role = creep.memory.role;

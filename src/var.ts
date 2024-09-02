@@ -35,10 +35,21 @@ export const sourceMap = {
 interface CreepItem {
   index?: number;
   sum: number;
-  current: number;
+  current?: number;
   body: BodyPartConstant[];
   createBeforeDied?: number;
 }
+
+// 菜鸟爬虫
+export const defaultCreep: CreepItem = {
+  sum: 2,
+  body: createBody({
+    [MOVE]: 2,
+    [WORK]: 1,
+    [CARRY]: 1,
+  })
+}
+// export const 
 
 export const creepsList: Record<string, CreepItem> = {
   harvester: {

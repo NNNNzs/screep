@@ -7,12 +7,12 @@ export const stateScanner = () => {
     if (Game.time % 20) return
 
     if (!Memory.stats) Memory.stats = {
-        gcl:0,
-        gclLevel:0,
-        gpl:0,
-        gplLevel:0,
-        cpu:0,
-        bucket:0
+        gcl: 0,
+        gclLevel: 0,
+        gpl: 0,
+        gplLevel: 0,
+        cpu: 0,
+        bucket: 0
     }
 
     // 统计 GCL / GPL 的升级百分比和等级

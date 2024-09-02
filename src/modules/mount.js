@@ -1,6 +1,5 @@
 const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
 import { findResourceStructure, findEmptyStructure } from "./utils";
-
 import { getCost } from "./autoCreate.ts";
 
 export const creepExtension = {
@@ -159,18 +158,7 @@ export const creepExtension = {
 
 // 挂载所有的额外属性和方法
 export default function () {
-  const startCpu = Game.cpu.getUsed();
-  const t = new Date();
-  const date = new Date(t.setHours(t.getHours() + 8));
-
-  console.log("mounted");
-  console.log(date.toLocaleString());
   Memory.lastModified = date.toLocaleString();
+  Memory.startTick = Game.time;
   _.assign(Creep.prototype, creepExtension);
-
-  const elapsed = Game.cpu.getUsed() - startCpu;
-  console.log("mounted " + elapsed + " CPU time");
-  // mountFlag()
-  // mountRoom()
-  // 其他更多拓展...
 }

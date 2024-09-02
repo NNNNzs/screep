@@ -108,12 +108,26 @@ export const findEmptyStructure = (creep: Creep, rank: StructureConstant[]) => {
  * 
  * @param {Function} fun 传入函数
  */
-export const useCpu = (fun: () => any) => {
+export const useCpu = (fun: () => any, name: string) => {
   const startCpu = Game.cpu.getUsed();
   const res = fun();
+  const functionName = name || fun.name;
   const elapsed = Game.cpu.getUsed() - startCpu;
-  console.log(fun.name, 'cost', elapsed)
+  console.log(functionName, 'cost', elapsed)
   return res;
 }
+
+export const runPerTime = (fun: () => any, everyTick: number) => {
+  if (Game.time % everyTick === 0) {
+    return fun()
+  }
+}
+
+export const runAfterStart = (cb: () => any) => {
+  if (Game.time === 0) {
+    return cb();
+  }
+}
+
 
 /** */
