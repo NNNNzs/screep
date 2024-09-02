@@ -1,7 +1,5 @@
 import { calcMove, deleteCreepMemory } from "../utils";
-import { sourceMap, creepsList } from "../var";
-import { findSpawns } from "./Scanner";
-
+import { sourceMap, creepsList, defaultCreep } from "../var";
 /**  */
 export const getCost = (bodys) => {
   let sum = 0;
@@ -46,13 +44,24 @@ function autoCreate(creepName, spawns = "Spawn1") {
 export default {
   run() {
 
+    Object.keys(Game.spawns).forEach((spawnName) => {
+      const spawn = Game.spawns[spawnName];
+      const empty = spawn.room.energyAvailable === 300
+      if (empty) {
+        spawn.spawnCreep(defaultCreep.body, "default", {
+
+        })
+        return;
+      }
+    })
+
+
     let currentCreep = _.cloneDeep(creepsList);
     // 计算当前场上 有多少个creep
     _.forEach(Game.creeps, (creep) => {
       const role = creep.memory.role;
       const costTime = creep.memory.costTime;
 
-      // console.log('currentCreep[role]', role, currentCreep[role])
       if (currentCreep[role]) {
         currentCreep[role].current++;
       }

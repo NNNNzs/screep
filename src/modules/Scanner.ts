@@ -3,8 +3,8 @@ const unHealList = [STRUCTURE_WALL, STRUCTURE_RAMPART, 'extension'];
 const defaultRoom = Game.spawns['Spawn1'];
 
 export const findSpawns = () => {
-  // Object.keys(Game.spawns);
-  console.log('spawns', JSON.stringify(Game.spawns));
+  return Object.keys(Game.spawns);
+  // return Game.spawns;
 }
 
 const setRoomsMemory = <K extends keyof RoomMemory>(roomName: string, key: K, value: RoomMemory[K]) => {

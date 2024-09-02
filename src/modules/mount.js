@@ -158,7 +158,7 @@ export const creepExtension = {
 
 // 挂载所有的额外属性和方法
 export default function () {
-  Memory.lastModified = date.toLocaleString();
+  Memory.lastModified = new Date().toLocaleString();
   Memory.startTick = Game.time;
   _.assign(Creep.prototype, creepExtension);
 }

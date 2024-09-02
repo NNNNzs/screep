@@ -5,8 +5,8 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "rollup-plugin-typescript2";
 import fs from 'fs';
-const secretJson = fs.readFileSync('./.secret.json', 'utf8');
-const secret = JSON.parse(secretJson);
+const secretJson = fs.readFileSync('./secret.json', 'utf8');
+const secret = JSON.parse(secretJson); 
 
 const env = process.env.DEST
 
@@ -26,8 +26,8 @@ const dest = win32 ? config.winPath : config.copyPath;
 
 // 根据指定的配置决定是上传还是复制到文件夹
 const pluginDeploy = () => {
-  if (env === 'local') {
-    copy({
+  if (env === 'dev') {
+    return copy({
       targets: [
         {
           src: "dist/main.js",
