@@ -16,6 +16,7 @@
         "node_modules"
     ],
     "include": [
+        "@types/screeps",
         "src/**/*.ts",
     ]
 }

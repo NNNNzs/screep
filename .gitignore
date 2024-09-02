@@ -2,3 +2,5 @@ node_modules
 .sercet.json
 dist
 .secret.json
+secret.json
+.secret.bak.json

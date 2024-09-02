@@ -12,7 +12,7 @@ const onlyHarvester = {
     // 挖矿
     try {
       const sources: Source = Game.getObjectById(pointes[i].source);
-      const container: StructureContainer = Game.getObjectById(Memory.containerList[i].id);
+      const container = Game.getObjectById(Memory.containerList[i].id) as StructureContainer
       // 移动到这个点
       if (creep.pos.isEqualTo(container)) {
         if (container.store.getFreeCapacity() == 0) {

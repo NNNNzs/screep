@@ -57,7 +57,7 @@ export const creepExtension = {
       }
     }
   },
-  sendSourceToLink() {},
+  sendSourceToLink() { },
 
   // 将资源送到建筑物
   sendRourceToStructure(
@@ -162,7 +162,7 @@ export default function () {
   const startCpu = Game.cpu.getUsed();
   const t = new Date();
   const date = new Date(t.setHours(t.getHours() + 8));
-  
+
   console.log("mounted");
   console.log(date.toLocaleString());
   Memory.lastModified = date.toLocaleString();
