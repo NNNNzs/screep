@@ -1,6 +1,18 @@
 
 
 [中文文档](https://screeps-cn.github.io/api/)
+[在线地址](https://screeps.com/a/#!/room/shard1/E13S39)
+
+
+1. 根据spawn 扫描房间内的资源矿的位置 定位附近可以建造的点 创建 container
+2. 根据spawn 所在房间 查看
+
+
+## worker设计
+1. 如果有待治疗work，待修复的建筑，从存储桶中拿到能量去修复（todo）
+2. 如果有矿可以挖，挖矿，优先送到 spwan extension 中
+   
+
 
 ### 自动renew设计
 1. screep空闲的时候，去spawn附近

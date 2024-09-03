@@ -1,6 +1,6 @@
 const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
-import { findResourceStructure, findEmptyStructure } from "./utils";
-import { getCost } from "./autoCreate.ts";
+import { findResourceStructure, findEmptyStructure } from "./utils.js";
+import { getCost } from "./autoCreate";
 
 export const creepExtension = {
   //计算消耗
@@ -42,19 +42,19 @@ export const creepExtension = {
   },
   /** 把资源送到存储仓库 */
   sendSourceToSroage() {
-    if (!Memory.storage) {
-      const structureSotrage = this.room.find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_STORAGE,
-      });
-      Memory.storage = structureSotrage[0].id;
-    }
-    const id = Memory.storage;
-    const target = Game.getObjectById(id);
-    for (const resourceType in this.carry) {
-      if (this.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
-        this.moveTo(target);
-      }
-    }
+    // if (!Memory.storage) {
+    //   const structureSotrage = this.room.find(FIND_STRUCTURES, {
+    //     filter: (s) => s.structureType === STRUCTURE_STORAGE,
+    //   });
+    //   Memory.storage = structureSotrage[0].id;
+    // }
+    // const id = Memory.storage;
+    // const target = Game.getObjectById(id);
+    // for (const resourceType in this.carry) {
+    //   if (this.transfer(target, resourceType) == ERR_NOT_IN_RANGE) {
+    //     this.moveTo(target);
+    //   }
+    // }
   },
   sendSourceToLink() { },
 
@@ -109,7 +109,7 @@ export const creepExtension = {
   fixing() {
     // 如果身上还有能量，一次性用完
     if (this.store.getUsedCapacity() > 0 && this.memory.objId) {
-      const toFixObj = Game.getObjectById(this.memory.objId);
+      const toFixObj = Game.getObjectById(this.memory.objId) as Structure;
       this.repair(toFixObj);
       this.say("biubiubiu");
       if (toFixObj.hits === toFixObj.hitsMax) {
@@ -156,9 +156,12 @@ export const creepExtension = {
   },
 };
 
-// 挂载所有的额外属性和方法
+/** 
+ * @description 挂载所有的额外属性和方法 初始化代码加载信息
+ */
 export default function () {
-  Memory.lastModified = new Date().toLocaleString();
+  // 日期设置为八小时之后
+  Memory.lastModified = new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString();
   Memory.startTick = Game.time;
   _.assign(Creep.prototype, creepExtension);
 }

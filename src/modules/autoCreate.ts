@@ -1,5 +1,7 @@
 import { calcMove, deleteCreepMemory } from "../utils";
 import { sourceMap, creepsList, defaultCreep } from "../var";
+import { findSpawns } from "./Scanner";
+
 /**  */
 export const getCost = (bodys) => {
   let sum = 0;
@@ -20,13 +22,11 @@ function autoCreate(creepName, spawns = "Spawn1") {
   // 拷贝一份
   let creepsMap = _.cloneDeep(creepsList);
   const body = creepsMap[creepName].body;
-  const costTime = body.length * 3;
-
   const code = Game.spawns[spawns].spawnCreep(
     body,
     `${creepName}-${Game.time.toString(16)}`,
     {
-      memory: { role: creepName, costTime },
+      memory: { role: creepName },
       directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT],
     }
   );
@@ -44,17 +44,25 @@ function autoCreate(creepName, spawns = "Spawn1") {
 export default {
   run() {
 
-    Object.keys(Game.spawns).forEach((spawnName) => {
-      const spawn = Game.spawns[spawnName];
-      const empty = spawn.room.energyAvailable === 300
-      if (empty) {
-        spawn.spawnCreep(defaultCreep.body, "default", {
+    Object.keys(Game.spawns).forEach((key) => {
+      const spawn = Game.spawns[key];
 
-        })
+      if (spawn.spawning) {
         return;
+      }
+
+      // 初始状态下 只有一个creep
+      if (spawn.room.energyCapacityAvailable === 300) {
+        spawn.spawnCreep(defaultCreep.body,
+          `default_creep-${Game.time.toString(16)}`,
+          {
+            memory: { role: 'work' },
+            directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT],
+          })
       }
     })
 
+    return;
 
     let currentCreep = _.cloneDeep(creepsList);
     // 计算当前场上 有多少个creep

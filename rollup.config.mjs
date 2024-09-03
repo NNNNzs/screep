@@ -26,7 +26,7 @@ const dest = win32 ? config.winPath : config.copyPath;
 
 // 根据指定的配置决定是上传还是复制到文件夹
 const pluginDeploy = () => {
-  if (env === 'dev') {
+  if (env === 'local') {
     return copy({
       targets: [
         {
