@@ -1,19 +1,19 @@
 
-import { ErrorMapper } from "./modules/errorMappere.ts";
+import { ErrorMapper } from "./modules/errorMappere";
 
 // import roleUpgrader from "./role/upgrader.ts";
 // import roleBuilder from "./role/builder.ts";
 // import roleCarry from "./role/carry";
 // import roleOnlyHarvester from "./role/harvester.ts";
 // import roleRepair from "./role/repair";
-import autoCreate from "./modules/autoCreate.ts";
+import autoCreate from "./modules/autoCreate";
 // import soldier from "./role/soldier";
-import roleWork from "./role/work.ts";
+import roleWork from "./role/work";
 // import tower from "./building/tower";
 // import market from "./modules/market.ts";
 // import { init, containerListMount } from "./modules/init.ts";
 // import { stateScanner } from "./modules/stateScanner.ts";
-import { roomScanner } from "./modules/Scanner.ts";
+import { roomScanner } from "./modules/Scanner";
 import mount from "./modules/mount.js";
 // init();
 
@@ -23,7 +23,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   roomScanner();
   autoCreate.run();
-  
+
   // console.log("loop");
   // stateScanner();
   // tower.run();

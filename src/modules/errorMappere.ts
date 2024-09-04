@@ -73,6 +73,7 @@ export class ErrorMapper {
       try {
         loop();
       } catch (e) {
+        console.log('e',e);
         if (e instanceof Error) {
           if ("sim" in Game.rooms) {
             const message = `Source maps don't work in the simulator - displaying original error`;

@@ -1,3 +1,5 @@
+import { createHarvester } from "./autoCreate";
+
 const unHealList = [STRUCTURE_WALL, STRUCTURE_RAMPART, 'extension'];
 const defaultRoom = Game.spawns['Spawn1'];
 
@@ -54,11 +56,14 @@ export const findSpawns = () => {
         toFixedStructures: [],
         toConstructionSite: [],
         containerIdList: [],
+        // 产房队列
+        spawnQueue: [],
         sourcesList: [],
         controlId: null
       };
     }
 
+    // 资源列表
     if (Memory.rooms[roomName].sourcesList.length === 0) {
       // 找到资源点
       const sources = room.find(FIND_SOURCES);
@@ -77,6 +82,18 @@ export const findSpawns = () => {
 
       if (!s.containerId && s.containerPos) {
         // 判断位置的container是否建造完成 此时才能设置建造采集者功能
+        const pos = new RoomPosition(s.containerPos.x, s.containerPos.y, s.containerPos.roomName);
+
+        const container = room.lookForAt(LOOK_STRUCTURES, pos);
+        console.log('container', container)
+
+        // if (container && container[0].structureType === STRUCTURE_CONTAINER) {
+        //   // 添加一个采集者
+        //   createHarvester({
+
+        //   });
+        // }
+
       }
 
       // 没有找到最佳位置，设置最佳位置
@@ -110,13 +127,16 @@ export const findSpawns = () => {
       Memory.rooms[roomName].maxWorker = 4
     }
 
+    // 产房队列
+    if (!Memory.rooms[roomName].spawnQueue) {
+      Memory.rooms[roomName].spawnQueue = []
+    }
+
   }
 }
 
 export const toFixedList = (pos: AnyStructure = defaultRoom) => {
-
   Object.keys(Memory.rooms).forEach(roomName => {
-
     const toFixedStructures = pos.room.find(FIND_STRUCTURES, {
       filter: object => {
         const undo = unHealList.includes(object.structureType);
@@ -126,16 +146,6 @@ export const toFixedList = (pos: AnyStructure = defaultRoom) => {
     toFixedStructures.sort((a, b) => a.hits / a.hitsMax > b.hits / b.hitsMax ? 1 : -1);
     Memory.rooms[roomName].toFixedStructures = toFixedStructures;
   })
-
-  // 不修墙
-
-
-
-
-  // const roomName = pos.room.name;
-
-  // setRoomsMemory(roomName, 'toFixedStructures', toFixedStructures)
-
 }
 
 export const toBuildList = () => {
@@ -144,7 +154,7 @@ export const toBuildList = () => {
     const room = Game.rooms[roomName];
     const constructionSites = room.find(FIND_CONSTRUCTION_SITES) as ConstructionSite[];
     Memory.rooms[room.name].toConstructionSite = constructionSites;
-  })
+  });
 }
 
 

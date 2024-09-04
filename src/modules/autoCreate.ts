@@ -14,9 +14,32 @@ export const getCost = (bodys) => {
   if (room.energyAvailable < room.energyCapacityAvailable / 2) {
     Game.notify("能量低于一半，注意上线查看" + str);
   }
-  // console.log(str)
   return sum;
 };
+
+function createDefaultWorker(spawn: StructureSpawn) {
+  if (spawn.room.energyCapacityAvailable === freeEnergy) {
+    const currentWorkLength = Object.keys(Game.creeps).filter(name => Game.creeps[name].memory.role === 'work').length;
+    const maxWorkLength = Memory.rooms[spawn.room.name].maxWorker;
+
+    if (currentWorkLength >= maxWorkLength) {
+      return
+    }
+
+    spawn.room.memory.spawnQueue.push('default_creep');
+
+    spawn.spawnCreep(defaultCreep.body,
+      `default_creep-${Game.time.toString(16)}`,
+      {
+        memory: { role: 'work' },
+        directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT],
+      })
+  }
+};
+
+export function createHarvester(memory) {
+
+}
 
 function autoCreate(creepName, spawns = "Spawn1") {
   // 拷贝一份
@@ -47,24 +70,12 @@ export default {
     Object.keys(Game.spawns).forEach((key) => {
       const spawn = Game.spawns[key];
 
+      createDefaultWorker(spawn);
+
       if (spawn.spawning) {
         return;
       }
 
-      // 初始状态下 只有一个creep
-      if (spawn.room.energyCapacityAvailable === freeEnergy) {
-        const currentWorkLength = Object.keys(Game.creeps).filter(name => Game.creeps[name].memory.role === 'work').length;
-        const maxWorkLength = Memory.rooms[spawn.room.name].maxWorker;
-        if (currentWorkLength >= maxWorkLength) {
-          return
-        }
-        spawn.spawnCreep(defaultCreep.body,
-          `default_creep-${Game.time.toString(16)}`,
-          {
-            memory: { role: 'work' },
-            directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT],
-          })
-      }
 
     })
 
