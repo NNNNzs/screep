@@ -50,6 +50,7 @@ export const findSpawns = () => {
     // 找到资源点附近可以放container的位置
     if (!Memory.rooms[roomName]) {
       Memory.rooms[roomName] = {
+        maxWorker: 4,
         toFixedStructures: [],
         toConstructionSite: [],
         containerIdList: [],
@@ -83,7 +84,6 @@ export const findSpawns = () => {
         const source = Game.getObjectById(s.id) as Source;
         const sourcePos = source.pos;
         const bestPosition = findBestContainerPosition(source, Game.spawns[key]);
-        // room.visual.text(`bestContainerPos`, bestPosition)
         s.containerPos = bestPosition;
         room.createConstructionSite(bestPosition, STRUCTURE_CONTAINER);
 
@@ -103,6 +103,11 @@ export const findSpawns = () => {
       if (control) {
         Memory.rooms[roomName].controlId = control[0].id
       }
+    }
+
+    // 最大工人数设置
+    if (!Memory.rooms[roomName].maxWorker) {
+      Memory.rooms[roomName].maxWorker = 4
     }
 
   }

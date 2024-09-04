@@ -2,10 +2,6 @@
 import { showDash } from "../var.js";
 import { creepExtension } from "../modules/mount.js";
 
-/** 已经发布的任务的id，一般是建筑id */
-const taskIdSet = new Set<string>();
-const taskList = [];
-
 const roleHarvester = {
   run: function (creep: Creep) {
 
@@ -27,8 +23,8 @@ const roleHarvester = {
       else if (creep.store.getFreeCapacity() == 0) {
         creep.memory.task = 'carry';
       };
-
       // 升级控制器判断
+
 
     }
 
@@ -83,6 +79,8 @@ const roleHarvester = {
       if (creep.store.getUsedCapacity() == 0) {
         creep.memory.task = null;
       }
+    } else if (task === 'builder') {
+
     }
 
   },

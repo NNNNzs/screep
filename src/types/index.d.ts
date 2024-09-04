@@ -64,7 +64,10 @@ declare global {
 
 
 
-  interface RoomMemory {
+  interface RoomMemory extends Record<string, any> {
+
+    /** 最大工人数 */
+    maxWorker: number;
 
     terminalId?: string;
 

@@ -164,6 +164,7 @@ export default function () {
   Memory.lastModified = new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString();
   Memory.startTick = Game.time;
 
+
   global.clearMemory = () => {
     Object.keys(Memory).forEach((key) => {
       delete Memory[key];

@@ -53,7 +53,10 @@ export default {
 
       // 初始状态下 只有一个creep
       if (spawn.room.energyCapacityAvailable === freeEnergy) {
-        if (Object.keys(Game.creeps).filter(name => Game.creeps[name].memory.role === 'work').length === 2) {
+        const currentWorkLength = Object.keys(Game.creeps).filter(name => Game.creeps[name].memory.role === 'work').length;
+        const maxWorkLength = Memory.rooms[spawn.room.name].maxWorker;
+        console.log('currentWorkLength', currentWorkLength, 'maxWorkLength', maxWorkLength)
+        if (currentWorkLength >= maxWorkLength) {
           return
         }
         spawn.spawnCreep(defaultCreep.body,
