@@ -1,5 +1,3 @@
-import { createHarvester } from "./autoCreate";
-
 const unHealList = [STRUCTURE_WALL, STRUCTURE_RAMPART, 'extension'];
 const defaultRoom = Game.spawns['Spawn1'];
 

@@ -1,6 +1,7 @@
 // 特殊资源采集
 import { showDash } from "../var.js";
 import { creepExtension } from "../modules/mount.js";
+import { findEmptyStructure } from "@/utils";
 
 const roleHarvester = {
   run: function (creep: Creep) {
@@ -10,6 +11,7 @@ const roleHarvester = {
       const hasSource = creep.store.getFreeCapacity() == 0;
       const roomMemory = Memory.rooms[creep.room.name];
       const index = Object.keys(Game.creeps).indexOf(creep.name);
+      const emptySpawn = findEmptyStructure(creep, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION]);
 
       // 挖矿判断
       if (creep.store.getUsedCapacity() == 0) {
@@ -28,6 +30,12 @@ const roleHarvester = {
       // 至少保留一个去升级
       else if (hasSource && index === 0) {
         creep.memory.task = 'upgrade';
+      }
+
+
+      // 如果有空的spawn extension，优先送货
+      else if (emptySpawn.length > 0) {
+        creep.memory.task = 'carry';
       }
 
       // 修理判断

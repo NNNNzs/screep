@@ -1,5 +1,5 @@
 const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
-import { findResourceStructure, findEmptyStructure } from "./utils.js";
+import { findResourceStructure, findEmptyStructure } from "@/utils.js";
 import { getCost } from "./autoCreate";
 import { deleteCreepMemory } from "@/utils.js";
 
