@@ -1,6 +1,16 @@
 const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
 import { findResourceStructure, findEmptyStructure } from "./utils.js";
 import { getCost } from "./autoCreate";
+import { deleteCreepMemory } from "@/utils.js";
+
+global.clearMemory = () => {
+  Object.keys(Memory).forEach((key) => {
+    delete Memory[key];
+  });
+  console.log("clearMemory");
+}
+
+global.deleteCreepMemory = deleteCreepMemory;
 
 export const creepExtension = {
   //计算消耗
@@ -166,10 +176,7 @@ export default function () {
 
 
   global.clearMemory = () => {
-    Object.keys(Memory).forEach((key) => {
-      delete Memory[key];
-    });
-    console.log("clearMemory");
+
   }
 
   _.assign(Creep.prototype, creepExtension);

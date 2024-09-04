@@ -12,6 +12,12 @@
 1. 如果有待治疗work，待修复的建筑，从存储桶中拿到能量去修复（todo）
 2. 如果有矿可以挖，挖矿，优先送到 spwan extension 中
    
+## harvester设计
+1. 扫描房间中的source 是否有container，如果container 则生产harvester
+2. 创建的时候直接指定source，移动到source指定的container，绑定container绑定
+3. 
+
+## spawner生产队列设计
 
 
 ### 自动renew设计
@@ -19,9 +25,6 @@
 2. 更改spawn的renewTargetId，进行renew
 3. 
 
-
-### carry 任务队列设计
-1. 由scanner扫描，当前的房间的任务，生成一个队列
 
 ### 外矿机器人
 

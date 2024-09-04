@@ -34,44 +34,6 @@ export const calcMove = (bodys: BodyPartConstant[]): number => {
   return sum;
 }
 
-export const getAllSource = (creep, store) => {
-
-}
-
-export const sendAllSrouce = (creep, store) => {
-
-}
-
-
-/**
- * 
- * @param {*} creep 
- * @param {array} structureList 
- * @description 找到第一个能量未满的建筑
- * @returns 
- */
-export const findFirstEmptyStruct = (creep: Creep, structureList: BuildableStructureConstant[] = []) => {
-
-  // for (let i in structureList) {
-  //   const structureType = structureList[i];
-
-  //   const target = creep.room.find(FIND_MY_STRUCTURES, {
-  //     filter: (s) => {
-
-  //       const hasStore = s.structureType;
-
-  //       return (s.structureType === structureType && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
-  //     }
-  //   });
-
-  //   if (target.length > 0) {
-  //     return target
-  //   } else {
-  //     continue;
-  //   }
-  // }
-}
-// findFirstEmptyStruct(creep,[STRUCTURE_STORAGE, STRUCTURE_CONTAINER])
 
 
 /**

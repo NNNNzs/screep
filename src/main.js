@@ -22,9 +22,10 @@ mount();
 export const loop = ErrorMapper.wrapLoop(() => {
 
   roomScanner();
+  autoCreate.run();
+  
   // console.log("loop");
   // stateScanner();
-  autoCreate.run();
   // tower.run();
   // return false;
 

@@ -55,7 +55,6 @@ export default {
       if (spawn.room.energyCapacityAvailable === freeEnergy) {
         const currentWorkLength = Object.keys(Game.creeps).filter(name => Game.creeps[name].memory.role === 'work').length;
         const maxWorkLength = Memory.rooms[spawn.room.name].maxWorker;
-        console.log('currentWorkLength', currentWorkLength, 'maxWorkLength', maxWorkLength)
         if (currentWorkLength >= maxWorkLength) {
           return
         }
@@ -68,6 +67,10 @@ export default {
       }
 
     })
+
+    if (Game.time % 400 === 0) {
+      deleteCreepMemory();
+    }
 
     return;
 

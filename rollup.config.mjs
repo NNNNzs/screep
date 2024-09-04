@@ -5,8 +5,8 @@ import resolve from "@rollup/plugin-node-resolve";
 import commonjs from "@rollup/plugin-commonjs";
 import typescript from "rollup-plugin-typescript2";
 import fs from 'fs';
-const secretJson = fs.readFileSync('./secret.json', 'utf8');
-const secret = JSON.parse(secretJson); 
+const secretJson = fs.readFileSync('./.secret.json', 'utf8');
+const secret = JSON.parse(secretJson);
 
 const env = process.env.DEST
 
