@@ -78,22 +78,20 @@ export const findSpawns = () => {
     }
 
     Memory.rooms[roomName].sourcesList.forEach((s, index) => {
-      // 没有containerId 和containerPos
 
+      // 没有containerId 和containerPos
       if (!s.containerId && s.containerPos) {
         // 判断位置的container是否建造完成 此时才能设置建造采集者功能
         const pos = new RoomPosition(s.containerPos.x, s.containerPos.y, s.containerPos.roomName);
 
-        const container = room.lookForAt(LOOK_STRUCTURES, pos);
-        console.log('container', container)
+        const structures = room.lookForAt(LOOK_STRUCTURES, pos);
 
-        // if (container && container[0].structureType === STRUCTURE_CONTAINER) {
-        //   // 添加一个采集者
-        //   createHarvester({
+        const containerIndex = structures.findIndex(s => s.structureType === STRUCTURE_CONTAINER);
 
-        //   });
-        // }
-
+        if (structures.length > 0 && containerIndex !== -1) {
+          s.containerId = structures[containerIndex].id;
+          room.memory.spawnQueue.push('harvester');
+        }
       }
 
       // 没有找到最佳位置，设置最佳位置
@@ -107,7 +105,6 @@ export const findSpawns = () => {
         // 绘制半径
         room.visual.circle(sourcePos,
           { fill: 'transparent', radius: 3, stroke: 'red' });
-        // 找到source附近9个点，找到可以放container且距离最近的点
       }
 
     });

@@ -29,6 +29,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   // tower.run();
   // return false;
 
+
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
     roleWork.run(creep);

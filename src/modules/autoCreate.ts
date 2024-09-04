@@ -2,7 +2,7 @@ import { calcMove, deleteCreepMemory } from "../utils";
 import { sourceMap, creepsList, defaultCreep } from "../var";
 import { findSpawns } from "./Scanner";
 
-/**  */
+/** */
 export const getCost = (bodys) => {
   let sum = 0;
   _.forEach(bodys, (part) => {
@@ -25,21 +25,12 @@ function createDefaultWorker(spawn: StructureSpawn) {
     if (currentWorkLength >= maxWorkLength) {
       return
     }
-
-    spawn.room.memory.spawnQueue.push('default_creep');
-
-    spawn.spawnCreep(defaultCreep.body,
-      `default_creep-${Game.time.toString(16)}`,
-      {
-        memory: { role: 'work' },
-        directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT],
-      })
+    if (!spawn.room.memory.spawnQueue.includes('work')) {
+      spawn.room.memory.spawnQueue.push('work')
+    }
   }
 };
 
-export function createHarvester(memory) {
-
-}
 
 function autoCreate(creepName, spawns = "Spawn1") {
   // 拷贝一份
@@ -70,11 +61,25 @@ export default {
     Object.keys(Game.spawns).forEach((key) => {
       const spawn = Game.spawns[key];
 
-      createDefaultWorker(spawn);
 
       if (spawn.spawning) {
         return;
-      }
+      };
+
+      Memory.rooms[spawn.room.name].spawnQueue.forEach((role) => {
+
+        // 根据当前剩余能量和角色获取最大身体部件
+
+        spawn.spawnCreep(defaultCreep.body,
+          `${role}-${Game.time.toString(16)}`,
+          {
+            memory: { role: role, },
+            directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT],
+          })
+
+      });
+
+      createDefaultWorker(spawn);
 
 
     })

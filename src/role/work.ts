@@ -20,7 +20,8 @@ const roleHarvester = {
 
         if (sources.length !== 0) {
           creep.memory.task = 'harvest';
-          creep.memory.targetId = sources[0].id;
+          const creepIndex = index % sources.length;
+          creep.memory.targetId = sources[creepIndex].id;
         }
       }
 
@@ -85,7 +86,6 @@ const roleHarvester = {
     else if (task === 'carry') {
       if (creep.store.getUsedCapacity() == 0) {
         creep.memory.task = null;
-        console.log('背包已空');
         return;
       }
       const empty = creepExtension.sendRourceToStructure.call(creep);
