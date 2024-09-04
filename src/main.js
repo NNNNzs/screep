@@ -24,7 +24,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
   roomScanner();
   // console.log("loop");
   // stateScanner();
-  autoCreate.run();
+  // autoCreate.run();
   // tower.run();
   // return false;
 

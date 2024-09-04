@@ -163,5 +163,13 @@ export default function () {
   // 日期设置为八小时之后
   Memory.lastModified = new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString();
   Memory.startTick = Game.time;
+
+  global.clearMemory = () => {
+    Object.keys(Memory).forEach((key) => {
+      delete Memory[key];
+    });
+    console.log("clearMemory");
+  }
+
   _.assign(Creep.prototype, creepExtension);
 }

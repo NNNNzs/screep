@@ -53,7 +53,8 @@ export const findSpawns = () => {
         toFixedStructures: [],
         toConstructionSite: [],
         containerIdList: [],
-        sourcesList: []
+        sourcesList: [],
+        controlId: null
       };
     }
 
@@ -91,8 +92,18 @@ export const findSpawns = () => {
           { fill: 'transparent', radius: 3, stroke: 'red' });
         // 找到source附近9个点，找到可以放container且距离最近的点
       }
-    })
 
+    });
+
+    // 控制器查找
+    if (!Memory.rooms[roomName].controlId) {
+      const control = room.find(FIND_MY_STRUCTURES, {
+        filter: s => s.structureType === STRUCTURE_CONTROLLER
+      });
+      if (control) {
+        Memory.rooms[roomName].controlId = control[0].id
+      }
+    }
 
   }
 }

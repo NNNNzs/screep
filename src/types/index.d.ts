@@ -72,6 +72,8 @@ declare global {
 
     transferList?: transferItem[];
 
+    controlId?: string;
+
     /**塔的列表 */
     towerIdList?: string[];
 

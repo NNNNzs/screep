@@ -40,7 +40,7 @@ function autoCreate(creepName, spawns = "Spawn1") {
   deleteCreepMemory();
 }
 
-
+const freeEnergy = 300;
 export default {
   run() {
 
@@ -52,7 +52,10 @@ export default {
       }
 
       // 初始状态下 只有一个creep
-      if (spawn.room.energyCapacityAvailable === 300) {
+      if (spawn.room.energyCapacityAvailable === freeEnergy) {
+        if (Object.keys(Game.creeps).filter(name => Game.creeps[name].memory.role === 'work').length === 2) {
+          return
+        }
         spawn.spawnCreep(defaultCreep.body,
           `default_creep-${Game.time.toString(16)}`,
           {
@@ -60,6 +63,7 @@ export default {
             directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT],
           })
       }
+
     })
 
     return;
