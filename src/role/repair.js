@@ -4,7 +4,7 @@ export default  {
     if (creep.store.getUsedCapacity() == 0) {
       // creep.memory.isEmpty = true;
       creep.memory.objId = null;
-      creep.getResourceByStructure();
+      // creep.getResourceByStructure();
       creep.say('补货')
     } else {
       creep.fixing()

@@ -1,6 +1,10 @@
 export type BodyCreateMap = {
   [key in BodyPartConstant]?: number
 }
+
+export const log = (...args) => {
+  console.log(...args)
+}
 /**
  * 
  * @param {Object} data 
@@ -38,43 +42,6 @@ export const calcMove = (bodys: BodyPartConstant[]): number => {
 }
 
 
-
-/**
- * @description 自动删除已经不存在的creep内存
- */
-export function deleteCreepMemory() {
-  for (var name in Memory.creeps) {
-    if (!Game.creeps[name]) {
-      delete Memory.creeps[name];
-    }
-  }
-}
-
-type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CONTAINER | STRUCTURE_STORAGE
-// 找到空的建筑，一般用于存放能量
-// todo 能量升序
-export const findEmptyStructure = (creep: Creep, rank: StructureType[]): AnyOwnedStructure[] => {
-
-  let sources: AnyOwnedStructure[] = [];
-
-  const hasEmptySource = rank.some((structureType) => {
-    const notFullStructures = creep.room.find(FIND_MY_STRUCTURES, {
-      filter: (s) => {
-        return (s.structureType === structureType && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
-      }
-    });
-    if (notFullStructures.length > 0) {
-      sources = notFullStructures
-      return true
-    } else {
-      return false
-    }
-  });
-
-  return sources
-}
-
-
 // 寻找可以取出来能量的建筑
 // todo 能量降序
 export const findResourceStructure = (creep, rank) => {
@@ -106,14 +73,15 @@ export const useCpu = (fun: () => any, name: string) => {
   return res;
 }
 
+/** 每多少tick运行一次 */
 export const runPerTime = (fun: () => any, everyTick: number) => {
   if (Game.time % everyTick === 0) {
     return fun()
   }
 }
 
-export const runAfterStart = (cb: () => any) => {
-  if (Game.time === 0) {
+export const runAfterStart = (cb: () => any, delayTick: number) => {
+  if (Game.time === Memory.startTick + delayTick) {
     return cb();
   }
 }

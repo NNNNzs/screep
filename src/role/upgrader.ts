@@ -22,7 +22,7 @@ const upgrader = {
         creep.moveTo(creep.room.controller, showDash);
       }
     } else {
-      creep.getResourceByStructure();
+      // creep.getResourceByStructure();
     }
   },
 };

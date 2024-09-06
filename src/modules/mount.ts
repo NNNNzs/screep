@@ -1,42 +1,39 @@
 const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
-import { findResourceStructure, findEmptyStructure } from "@/utils.js";
-import { createBody, getCost } from "./autoCreate";
-import { deleteCreepMemory } from "@/utils.js";
+import { runAfterStart } from "@/utils.js";
+import { createBody, deleteCreepMemory } from "./autoCreate";
+import { findEmptySourceStructure, findSourceStructure, } from './Scanner'
 import { ROLE_NAME_ENUM } from "@/var";
 
-global.clearMemory = () => {
-  Object.keys(Memory).forEach((key) => {
-    delete Memory[key];
-  });
-  console.log("clearMemory");
-}
 
-global.deleteCreepMemory = deleteCreepMemory;
+runAfterStart(() => {
 
-global.killAllScreep = () => {
-  Object.keys(Game.creeps).forEach((name) => {
-    const creep = Game.creeps[name];
-    creep.suicide();
-  });
-};
+  global.clearMemory = () => {
+    Object.keys(Memory).forEach((key) => {
+      delete Memory[key];
+    });
+    console.log("clearMemory");
+  }
 
-global.mockCreate = (roleName, num) => {
-  // createBody(
-  //   roleName,
-  //   num,
-  // )
-}
+  global.deleteCreepMemory = deleteCreepMemory;
 
-global.clearMemeory = () => {
-  Object.keys(Memory).forEach((name) => {
-    delete Memory[name];
-  });
-};
+  global.killAllScreep = () => {
+    Object.keys(Game.creeps).forEach((name) => {
+      const creep = Game.creeps[name];
+      creep.suicide();
+    });
+  };
+
+  global.clearMemeory = () => {
+    Object.keys(Memory).forEach((name) => {
+      delete Memory[name];
+    });
+  };
+}, 10)
+
 
 export const creepExtension = {
-  //计算消耗
-  getCost: getCost,
-  // 从建筑物里面拿出资源
+
+  /** 从建筑物里面拿出资源 */
   getResourceByStructure(
     rank = [
       STRUCTURE_STORAGE,
@@ -46,7 +43,7 @@ export const creepExtension = {
       STRUCTURE_SPAWN,
     ]
   ) {
-    const sources = findResourceStructure(this, rank);
+    const sources = findSourceStructure(this, rank);
     this.self_withdraw(sources[0]);
   },
   // 找到最近的建筑物
@@ -89,17 +86,13 @@ export const creepExtension = {
   },
   sendSourceToLink() { },
 
-  // 将资源送到建筑物
+  /** 改良 从房间队列获取 将资源送到建筑物 */
   sendRourceToStructure(
-    rank = [
-      STRUCTURE_SPAWN,
-      STRUCTURE_EXTENSION,
-      STRUCTURE_CONTAINER,
-      STRUCTURE_STORAGE,
-    ],
     reverse = false
   ) {
-    let sources = findEmptyStructure(this, rank) || [];
+    const roomName = this.room.name;
+    // let sources = findEmptySourceStructure(this, rank) || [];
+    let sources = Memory.rooms[roomName].emptyStructureList
 
     if (sources.length == 0) {
       return true;
@@ -108,9 +101,10 @@ export const creepExtension = {
     if (reverse) {
       sources.reverse();
     }
+    const target = Game.getObjectById(sources[0])
 
-    if (this.transfer(sources[0], RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
-      this.moveTo(sources[0], showDash);
+    if (this.transfer(target, RESOURCE_ENERGY) == ERR_NOT_IN_RANGE) {
+      this.moveTo(target, showDash);
       return false;
     }
   },

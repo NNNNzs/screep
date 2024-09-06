@@ -20,8 +20,6 @@ declare global {
 
 
   interface Creep {
-    /** 从建筑物里面拿出资源 */
-    getResourceByStructure: () => void,
     self_harvest: (index: number) => void
   }
 
@@ -35,8 +33,10 @@ declare global {
 
 
   /** 通用的CreepMemory */
-  interface CreepMemory {
+  interface CreepMemory extends Record<string, any> {
+    /** 角色 */
     role: string;
+    /** 索引 */
     creepIndex?: number
   }
 
@@ -52,16 +52,6 @@ declare global {
     /** 一个比例 */
     profit: number;
   }
-
-  /** 工具人 Memory */
-  interface CreepMemory {
-    working?: boolean
-    targetId?: string
-    task?: string
-    job?: 'build' | 'fix' | 'upgrader'
-    target?: string;
-  }
-
 
 
   interface RoomMemory extends Record<string, any> {
@@ -81,7 +71,7 @@ declare global {
     towerIdList?: string[];
 
     /** 资源列表 */
-    sourcesList: any[],
+    sourcesList: { id: string, containerId: string, creepId: string, containerPos: RoomPosition }[],
 
     /** 容器id列表 */
     containerIdList?: string[];
@@ -100,9 +90,12 @@ declare global {
 
     /** 生产队列 */
     spawnQueue: ROLE_NAME_ENUM[]
-    // [name: string]: {
 
-    // }
+    /** 能量未满的生产建筑 spwan extension */
+    emptyStructureList?: string[];
+
+    /** 可以拿能量的建筑 */
+    sourceStructure?: string[]
 
   }
 

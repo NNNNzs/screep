@@ -1,20 +1,41 @@
 // 特殊资源采集
 import { showDash } from "../var.js";
 import { creepExtension } from "../modules/mount.js";
-import { findEmptyStructure } from "@/utils";
-
 const roleHarvester = {
   run: function (creep: Creep) {
+
+    const roomName = creep.room.name
 
     if (!creep.memory.task) {
 
       const hasSource = creep.store.getFreeCapacity() == 0;
-      const roomMemory = Memory.rooms[creep.room.name];
+      const emptySource = creep.store.getUsedCapacity() == 0;
+      const roomMemory = Memory.rooms[roomName];
       const index = Object.keys(Game.creeps).indexOf(creep.name);
-      const emptySpawn = findEmptyStructure(creep, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION]);
+      const emptySpawn = roomMemory.emptyStructureList;
+
+      /** 从建筑物里面拿出资源 */
+      if (emptySource && Memory.rooms[roomName].sourceStructure.length > 0) {
+        // creep.memory.targetId = Memory.rooms[roomName].sourceStructure[0];
+        const sourceStructure = _.cloneDeep(Memory.rooms[roomName].sourceStructure);
+
+        if (sourceStructure.length > 1) {
+          sourceStructure.sort((a, b) => {
+            const aSource = Game.getObjectById(a) as Source
+            const bSource = Game.getObjectById(b) as Source
+            const adistance = aSource.pos.getRangeTo(bSource.pos)
+            const bdistance = bSource.pos.getRangeTo(creep.pos)
+            // 返回距离最近的
+            return adistance - bdistance
+          });
+        }
+        creep.memory.task = 'take';
+        creep.memory.targetId = sourceStructure[0];
+
+      }
 
       // 挖矿判断
-      if (creep.store.getUsedCapacity() == 0) {
+      else if (emptySource && creep.store.getUsedCapacity() == 0) {
         // 这里应该替换成没有harvester的资源矿
         const sources = creep.room.find(FIND_SOURCES, {
           filter: (s: Source) => s.energy > 0,
@@ -44,9 +65,9 @@ const roleHarvester = {
       }
 
       // 建造判断
-      else if (hasSource && Memory.rooms[creep.room.name].toConstructionSite.length > 0) {
+      else if (hasSource && roomMemory.toConstructionSite.length > 0) {
         creep.memory.task = 'build';
-        creep.memory.targetId = Memory.rooms[creep.room.name].toConstructionSite[0].id;
+        creep.memory.targetId = roomMemory.toConstructionSite[0].id;
       }
 
       //送货判断 
@@ -90,6 +111,28 @@ const roleHarvester = {
         creep.memory.task = null;
       }
 
+    } else if (task === 'take') {
+      const target = Game.getObjectById(creep.memory.targetId) as Structure;
+
+      if (!target) {
+        creep.memory.task = null;
+        creep.memory.targetId = null;
+        return
+      }
+
+      const res = creep.withdraw(target, RESOURCE_ENERGY);
+
+      if (res == ERR_NOT_IN_RANGE) {
+        creep.say('take');
+        creep.moveTo(target);
+      };
+
+      const errStatus = [ERR_NOT_ENOUGH_RESOURCES, ERR_FULL] as ScreepsReturnCode[]
+      if (errStatus.includes(res)) {
+        creep.memory.task = null;
+        creep.memory.targetId = null;
+      }
+
     }
 
     else if (task === 'carry') {
@@ -101,6 +144,7 @@ const roleHarvester = {
       if (empty) {
         console.log('所有建筑都满了');
         creep.memory.task = null;
+        creep.memory.targetId = null;
       }
     }
     else if (task === 'upgrade') {
