@@ -1,7 +1,8 @@
 const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
 import { findResourceStructure, findEmptyStructure } from "@/utils.js";
-import { getCost } from "./autoCreate";
+import { createBody, getCost } from "./autoCreate";
 import { deleteCreepMemory } from "@/utils.js";
+import { ROLE_NAME_ENUM } from "@/var";
 
 global.clearMemory = () => {
   Object.keys(Memory).forEach((key) => {
@@ -11,6 +12,26 @@ global.clearMemory = () => {
 }
 
 global.deleteCreepMemory = deleteCreepMemory;
+
+global.killAllScreep = () => {
+  Object.keys(Game.creeps).forEach((name) => {
+    const creep = Game.creeps[name];
+    creep.suicide();
+  });
+};
+
+global.mockCreate = (roleName, num) => {
+  // createBody(
+  //   roleName,
+  //   num,
+  // )
+}
+
+global.clearMemeory = () => {
+  Object.keys(Memory).forEach((name) => {
+    delete Memory[name];
+  });
+};
 
 export const creepExtension = {
   //计算消耗
@@ -173,11 +194,7 @@ export default function () {
   // 日期设置为八小时之后
   Memory.lastModified = new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString();
   Memory.startTick = Game.time;
-
-
-  global.clearMemory = () => {
-
-  }
+  console.log('reload at ' + Memory.lastModified);
 
   _.assign(Creep.prototype, creepExtension);
 }

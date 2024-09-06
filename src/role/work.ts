@@ -27,15 +27,14 @@ const roleHarvester = {
         }
       }
 
+      // 如果有空的spawn extension，优先送货
+      else if (hasSource && emptySpawn.length > 0) {
+        creep.memory.task = 'carry';
+      }
+
       // 至少保留一个去升级
       else if (hasSource && index === 0) {
         creep.memory.task = 'upgrade';
-      }
-
-
-      // 如果有空的spawn extension，优先送货
-      else if (emptySpawn.length > 0) {
-        creep.memory.task = 'carry';
       }
 
       // 修理判断
@@ -77,6 +76,7 @@ const roleHarvester = {
         creep.moveTo(target, showDash);
       }
 
+
       if (res === -7) {
         creep.memory.targetId = null;
       }
@@ -89,6 +89,7 @@ const roleHarvester = {
       if (target.energy == 0) {
         creep.memory.task = null;
       }
+
     }
 
     else if (task === 'carry') {
@@ -117,8 +118,8 @@ const roleHarvester = {
         creep.memory.task = null;
       }
     }
-    else if (task === 'repair') {
 
+    else if (task === 'repair') {
       const target = Game.getObjectById(creep.memory.targetId) as Structure;
       if (!target) {
         creep.memory.task = null;

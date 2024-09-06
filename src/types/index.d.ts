@@ -1,3 +1,4 @@
+import { ROLE_NAME_ENUM } from "@/var";
 import { creepExtension } from "../modules/mount";
 export { };
 
@@ -36,8 +37,7 @@ declare global {
   /** 通用的CreepMemory */
   interface CreepMemory {
     role: string;
-    costTime?: number;
-    building?: boolean;
+    creepIndex?: number
   }
 
 
@@ -97,6 +97,9 @@ declare global {
 
     /** 待治疗的screepId */
     toHealCreepId?: string[]
+
+    /** 生产队列 */
+    spawnQueue: ROLE_NAME_ENUM[]
     // [name: string]: {
 
     // }

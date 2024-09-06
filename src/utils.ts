@@ -1,10 +1,13 @@
+export type BodyCreateMap = {
+  [key in BodyPartConstant]?: number
+}
 /**
  * 
  * @param {Object} data 
  * @description 根据一个对象，返回生成的body
  * @returns {Array}
  */
-export const createBody = (data = {}): BodyPartConstant[] => {
+export const createBodyWithMap = (data: BodyCreateMap = {}): BodyPartConstant[] => {
   let bodys = [];
   Object.keys(data).forEach(ele => {
     let n = 0;
@@ -52,7 +55,7 @@ type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CONTAINER
 // todo 能量升序
 export const findEmptyStructure = (creep: Creep, rank: StructureType[]): AnyOwnedStructure[] => {
 
-  let sources: AnyOwnedStructure[]
+  let sources: AnyOwnedStructure[] = [];
 
   const hasEmptySource = rank.some((structureType) => {
     const notFullStructures = creep.room.find(FIND_MY_STRUCTURES, {

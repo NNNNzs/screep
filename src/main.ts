@@ -15,6 +15,7 @@ import roleWork from "./role/work";
 // import { stateScanner } from "./modules/stateScanner.ts";
 import { roomScanner } from "./modules/Scanner";
 import mount from "./modules/mount.js";
+import { ROLE_NAME_ENUM } from "./var";
 // init();
 
 mount();
@@ -22,36 +23,12 @@ mount();
 export const loop = ErrorMapper.wrapLoop(() => {
 
   roomScanner();
-  autoCreate.run();
 
-  // console.log("loop");
-  // stateScanner();
-  // tower.run();
-  // return false;
+  autoCreate.run();
 
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
     roleWork.run(creep);
-
-    // const ticksToLive = creep.memory.autoIndex
-    // creep.say(`${ticksToLive}`)
-
-    // const role = creep.memory.role;
-    // if (role == "carry") {
-    //   roleCarry.run(creep, carry);
-    //   carry++;
-    // } else if (role == "harvester") {
-    //   roleOnlyHarvester.run(creep, work);
-    //   work++;
-    // } else if (role == "builder") {
-    //   roleBuilder.run(creep);
-    // } else if (role == "repair") {
-    //   roleRepair.run(creep);
-    // } else if (role === "work") {
-    //   i++;
-    // } else if (role === "soldier") {
-    //   soldier.run(creep);
-    // }
   }
-})
+});

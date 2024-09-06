@@ -1,41 +1,8 @@
+import { findBestContainerPosition } from '@/modules/structure';
+import { ROLE_NAME_ENUM } from '@/var';
 const unHealList = [STRUCTURE_WALL, STRUCTURE_RAMPART, 'extension'];
 const defaultRoom = Game.spawns['Spawn1'];
 
-/**
- * 
- * @param source 
- * @param spawn 
- * @description 找到建设source container最佳的建筑位置
- * @returns 
- */
-function findBestContainerPosition(source: Source, spawn: StructureSpawn) {
-  let possiblePositions: RoomPosition[] = [];
-
-  const terrain = new Room.Terrain(spawn.pos.roomName);
-
-  for (let x = -1; x <= 1; x++) {
-    for (let y = -1; y <= 1; y++) {
-      const newX = source.pos.x + x;
-      const newY = source.pos.y + y;
-      if (newX < 0 || newY < 0 || newX > 49 || newY > 49) continue
-      if (terrain.get(newX, newY) === TERRAIN_MASK_WALL) continue
-      const pos = new RoomPosition(newX, newY, source.pos.roomName);
-      possiblePositions.push(pos);
-    }
-  }
-  const positions = possiblePositions;
-  let bestDistance = Infinity;
-  let bestPositions: RoomPosition;
-  // 找到最近的位置
-  for (let pos of positions) {
-    let distance = pos.getRangeTo(spawn);
-    if (distance < bestDistance) {
-      bestDistance = distance;
-      bestPositions = pos
-    }
-  }
-  return bestPositions;
-}
 
 export const findSpawns = () => {
   for (const key in Game.spawns) {
@@ -50,6 +17,7 @@ export const findSpawns = () => {
     // 找到资源点附近可以放container的位置
     if (!Memory.rooms[roomName]) {
       Memory.rooms[roomName] = {
+        creepIndex: 0,
         maxWorker: 4,
         toFixedStructures: [],
         toConstructionSite: [],
@@ -59,6 +27,9 @@ export const findSpawns = () => {
         sourcesList: [],
         controlId: null
       };
+    }
+    if (!Memory.rooms[roomName].creepIndex) {
+      Memory.rooms[roomName].creepIndex = 0
     }
 
     // 资源列表
@@ -88,8 +59,9 @@ export const findSpawns = () => {
 
         if (structures.length > 0 && containerIndex !== -1) {
           s.containerId = structures[containerIndex].id;
-          room.memory.spawnQueue.push('harvester');
+          room.memory.spawnQueue.push(ROLE_NAME_ENUM.harvester);
         }
+
       }
 
       // 没有找到最佳位置，设置最佳位置
