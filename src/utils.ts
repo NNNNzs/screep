@@ -5,23 +5,6 @@ export type BodyCreateMap = {
 export const log = (...args) => {
   console.log(...args)
 }
-/**
- * 
- * @param {Object} data 
- * @description 根据一个对象，返回生成的body
- * @returns {Array}
- */
-export const createBodyWithMap = (data: BodyCreateMap = {}): BodyPartConstant[] => {
-  let bodys = [];
-  Object.keys(data).forEach(ele => {
-    let n = 0;
-    while (n < data[ele]) {
-      bodys.push(ele)
-      n++
-    }
-  })
-  return bodys;
-}
 
 /**
  * 
@@ -39,24 +22,6 @@ export const calcMove = (bodys: BodyPartConstant[]): number => {
     }
   })
   return sum;
-}
-
-
-// 寻找可以取出来能量的建筑
-// todo 能量降序
-export const findResourceStructure = (creep, rank) => {
-  for (let i in rank) {
-    const structure = rank[i]
-    let sources = creep.room.find(FIND_STRUCTURES, {
-      filter: (s) => { return (s.structureType == structure && s.store.getUsedCapacity(RESOURCE_ENERGY) > 0) }
-    });
-    if (sources.length > 0) {
-      sources.sort((a, b) => b.store.getUsedCapacity() - a.store.getUsedCapacity())
-      return sources;
-    } else {
-      continue;
-    }
-  }
 }
 
 

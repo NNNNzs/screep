@@ -1,5 +1,25 @@
-import { BodyCreateMap, calcMove, createBodyWithMap, log } from "../utils";
+import { BodyCreateMap, calcMove, log } from "../utils";
 import { ROLE_NAME_ENUM, bodyCostMap, bodyRateMap } from "../var";
+
+/**
+ * 
+ * @param {Object} data 
+ * @description 根据一个对象，返回生成的body
+ * @returns {Array}
+ */
+export const createBodyWithMap = (data: BodyCreateMap = {}): BodyPartConstant[] => {
+  let bodys = [];
+  Object.keys(data).forEach(ele => {
+    let n = 0;
+    while (n < data[ele]) {
+      bodys.push(ele)
+      n++
+    }
+  })
+  return bodys;
+}
+
+
 
 export class SpawnQueue {
   _spanQueue: ROLE_NAME_ENUM[];

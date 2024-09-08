@@ -1,7 +1,7 @@
 import { findBestContainerPosition } from '@/modules/structure';
 import { ROLE_NAME_ENUM } from '@/var';
 import { SpawnQueue } from './autoCreate';
-import { log, useCpu } from '@/utils';
+import { log, runPerTime, useCpu } from '@/utils';
 const unHealList = [STRUCTURE_WALL, STRUCTURE_RAMPART, 'extension'];
 const defaultRoom = Game.spawns['Spawn1'];
 
@@ -161,6 +161,7 @@ export const findSpawns = () => {
           }
         }
       }
+      
       /** 如果采集者死亡 重新创建一个采集者 */
       if (!Memory.creeps[s.creepId]) {
         s.creepId = null;
@@ -206,7 +207,12 @@ export const toBuildList = () => {
 
 
 export const roomScanner = () => {
-  findSpawns();
-  toFixedList();
-  toBuildList();
+
+
+  runPerTime(() => {
+    findSpawns();
+    toFixedList();
+    toBuildList();
+  }, 10)
+
 }

@@ -1,4 +1,3 @@
-import { createBodyWithMap } from "./utils";
 
 export const showDash = { visualizePathStyle: { stroke: "#fffff" } };
 export enum ROLE_NAME_ENUM {
@@ -10,6 +9,15 @@ export enum ROLE_NAME_ENUM {
   miner = 'miner',
   miner1 = 'miner1',
 };
+
+export enum Task {
+  build = 'build',
+  upgrade = 'upgrade',
+  repair = 'repair',
+  carry = 'carry',
+  harvest = 'harvest',
+  take = 'take',
+}
 export const FREE_ENERGY = 300;
 
 /** creeps 身体构成数量比例 */
@@ -37,13 +45,16 @@ type BodyRateMap = {
 };
 
 export const bodyRateMap: BodyRateMap = {
+  /** 普通工人 */
   [ROLE_NAME_ENUM.worker]: [
     { body: CARRY, min: 1, weight: 1 },
     { body: WORK, min: 1, weight: 1 },
   ],
+  /** 专职采矿者 */
   [ROLE_NAME_ENUM.harvester]: [
-    { body: WORK, min: 1, max: 3, weight: 1 },
+    { body: WORK, min: 1, max: 4, weight: 1 },
   ],
+  /** 专职搬运者 */
   [ROLE_NAME_ENUM.carry]: [
     { body: CARRY, min: 1, weight: 1 },
   ]

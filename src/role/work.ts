@@ -1,6 +1,8 @@
 // 特殊资源采集
-import { showDash } from "../var.js";
+import { ROLE_NAME_ENUM, showDash } from "../var.js";
 import { creepExtension } from "../modules/mount.js";
+import { toBuildList } from "@/modules/Scanner.js";
+import { log } from "@/utils";
 const roleHarvester = {
   run: function (creep: Creep) {
 
@@ -8,14 +10,24 @@ const roleHarvester = {
 
     if (!creep.memory.task) {
 
-      const hasSource = creep.store.getFreeCapacity() == 0;
+      const hasSource = creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
       const emptySource = creep.store.getUsedCapacity() == 0;
       const roomMemory = Memory.rooms[roomName];
-      const index = Object.keys(Game.creeps).indexOf(creep.name);
+
+      const workIndex = Object.entries(Game.creeps).filter(entry => {
+        const [name, creep] = entry;
+        if (creep.memory.role === ROLE_NAME_ENUM.worker) {
+          return true
+        }
+      }).findIndex(entry => entry[0] === creep.name);
+
       const emptySpawn = roomMemory.emptyStructureList;
+      const sourceStructure = Memory.rooms[roomName].sourceStructure;
+      const toConstructionSite = roomMemory.toConstructionSite
+
 
       /** 从建筑物里面拿出资源 */
-      if (emptySource && Memory.rooms[roomName].sourceStructure.length > 0) {
+      if (emptySource && sourceStructure.length > 0) {
         // creep.memory.targetId = Memory.rooms[roomName].sourceStructure[0];
         const sourceStructure = _.cloneDeep(Memory.rooms[roomName].sourceStructure);
 
@@ -23,6 +35,9 @@ const roleHarvester = {
           sourceStructure.sort((a, b) => {
             const aSource = Game.getObjectById(a) as Source
             const bSource = Game.getObjectById(b) as Source
+
+            // 根据剩余能量排序
+            return aSource.energy - bSource.energy > 0 ? -1 : 1;
             const adistance = aSource.pos.getRangeTo(bSource.pos)
             const bdistance = bSource.pos.getRangeTo(creep.pos)
             // 返回距离最近的
@@ -43,7 +58,7 @@ const roleHarvester = {
 
         if (sources.length !== 0) {
           creep.memory.task = 'harvest';
-          const creepIndex = index % sources.length;
+          const creepIndex = workIndex % sources.length;
           creep.memory.targetId = sources[creepIndex].id;
         }
       }
@@ -54,7 +69,8 @@ const roleHarvester = {
       }
 
       // 至少保留一个去升级
-      else if (hasSource && index === 0) {
+      else if (hasSource && workIndex === 0) {
+        log(`creep ${creep.name} 优先升级`)
         creep.memory.task = 'upgrade';
       }
 
@@ -64,8 +80,9 @@ const roleHarvester = {
         creep.memory.targetId = roomMemory.toFixedStructures[0].id;
       }
 
+
       // 建造判断
-      else if (hasSource && roomMemory.toConstructionSite.length > 0) {
+      else if (hasSource && toConstructionSite.length > 0) {
         creep.memory.task = 'build';
         creep.memory.targetId = roomMemory.toConstructionSite[0].id;
       }
@@ -77,6 +94,7 @@ const roleHarvester = {
 
       // 冗余去升级 
       else {
+        log(`creep ${creep.name} 冗余去升级`, 'hasSource', hasSource, toConstructionSite.length)
         creep.memory.task = 'upgrade';
       }
       // 升级控制器判断
@@ -123,7 +141,6 @@ const roleHarvester = {
       const res = creep.withdraw(target, RESOURCE_ENERGY);
 
       if (res == ERR_NOT_IN_RANGE) {
-        creep.say('take');
         creep.moveTo(target);
       };
 
@@ -205,15 +222,18 @@ const roleHarvester = {
 
       if (creep.build(target) == ERR_NOT_IN_RANGE) {
         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-      }
+      };
+
       // 建造完毕
       if (target.progress == target.progressTotal) {
         creep.memory.task = null;
         creep.memory.targetId = null;
+        toBuildList();
       }
 
     }
 
+    creep.say(task);
   },
 };
 export default roleHarvester;
