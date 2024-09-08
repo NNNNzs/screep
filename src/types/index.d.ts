@@ -23,10 +23,17 @@ declare global {
     self_harvest: (index: number) => void
   }
 
+  type AfterTickTask = {
+    tick: number;
+    fun: Function
+  }
+
   interface Memory {
     lastModified: string;
     startTick: number;
-    stats?: stateItem
+    stats?: stateItem;
+
+    afterTickTask: AfterTickTask[]
   }
 
 

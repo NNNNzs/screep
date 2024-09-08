@@ -1,9 +1,7 @@
-import { findBestContainerPosition } from '@/modules/structure';
+import { findBestContainerPosition, toFixedList, toBuildList } from '@/modules/structure';
 import { ROLE_NAME_ENUM } from '@/var';
 import { SpawnQueue } from './autoCreate';
-import { log, runPerTime, useCpu } from '@/utils';
-const unHealList = [STRUCTURE_WALL, STRUCTURE_RAMPART, 'extension'];
-const defaultRoom = Game.spawns['Spawn1'];
+import { log, runAfterTickTask, runPerTime, useCpu } from '@/utils';
 
 type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CONTAINER | STRUCTURE_STORAGE | STRUCTURE_TERMINAL
 
@@ -161,7 +159,7 @@ export const findSpawns = () => {
           }
         }
       }
-      
+
       /** 如果采集者死亡 重新创建一个采集者 */
       if (!Memory.creeps[s.creepId]) {
         s.creepId = null;
@@ -182,27 +180,7 @@ export const findSpawns = () => {
   }
 }
 
-export const toFixedList = (pos: AnyStructure = defaultRoom) => {
-  Object.keys(Memory.rooms).forEach(roomName => {
-    const toFixedStructures = pos.room.find(FIND_STRUCTURES, {
-      filter: object => {
-        const undo = unHealList.includes(object.structureType);
-        return object.hits < object.hitsMax && !undo
-      }
-    });
-    toFixedStructures.sort((a, b) => a.hits / a.hitsMax > b.hits / b.hitsMax ? 1 : -1);
-    Memory.rooms[roomName].toFixedStructures = toFixedStructures;
-  })
-}
 
-export const toBuildList = () => {
-
-  Object.keys(Memory.rooms).forEach(roomName => {
-    const room = Game.rooms[roomName];
-    const constructionSites = room.find(FIND_CONSTRUCTION_SITES) as ConstructionSite[];
-    Memory.rooms[room.name].toConstructionSite = constructionSites;
-  });
-}
 
 
 
@@ -213,6 +191,8 @@ export const roomScanner = () => {
     findSpawns();
     toFixedList();
     toBuildList();
-  }, 10)
+  }, 10);
+
+  runAfterTickTask();
 
 }

@@ -1,7 +1,7 @@
 // 特殊资源采集
 import { ROLE_NAME_ENUM, showDash } from "../var.js";
 import { creepExtension } from "../modules/mount.js";
-import { toBuildList } from "@/modules/Scanner.js";
+import { toBuildList } from "@/modules/structure.js";
 import { log } from "@/utils";
 const roleHarvester = {
   run: function (creep: Creep) {

@@ -49,7 +49,38 @@ export const runAfterStart = (cb: () => any, delayTick: number) => {
   if (Game.time === Memory.startTick + delayTick) {
     return cb();
   }
-}
+};
 
+export const addTickTask = (fun: () => any, timeout: number) => {
+  if (!Memory.afterTickTask) {
+    Memory.afterTickTask = []
+  }
+  const currentTick = Game.time;
+
+  Memory.afterTickTask.push({ tick: currentTick + timeout, fun, });
+  Memory.afterTickTask.sort((a, b) => a.tick - b.tick)
+};
+
+/**
+ * 运行已经到期的任务
+ */
+export const runAfterTickTask = () => {
+
+  if (!Memory.afterTickTask) {
+    Memory.afterTickTask = []
+  }
+
+  const currentTickTasks = Memory.afterTickTask.filter(task => task.tick <= Game.time);
+
+  if (currentTickTasks.length === 0) {
+    return
+  };
+
+  currentTickTasks.forEach((task) => {
+    // task.fun();
+  });
+
+  Memory.afterTickTask = Memory.afterTickTask.filter(task => task.tick > Game.time);
+}
 
 /** */

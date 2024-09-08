@@ -1,9 +1,24 @@
-import { log } from "@/utils";
+import { log, addTickTask } from "@/utils";
+import { SpawnQueue } from "@/modules/autoCreate";
+import { ROLE_NAME_ENUM } from "@/var";
+
 
 // 只会采集的采集者
 const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
 export const onlyHarvester = {
   run(creep: Creep) {
+
+    // log('当前tick', Game.time, '添加执行tick', Game.time + 10);
+    // addAfterTickTask(() => {
+    //   log('执行tick', Game.time);
+    // }, 10)
+
+
+    if (creep.ticksToLive === 40) {
+      const spawnQueue = new SpawnQueue(creep.room);
+      spawnQueue.push(ROLE_NAME_ENUM.harvester);
+    };
+
     // 挖矿
     try {
       const roomName = creep.room.name;
