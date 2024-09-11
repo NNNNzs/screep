@@ -15,7 +15,8 @@ declare global {
   const _: typeof import('lodash');
 
   type toConstructionSite = ConstructionSite<BuildableStructureConstant>[];
-  type toFixedStructures = AnyStructure[]
+  type toFixedStructures = AnyStructure[];
+
 
 
 
@@ -32,6 +33,8 @@ declare global {
     lastModified: string;
     startTick: number;
     stats?: stateItem;
+    
+    taskList: any[];
 
     afterTickTask: AfterTickTask[]
   }

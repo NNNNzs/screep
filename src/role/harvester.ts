@@ -1,4 +1,4 @@
-import { log, addTickTask } from "@/utils";
+import { log } from "@/utils";
 import { SpawnQueue } from "@/modules/autoCreate";
 import { ROLE_NAME_ENUM } from "@/var";
 
@@ -14,10 +14,10 @@ export const onlyHarvester = {
     // }, 10)
 
 
-    if (creep.ticksToLive === 40) {
-      const spawnQueue = new SpawnQueue(creep.room);
-      spawnQueue.push(ROLE_NAME_ENUM.harvester);
-    };
+    // if (creep.ticksToLive === 10) {
+    //   const spawnQueue = new SpawnQueue(creep.room);
+    //   spawnQueue.push(ROLE_NAME_ENUM.harvester);
+    // };
 
     // 挖矿
     try {

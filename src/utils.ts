@@ -52,13 +52,13 @@ export const runAfterStart = (cb: () => any, delayTick: number) => {
 };
 
 export const addTickTask = (fun: () => any, timeout: number) => {
-  if (!Memory.afterTickTask) {
-    Memory.afterTickTask = []
+  if (!global.afterTickTask) {
+    global.afterTickTask = []
   }
   const currentTick = Game.time;
 
-  Memory.afterTickTask.push({ tick: currentTick + timeout, fun, });
-  Memory.afterTickTask.sort((a, b) => a.tick - b.tick)
+  global.afterTickTask.push({ tick: currentTick + timeout, fun, });
+  global.afterTickTask.sort((a, b) => a.tick - b.tick)
 };
 
 /**
@@ -66,11 +66,11 @@ export const addTickTask = (fun: () => any, timeout: number) => {
  */
 export const runAfterTickTask = () => {
 
-  if (!Memory.afterTickTask) {
-    Memory.afterTickTask = []
+  if (!global.afterTickTask) {
+    global.afterTickTask = []
   }
 
-  const currentTickTasks = Memory.afterTickTask.filter(task => task.tick <= Game.time);
+  const currentTickTasks = global.afterTickTask.filter(task => task.tick >= Game.time);
 
   if (currentTickTasks.length === 0) {
     return
@@ -80,7 +80,7 @@ export const runAfterTickTask = () => {
     // task.fun();
   });
 
-  Memory.afterTickTask = Memory.afterTickTask.filter(task => task.tick > Game.time);
+  global.afterTickTask = global.afterTickTask.filter(task => task.tick > Game.time);
 }
 
 /** */

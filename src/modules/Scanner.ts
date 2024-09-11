@@ -123,54 +123,9 @@ export const findSpawns = () => {
 
 
 
-    const spawnQueue = new SpawnQueue(room);
-
-    Memory.rooms[roomName].sourcesList.forEach((s, index) => {
-
-      /** 没有最佳位置，设置最佳位置 */
-      if (!s.containerId && !s.containerPos) {
-        const source = Game.getObjectById(s.id) as Source;
-        const sourcePos = source.pos;
-        const bestPosition = findBestContainerPosition(source, Game.spawns[key]);
-        s.containerPos = bestPosition;
-        room.createConstructionSite(bestPosition, STRUCTURE_CONTAINER);
-        // 绘制半径
-        room.visual.circle(sourcePos,
-          { fill: 'transparent', radius: 3, stroke: 'red' });
-      }
-
-      /**  没有建造container  */
-      if (!s.containerId && s.containerPos) {
-        // 判断位置的container是否建造完成 此时才能设置建造采集者功能
-        const pos = new RoomPosition(s.containerPos.x, s.containerPos.y, s.containerPos.roomName);
-
-        /** 当前位置的建筑信息 */
-        const structures = room.lookForAt(LOOK_STRUCTURES, pos)
-
-        const containerIndex = structures.findIndex(s => s.structureType === STRUCTURE_CONTAINER);
 
 
-        /** 有建筑 且是container 但是没有采集者 */
-        if (containerIndex > -1 && !s.creepId) {
-          // 创建采集者
-          const res = spawnQueue.push(ROLE_NAME_ENUM.harvester)
-          if (res) {
-            s.containerId = structures[containerIndex].id;
-          }
-        }
-      }
-
-      /** 如果采集者死亡 重新创建一个采集者 */
-      if (!Memory.creeps[s.creepId]) {
-        s.creepId = null;
-        spawnQueue.push(ROLE_NAME_ENUM.harvester)
-      }
-
-
-
-    });
-
-
+    updateSourceList(room, key);
 
     findEmptySourceStructure(room, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_STORAGE]);
 
@@ -181,11 +136,68 @@ export const findSpawns = () => {
 }
 
 
+/**
+ * Updates the source list for the given room. This is called every tick and manages the
+ * following tasks:
+ * - Finds the best container position for each source
+ * - Creates a construction site for the container
+ * - Checks if the container is built and assigns a harvester creep to each source
+ * - Assigns a harvester creep to each source if the container is built
+ * - Replaces dead harvester creeps
+ * @param room The room to update
+ * @param spawnName The name of the spawn to use for creating new creeps
+ */
+export const updateSourceList = (room: Room, spawnName: string) => {
+  const spawnQueue = new SpawnQueue(room);
+  const roomName = room.name;
+
+  Memory.rooms[roomName].sourcesList.forEach((s, index) => {
+
+    /** 没有最佳位置，设置最佳位置 */
+    if (!s.containerId && !s.containerPos) {
+      const source = Game.getObjectById(s.id) as Source;
+      const sourcePos = source.pos;
+      const bestPosition = findBestContainerPosition(source, Game.spawns[spawnName]);
+      s.containerPos = bestPosition;
+      room.createConstructionSite(bestPosition, STRUCTURE_CONTAINER);
+      // 绘制半径
+      room.visual.circle(sourcePos,
+        { fill: 'transparent', radius: 3, stroke: 'red' });
+    }
+
+    /**  没有建造container  */
+    if (!s.containerId && s.containerPos) {
+      // 判断位置的container是否建造完成 此时才能设置建造采集者功能
+      const pos = new RoomPosition(s.containerPos.x, s.containerPos.y, s.containerPos.roomName);
+
+      /** 当前位置的建筑信息 */
+      const structures = room.lookForAt(LOOK_STRUCTURES, pos)
+
+      const containerIndex = structures.findIndex(s => s.structureType === STRUCTURE_CONTAINER);
+
+
+      /** 有建筑 且是container 但是没有采集者 */
+      if (containerIndex > -1 && !s.creepId) {
+        // 创建采集者
+        const res = spawnQueue.push(ROLE_NAME_ENUM.harvester)
+        if (res) {
+          s.containerId = structures[containerIndex].id;
+        }
+      }
+    }
+
+    /** 如果采集者死亡 重新创建一个采集者 */
+    if (!Memory.creeps[s.creepId]) {
+      s.creepId = null;
+      spawnQueue.push(ROLE_NAME_ENUM.harvester)
+    }
+  });
+
+}
 
 
 
 export const roomScanner = () => {
-
 
   runPerTime(() => {
     findSpawns();
