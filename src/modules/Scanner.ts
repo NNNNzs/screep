@@ -1,9 +1,10 @@
 import { findBestContainerPosition, toFixedList, toBuildList } from '@/modules/structure';
 import { ROLE_NAME_ENUM } from '@/var';
-import { SpawnQueue } from './autoCreate';
+import { SpawnQueue, deleteCreepMemory } from './autoCreate';
 import { log, runAfterTickTask, runPerTime, useCpu } from '@/utils';
+import task, { TaskType } from './Task'
 
-type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CONTAINER | STRUCTURE_STORAGE | STRUCTURE_TERMINAL
+type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CONTAINER | STRUCTURE_STORAGE | STRUCTURE_TERMINAL | STRUCTURE_TOWER
 
 /** 查找空的 可以送能量的建筑 */
 export const findEmptySourceStructure = (room: Room, rank: StructureType[]) => {
@@ -28,7 +29,17 @@ export const findEmptySourceStructure = (room: Room, rank: StructureType[]) => {
     }
   });
 
-  Memory.rooms[roomName].emptyStructureList = sources.map(e => e.id);
+  Memory.rooms[roomName].emptyStructureList = sources.map(e => {
+
+    task.add({
+      id: e.id,
+      type: TaskType.take,
+      targetId: e.id,
+      executorId: []
+    })
+
+    return e.id
+  });
 }
 
 /** 找到可以拿能量的建筑 */
@@ -127,7 +138,7 @@ export const findSpawns = () => {
 
     updateSourceList(room, key);
 
-    findEmptySourceStructure(room, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_STORAGE]);
+    findEmptySourceStructure(room, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_STORAGE]);
 
     findSourceStructure(room, [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]);
 
@@ -200,6 +211,7 @@ export const updateSourceList = (room: Room, spawnName: string) => {
 export const roomScanner = () => {
 
   runPerTime(() => {
+    deleteCreepMemory();
     findSpawns();
     toFixedList();
     toBuildList();

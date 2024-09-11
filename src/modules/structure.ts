@@ -1,3 +1,5 @@
+import task, { TaskType } from "./Task";
+
 /**
  * 
  * @param source 
@@ -46,6 +48,12 @@ export const toFixedList = () => {
       }
     });
     toFixedStructures.sort((a, b) => a.hits / a.hitsMax > b.hits / b.hitsMax ? 1 : -1);
+    toFixedStructures.forEach((s, index) => {
+      task.add({
+        targetId: s.id,
+        type: TaskType.repair,
+      })
+    })
     Memory.rooms[roomName].toFixedStructures = toFixedStructures;
   })
 };

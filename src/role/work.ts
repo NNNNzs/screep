@@ -33,11 +33,11 @@ const roleHarvester = {
 
         if (sourceStructure.length > 1) {
           sourceStructure.sort((a, b) => {
-            const aSource = Game.getObjectById(a) as Source
-            const bSource = Game.getObjectById(b) as Source
+            const aSource = Game.getObjectById(a) as StructureContainer
+            const bSource = Game.getObjectById(b) as StructureContainer
 
             // 根据剩余能量排序
-            return aSource.energy - bSource.energy > 0 ? -1 : 1;
+            return bSource.store.getUsedCapacity(RESOURCE_ENERGY) - aSource.store.getUsedCapacity(RESOURCE_ENERGY);
             const adistance = aSource.pos.getRangeTo(bSource.pos)
             const bdistance = bSource.pos.getRangeTo(creep.pos)
             // 返回距离最近的
@@ -189,13 +189,20 @@ const roleHarvester = {
       }
 
       if (creep.store.getUsedCapacity() == 0) {
-        creep.memory.task = 'harvest';
+        creep.memory.task = null;
         creep.memory.targetId = null;
         return
       }
+      const res = creep.repair(target);
 
-      if (creep.repair(target) == ERR_NOT_IN_RANGE) {
+      if (res === ERR_NOT_IN_RANGE) {
         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+      }
+      
+      if (res == ERR_NOT_ENOUGH_RESOURCES) {
+        creep.memory.task = null;
+        creep.memory.targetId = null;
+        return
       }
 
       // 修完了
