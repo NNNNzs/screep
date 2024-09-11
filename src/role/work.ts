@@ -1,7 +1,7 @@
 // 特殊资源采集
 import { ROLE_NAME_ENUM, showDash } from "../var.js";
 import { creepExtension } from "../modules/mount.js";
-import { toBuildList } from "@/modules/structure.js";
+import { toBuildList, toFixedList } from "@/modules/structure.js";
 import { log } from "@/utils";
 const roleHarvester = {
   run: function (creep: Creep) {
@@ -198,7 +198,7 @@ const roleHarvester = {
       if (res === ERR_NOT_IN_RANGE) {
         creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
       }
-      
+
       if (res == ERR_NOT_ENOUGH_RESOURCES) {
         creep.memory.task = null;
         creep.memory.targetId = null;
@@ -207,6 +207,7 @@ const roleHarvester = {
 
       // 修完了
       if (target.hits == target.hitsMax) {
+        toFixedList();
         creep.memory.task = null;
         creep.memory.targetId = null;
       }
