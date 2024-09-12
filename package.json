@@ -4,7 +4,8 @@
   "description": "screpp游戏的源代码",
   "main": "main.js",
   "dependencies": {
-    "@types/node": "^22.5.2"
+    "@types/node": "^22.5.2",
+    "@types/uuid": "^10.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^26.0.1",
@@ -20,7 +21,8 @@
     "screeps-steamless-client": "^1.2.1",
     "source-map": "^0.6.1",
     "tslib": "^2.7.0",
-    "typescript": "^5.5.4"
+    "typescript": "^5.5.4",
+    "uuid": "^10.0.0"
   },
   "scripts": {
     "build": "rollup -cw",
@@ -28,7 +30,7 @@
     "local": "rollup -cw --environment DEST:local",
     "push": "rollup -cw --environment DEST:main",
     "client": "screeps-steamless-client --port=7878",
-    "client:local": "screeps-steamless-client --port=7878 --host=127.0.0.1 --backend=127.0.0.1:21025" ,
+    "client:local": "screeps-steamless-client --port=7878 --host=127.0.0.1 --backend=127.0.0.1:21025",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

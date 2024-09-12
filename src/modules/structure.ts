@@ -1,4 +1,4 @@
-import task, { TaskType } from "./Task";
+import { globalTask, TaskType } from "./Task";
 
 /**
  * 
@@ -36,7 +36,7 @@ export function findBestContainerPosition(source: Source, spawn: StructureSpawn)
   return bestPositions;
 }
 
-const unHealList = [STRUCTURE_WALL, STRUCTURE_RAMPART, 'extension'];
+const unHealList: StructureConstant[] = [STRUCTURE_WALL, STRUCTURE_RAMPART, STRUCTURE_EXTENSION]
 
 export const toFixedList = () => {
   Object.keys(Memory.rooms).forEach(roomName => {
@@ -44,27 +44,40 @@ export const toFixedList = () => {
     const toFixedStructures = room.find(FIND_STRUCTURES, {
       filter: object => {
         const undo = unHealList.includes(object.structureType);
-        return object.hits < object.hitsMax && !undo
+        return object.hits / object.hitsMax < 0.8 && !undo
       }
     });
-    toFixedStructures.sort((a, b) => a.hits / a.hitsMax > b.hits / b.hitsMax ? 1 : -1);
+
+    toFixedStructures.sort((a, b) => {
+      return a.hits / a.hitsMax - b.hits / b.hitsMax
+    });
+
     toFixedStructures.forEach((s, index) => {
-      task.add({
+      globalTask.add({
         targetId: s.id,
         type: TaskType.repair,
+        orderNum: 5
       })
-    })
+    });
+
     Memory.rooms[roomName].toFixedStructures = toFixedStructures;
   })
 };
 
 
-/** 扫描代建造列表 */
+/** 扫描待建造列表 */
 export const toBuildList = () => {
-
   Object.keys(Memory.rooms).forEach(roomName => {
     const room = Game.rooms[roomName];
     const constructionSites = room.find(FIND_CONSTRUCTION_SITES) as ConstructionSite[];
     Memory.rooms[room.name].toConstructionSite = constructionSites;
+
+    constructionSites.forEach((s, index) => {
+      globalTask.add({
+        targetId: s.id,
+        type: TaskType.build,
+        orderNum: 6
+      })
+    });
   });
 }

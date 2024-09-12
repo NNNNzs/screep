@@ -3,6 +3,7 @@ import { ROLE_NAME_ENUM, showDash } from "../var.js";
 import { creepExtension } from "../modules/mount.js";
 import { toBuildList, toFixedList } from "@/modules/structure.js";
 import { log } from "@/utils";
+import { TaskType } from "@/modules/Task.js";
 const roleHarvester = {
   run: function (creep: Creep) {
 
@@ -44,7 +45,7 @@ const roleHarvester = {
             return adistance - bdistance
           });
         }
-        creep.memory.task = 'take';
+        creep.memory.task = TaskType.take;
         creep.memory.targetId = sourceStructure[0];
 
       }
@@ -57,7 +58,7 @@ const roleHarvester = {
         });
 
         if (sources.length !== 0) {
-          creep.memory.task = 'harvest';
+          creep.memory.task = TaskType.harvest;
           const creepIndex = workIndex % sources.length;
           creep.memory.targetId = sources[creepIndex].id;
         }
@@ -65,37 +66,37 @@ const roleHarvester = {
 
       // 如果有空的spawn extension，优先送货
       else if (hasSource && emptySpawn.length > 0) {
-        creep.memory.task = 'carry';
+        creep.memory.task = TaskType.carry;
       }
 
       // 至少保留一个去升级
       else if (hasSource && workIndex === 0) {
         log(`creep ${creep.name} 优先升级`)
-        creep.memory.task = 'upgrade';
+        creep.memory.task = TaskType.upgrade;
       }
 
       // 修理判断
       else if (hasSource && roomMemory.toFixedStructures.length > 0) {
-        creep.memory.task = 'repair';
+        creep.memory.task = TaskType.upgrade;
         creep.memory.targetId = roomMemory.toFixedStructures[0].id;
       }
 
 
       // 建造判断
       else if (hasSource && toConstructionSite.length > 0) {
-        creep.memory.task = 'build';
+        creep.memory.task = TaskType.build;
         creep.memory.targetId = roomMemory.toConstructionSite[0].id;
       }
 
       //送货判断 
       else if (creep.store.getFreeCapacity() == 0) {
-        creep.memory.task = 'carry';
+        creep.memory.task = TaskType.carry;
       }
 
       // 冗余去升级 
       else {
         log(`creep ${creep.name} 冗余去升级`, 'hasSource', hasSource, toConstructionSite.length)
-        creep.memory.task = 'upgrade';
+        creep.memory.task = TaskType.upgrade;
       }
       // 升级控制器判断
     }
@@ -223,7 +224,7 @@ const roleHarvester = {
       }
 
       if (creep.store.getUsedCapacity() == 0) {
-        creep.memory.task = 'harvest';
+        creep.memory.task = null;
         creep.memory.targetId = null;
         return
       }

@@ -1,5 +1,6 @@
 import { ROLE_NAME_ENUM } from "@/var";
 import { creepExtension } from "../modules/mount";
+import { TaskType, TaskItem } from "@/modules/Task";
 export { };
 
 
@@ -21,7 +22,7 @@ declare global {
 
 
   interface Creep {
-    self_harvest: (index: number) => void
+
   }
 
   type AfterTickTask = {
@@ -33,8 +34,8 @@ declare global {
     lastModified: string;
     startTick: number;
     stats?: stateItem;
-    
-    taskList: any[];
+
+    taskList: TaskItem[];
 
     afterTickTask: AfterTickTask[]
   }
@@ -47,7 +48,14 @@ declare global {
     /** 角色 */
     role: string;
     /** 索引 */
-    creepIndex?: number
+    creepIndex?: number;
+
+    task: TaskType;
+
+    targetId?: string;
+
+    taskList?: TaskItem[]
+
   }
 
 
