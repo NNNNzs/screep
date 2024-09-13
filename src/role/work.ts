@@ -135,7 +135,7 @@ const roleHarvester = {
     const emptySource = creep.store.getUsedCapacity() == 0;
     const hasSource = creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
     const roomMemory = Memory.rooms[roomName];
-  
+
     if (!creep.memory.task) {
       assignTasks(creep);
     }
@@ -204,22 +204,22 @@ const roleHarvester = {
       if (res === ERR_NOT_IN_RANGE) {
         // 虽然很远，但是还是要判断是不是满了
         if (target.store.getFreeCapacity() == 0) {
-          creep.memory.task = null
+          findSpawns();
+          assignTasks(creep);
         } else {
           creep.moveTo(target, showDash);
         }
       };
 
       if (res === ERR_NOT_ENOUGH_RESOURCES) {
-        creep.memory.task = null;
-        creep.memory.targetId = null;
+        assignTasks(creep);
+
       }
 
       if (res === ERR_FULL) {
         console.log('target store 已满');
-        creep.memory.task = null;
-        creep.memory.targetId = null;
         findSpawns();
+        assignTasks(creep);
       }
 
 
@@ -228,8 +228,8 @@ const roleHarvester = {
         if (t.store.energy === 300) {
           console.log('STRUCTURE_SPAWN 已满');
           findSpawns();
-          creep.memory.task = null;
-          creep.memory.targetId = null;
+          assignTasks(creep);
+
         }
 
       }
