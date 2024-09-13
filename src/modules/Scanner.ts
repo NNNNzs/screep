@@ -197,11 +197,6 @@ export const updateSourceList = (room: Room, spawnName: string) => {
       }
     }
 
-    /** 如果采集者死亡 重新创建一个采集者 */
-    if (!Memory.creeps[s.creepId]) {
-      s.creepId = null;
-      spawnQueue.push(ROLE_NAME_ENUM.harvester)
-    }
   });
 
 }

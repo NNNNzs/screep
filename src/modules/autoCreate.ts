@@ -208,7 +208,8 @@ export default {
         const creepIndex = Memory.rooms[spawn.room.name].creepIndex;
         const name = `${roleName}-${Game.time.toString(16)}`;
         const opt = {
-          memory: { role: roleName, creepIndex: creepIndex },
+
+          memory: { role: roleName, creepIndex: creepIndex, task: null },
           directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT],
         };
 

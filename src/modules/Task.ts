@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid'
 enum TaskStatus {
   READY = 1,
   RUNNING = 2,
@@ -89,7 +88,7 @@ export class Task {
     };
     dto.status = TaskStatus.READY;
 
-    dto.id = uuid();
+    dto.id = Game.time + Math.random() + ''; 
 
     this._taskList.push(dto);
     this._taskSourceMap.set(dto.targetId, dto);
