@@ -4,15 +4,16 @@ import { creepExtension } from "../modules/mount.js";
 import { toBuildList, toFixedList } from "@/modules/structure.js";
 import { log } from "@/utils";
 import { TaskType } from "@/modules/Task.js";
+import { findSpawns } from "@/modules/Scanner.js";
 const roleHarvester = {
   run: function (creep: Creep) {
 
     const roomName = creep.room.name
+    const emptySource = creep.store.getUsedCapacity() == 0;
 
     if (!creep.memory.task) {
 
       const hasSource = creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
-      const emptySource = creep.store.getUsedCapacity() == 0;
       const roomMemory = Memory.rooms[roomName];
 
       const workIndex = Object.entries(Game.creeps).filter(entry => {
@@ -21,6 +22,7 @@ const roleHarvester = {
           return true
         }
       }).findIndex(entry => entry[0] === creep.name);
+
 
       const emptySpawn = roomMemory.emptyStructureList;
       const sourceStructure = Memory.rooms[roomName].sourceStructure;
@@ -57,6 +59,10 @@ const roleHarvester = {
           filter: (s: Source) => s.energy > 0,
         });
 
+        sources.sort((a, b) => {
+          return b.energy - a.energy
+        })
+
         if (sources.length !== 0) {
           creep.memory.task = TaskType.harvest;
           const creepIndex = workIndex % sources.length;
@@ -66,7 +72,30 @@ const roleHarvester = {
 
       // 如果有空的spawn extension，优先送货
       else if (hasSource && emptySpawn.length > 0) {
-        creep.memory.task = TaskType.carry;
+
+        // 先过滤到没有被分配的
+        const freeSpawn = emptySpawn.filter(e => {
+          return Object.values(Game.creeps).filter(s => s.memory.task === TaskType.carry).map(s => s.memory.targetId !== e)
+        });
+
+        // 找个最近的
+        freeSpawn.sort((a, b) => {
+          const aSource = Game.getObjectById(a) as StructureExtension
+          const bSource = Game.getObjectById(b) as StructureExtension
+          const adistance = aSource.pos.getRangeTo(bSource.pos)
+          const bdistance = bSource.pos.getRangeTo(creep.pos)
+          // 返回距离最近的
+          return adistance - bdistance
+        })
+
+        if (freeSpawn.length > 0) {
+          creep.memory.task = TaskType.carry;
+          creep.memory.targetId = freeSpawn[0]
+        } else {
+          log(`creep ${creep.name} 冗余去升级`, 'hasSource', hasSource, toConstructionSite.length)
+          creep.memory.task = TaskType.upgrade;
+        }
+
       }
 
       // 至少保留一个去升级
@@ -77,7 +106,7 @@ const roleHarvester = {
 
       // 修理判断
       else if (hasSource && roomMemory.toFixedStructures.length > 0) {
-        creep.memory.task = TaskType.upgrade;
+        creep.memory.task = TaskType.repair;
         creep.memory.targetId = roomMemory.toFixedStructures[0].id;
       }
 
@@ -158,12 +187,44 @@ const roleHarvester = {
         creep.memory.task = null;
         return;
       }
-      const empty = creepExtension.sendRourceToStructure.call(creep);
-      if (empty) {
-        console.log('所有建筑都满了');
+
+      const target = Game.getObjectById(creep.memory.targetId) as StructureExtension | StructureSpawn | StructureTower;
+      const res = creep.transfer(target, RESOURCE_ENERGY);
+
+      if (res === ERR_NOT_IN_RANGE) {
+        // 虽然很远，但是还是要判断是不是满了
+        if (target.store.getFreeCapacity() == 0) {
+          creep.memory.task = null
+        } else {
+          creep.moveTo(target, showDash);
+        }
+      };
+
+      if (res === ERR_NOT_ENOUGH_RESOURCES) {
         creep.memory.task = null;
         creep.memory.targetId = null;
       }
+
+      if (res === ERR_FULL) {
+        console.log('target store 已满');
+        creep.memory.task = null;
+        creep.memory.targetId = null;
+        findSpawns();
+      }
+
+
+      if (target.structureType === STRUCTURE_SPAWN) {
+        let t = target as StructureSpawn
+        if (t.store.energy === 300) {
+          console.log('STRUCTURE_SPAWN 已满');
+          findSpawns();
+          creep.memory.task = null;
+          creep.memory.targetId = null;
+        }
+
+      }
+
+
     }
     else if (task === 'upgrade') {
       const controller = creep.room.controller;
@@ -173,10 +234,13 @@ const roleHarvester = {
         // 该房间没有控制器
         return
       }
-      if (creep.upgradeController(controller) == ERR_NOT_IN_RANGE) {
+      const res = creep.upgradeController(controller);
+
+      if (res === ERR_NOT_IN_RANGE) {
         creep.moveTo(controller, showDash);
-      }
-      if (creep.store.getUsedCapacity() == 0) {
+      };
+
+      if (emptySource) {
         creep.memory.task = null;
       }
     }
