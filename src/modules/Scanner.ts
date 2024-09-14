@@ -85,7 +85,6 @@ export const findSpawns = () => {
         maxWorker: 4,
         toFixedStructures: [],
         toConstructionSite: [],
-        containerIdList: [],
         // 产房队列
         spawnQueue: [],
         sourcesList: [],
@@ -164,38 +163,56 @@ export const updateSourceList = (room: Room, spawnName: string) => {
 
   Memory.rooms[roomName].sourcesList.forEach((s, index) => {
 
-    /** 没有最佳位置，设置最佳位置 */
-    if (!s.containerId && !s.containerPos) {
-      const source = Game.getObjectById(s.id) as Source;
-      const sourcePos = source.pos;
-      const bestPosition = findBestContainerPosition(source, Game.spawns[spawnName]);
-      s.containerPos = bestPosition;
-      room.createConstructionSite(bestPosition, STRUCTURE_CONTAINER);
-      // 绘制半径
-      room.visual.circle(sourcePos,
-        { fill: 'transparent', radius: 3, stroke: 'red' });
+    // 检查container是否存在
+    if (s.containerId) {
+      const container = Game.getObjectById(s.containerId) as StructureContainer;
+      if (!container) {
+        s.containerId = null;
+      } else {
+
+        if (!Memory.creeps[s.creepId]) {
+          s.creepId = null
+        }
+
+        if (!s.creepId) {
+          const res = spawnQueue.push(ROLE_NAME_ENUM.harvester)
+        }
+
+      }
+
     }
 
-    /**  没有建造container  */
-    if (!s.containerId && s.containerPos) {
-      // 判断位置的container是否建造完成 此时才能设置建造采集者功能
-      const pos = new RoomPosition(s.containerPos.x, s.containerPos.y, s.containerPos.roomName);
+    if (!s.containerId) {
+      // 没有位置container建造位置
+      if (!s.containerPos) {
+        const source = Game.getObjectById(s.id) as Source;
+        const sourcePos = source.pos;
+        const bestPosition = findBestContainerPosition(source, Game.spawns[spawnName]);
+        s.containerPos = bestPosition;
+        room.createConstructionSite(bestPosition, STRUCTURE_CONTAINER);
+        // 绘制半径
+        room.visual.circle(sourcePos,
+          { fill: 'transparent', radius: 3, stroke: 'red' });
+      } else {
 
-      /** 当前位置的建筑信息 */
-      const structures = room.lookForAt(LOOK_STRUCTURES, pos)
+        // 有位置信息，判断是否创建建造任务
+        // 判断位置的container是否建造完成 此时才能设置建造采集者功能
+        const pos = new RoomPosition(s.containerPos.x, s.containerPos.y, s.containerPos.roomName);
+        /** 当前位置的建筑信息 */
+        const structures = room.lookForAt(LOOK_STRUCTURES, pos)
+        const containerIndex = structures.findIndex(s => s.structureType === STRUCTURE_CONTAINER);
+        // 判断是否有带建造的建筑
 
-      const containerIndex = structures.findIndex(s => s.structureType === STRUCTURE_CONTAINER);
-
-
-      /** 有建筑 且是container 但是没有采集者 */
-      if (containerIndex > -1 && !s.creepId) {
-        // 创建采集者
-        const res = spawnQueue.push(ROLE_NAME_ENUM.harvester)
-        if (res) {
+        /** 有建筑 且是container 但是没有采集者 */
+        if (containerIndex > -1) {
           s.containerId = structures[containerIndex].id;
         }
-      }
+      };
     }
+
+
+
+
 
   });
 
