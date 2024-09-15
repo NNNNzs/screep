@@ -230,7 +230,7 @@ const roleHarvester = {
       }
 
 
-      if (target.structureType === STRUCTURE_SPAWN) {
+      if (target && target.structureType === STRUCTURE_SPAWN) {
         let t = target as StructureSpawn
         if (t.store.energy === 300) {
           console.log('STRUCTURE_SPAWN 已满');
