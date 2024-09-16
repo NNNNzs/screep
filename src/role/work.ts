@@ -115,9 +115,9 @@ const assignTasks = (creep: Creep) => {
   }
 
   //送货判断 
-  else if (creep.store.getFreeCapacity() == 0) {
-    creep.memory.task = TaskType.carry;
-  }
+  // else if (creep.store.getFreeCapacity() == 0) {
+  //   creep.memory.task = TaskType.carry;
+  // }
 
   // 冗余去升级 
   else {
@@ -145,7 +145,8 @@ const roleHarvester = {
     if (task === 'harvest') {
       const target = Game.getObjectById(creep.memory.targetId) as Source;
       if (!target) {
-        creep.memory.task = null;
+        findSpawns();
+        assignTasks(creep);
         return
       }
 
@@ -173,8 +174,8 @@ const roleHarvester = {
       const target = Game.getObjectById(creep.memory.targetId) as Structure;
 
       if (!target) {
-        creep.memory.task = null;
-        creep.memory.targetId = null;
+        findSpawns();
+        assignTasks(creep);
         return
       }
 
@@ -194,11 +195,17 @@ const roleHarvester = {
 
     else if (task === 'carry') {
       if (creep.store.getUsedCapacity() == 0) {
-        creep.memory.task = null;
+        findSpawns();
+        assignTasks(creep);
         return;
       }
 
       const target = Game.getObjectById(creep.memory.targetId) as StructureExtension | StructureSpawn | StructureTower;
+      if (!target) {
+        findSpawns();
+        assignTasks(creep);
+        return
+      }
       const res = creep.transfer(target, RESOURCE_ENERGY);
 
       if (![STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_STORAGE].includes(target.structureType)) {
