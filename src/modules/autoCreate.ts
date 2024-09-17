@@ -68,6 +68,10 @@ export function deleteCreepMemory() {
 }
 
 const createWorker = (spawnQueue: SpawnQueue) => {
+
+  const roomName = spawnQueue.room.name;
+
+
   const totalScreep = Object.keys(Game.creeps);
   // 全局为空
   if (totalScreep.length === 0) {
@@ -80,7 +84,12 @@ const createWorker = (spawnQueue: SpawnQueue) => {
     return creep.memory.role === ROLE_NAME_ENUM.worker;
   });
 
-  if (workers.length < spawnQueue.room.memory.maxWorker) {
+  const hasHarvester = Memory.rooms[roomName].harvestersLength > 0 ? 1 : 0;
+  const hasCarry = Memory.rooms[roomName].carrysLength > 0 ? 1 : 0
+
+  const workerLength = spawnQueue.room.memory.maxWorker - hasHarvester - hasCarry;
+
+  if (workers.length < workerLength) {
     spawnQueue.push(ROLE_NAME_ENUM.worker);
   }
 }
@@ -246,11 +255,11 @@ export default {
       }
       const spawnQueue = new SpawnQueue(spawn.room);
 
-      
+
       createCarry(spawnQueue);
-      
+
       createHarvester(spawnQueue);
-      
+
       createWorker(spawnQueue);
 
       if (spawnQueue.length > 0) {
