@@ -6,6 +6,21 @@ export const log = (...args) => {
   console.log(...args)
 }
 
+/** 根据距离排序 */
+export const sortByRange = (pos: RoomPosition, sortList = []) => {
+  const list = _.cloneDeep(sortList);
+
+  list.sort((a, b) => {
+    const aSource = Game.getObjectById(a) as AnyStructure
+    const bSource = Game.getObjectById(b) as AnyStructure
+    const adistance = aSource.pos.getRangeTo(pos)
+    const bdistance = bSource.pos.getRangeTo(pos)
+    // 返回距离最近的
+    return adistance - bdistance
+  });
+  return list;
+}
+
 /**
  * 
  * @param {Array} bodys 

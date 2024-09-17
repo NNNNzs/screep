@@ -53,5 +53,5 @@ export const onlyHarvester = {
     } catch (error) {
       console.log("error", error);
     }
-  },
+  }
 };

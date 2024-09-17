@@ -2,37 +2,57 @@ const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
 import { runAfterStart } from "@/utils.js";
 import { createBody, deleteCreepMemory } from "./autoCreate";
 import { findEmptySourceStructure, findSourceStructure, } from './Scanner'
+
 import { ROLE_NAME_ENUM } from "@/var";
+import { onlyHarvester } from "@/role/harvester";
+import roleWork from "@/role/work";
 
 
-runAfterStart(() => {
 
-  global.clearMemory = () => {
-    Object.keys(Memory).forEach((key) => {
-      delete Memory[key];
-    });
-    console.log("clearMemory");
-  }
+global.clearMemory = () => {
+  Object.keys(Memory).forEach((key) => {
+    delete Memory[key];
+  });
+  console.log("clearMemory");
+}
 
-  global.deleteCreepMemory = deleteCreepMemory;
+global.deleteCreepMemory = deleteCreepMemory;
 
-  global.killAllScreep = () => {
-    Object.keys(Game.creeps).forEach((name) => {
-      const creep = Game.creeps[name];
-      creep.suicide();
-    });
-  };
+global.killAllScreep = () => {
+  Object.keys(Game.creeps).forEach((name) => {
+    const creep = Game.creeps[name];
+    creep.suicide();
+  });
+};
 
-  global.clearMemeory = () => {
-    Object.keys(Memory).forEach((name) => {
-      delete Memory[name];
-    });
-  };
+global.clearMemeory = () => {
+  Object.keys(Memory).forEach((name) => {
+    delete Memory[name];
+  });
+};
 
-}, 10)
 
 
 export const creepExtension = {
+
+  run() {
+    const creep = this as Creep;
+
+    switch (creep.memory.role) {
+      
+      case ROLE_NAME_ENUM.harvester: {
+        onlyHarvester.run(creep);
+        break
+      }
+
+      case ROLE_NAME_ENUM.worker: {
+        roleWork.run(creep)
+        break
+      }
+
+    }
+
+  },
 
 
   /** 改良 从房间队列获取 将资源送到建筑物 */

@@ -4,16 +4,74 @@ import { SpawnQueue, deleteCreepMemory } from './autoCreate';
 import { log, runAfterTickTask, runPerTime, useCpu } from '@/utils';
 import { globalTask, TaskType } from './Task'
 
-type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CONTAINER | STRUCTURE_STORAGE | STRUCTURE_TERMINAL | STRUCTURE_TOWER
+export type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CONTAINER | STRUCTURE_STORAGE | STRUCTURE_TERMINAL | STRUCTURE_TOWER;
+
+export const initMemory = () => {
+
+  if (!Memory.rooms) {
+    Memory.rooms = {};
+  }
+
+  Object.keys(Memory.rooms).forEach((roomName) => {
+
+    // 找到资源点附近可以放container的位置
+    if (!Memory.rooms[roomName]) {
+
+      Memory.rooms[roomName] = {
+
+        noSource: false,
+
+        creepIndex: 0,
+
+        maxWorker: 4,
+
+        carrysLength: 0,
+
+        toFixedStructures: [],
+
+        toConstructionSite: [],
+        // 产房队列
+        spawnQueue: [],
+
+        sourcesList: [],
+
+        emptyStructureList: [],
+      };
+    };
+
+    if (!Memory.rooms[roomName].emptyStructureList) {
+      Memory.rooms[roomName].emptyStructureList = [];
+    }
+    // sourceStructure
+
+    if (!Memory.rooms[roomName].sourceStructure) {
+      Memory.rooms[roomName].sourceStructure = [];
+    }
+
+    if (!Memory.rooms[roomName].creepIndex) {
+      Memory.rooms[roomName].creepIndex = 0
+    }
+
+
+    // 最大工人数设置
+    if (!Memory.rooms[roomName].maxWorker) {
+      Memory.rooms[roomName].maxWorker = 4
+    }
+
+    // 产房队列
+    if (!Memory.rooms[roomName].spawnQueue) {
+      Memory.rooms[roomName].spawnQueue = []
+    }
+
+  })
+
+}
 
 /** 查找空的 可以送能量的建筑 */
 export const findEmptySourceStructure = (room: Room, rank: StructureType[]) => {
   let sources: AnyStructure[] = [];
-  const roomName = room.name
+  const roomName = room.name;
 
-  if (!Memory.rooms[roomName].emptyStructureList) {
-    Memory.rooms[roomName].emptyStructureList = [];
-  }
 
   rank.some((structureType) => {
     const notFullStructures = room.find(FIND_STRUCTURES, {
@@ -31,18 +89,23 @@ export const findEmptySourceStructure = (room: Room, rank: StructureType[]) => {
 
   Memory.rooms[roomName].emptyStructureList = sources.map(e => {
 
-    globalTask.add({
-      id: e.id,
-      type: TaskType.take,
-      targetId: e.id,
-      executorId: []
-    })
+    // globalTask.add({
+    //   id: e.id,
+    //   type: TaskType.take,
+    //   targetId: e.id,
+    //   executorId: []
+    // })
 
     return e.id
   });
 }
 
-/** 找到可以拿能量的建筑 */
+/**
+ * 
+ * @param room 
+ * @param rank 
+ * @returns {sourceStructure} 
+ */
 export const findSourceStructure = (room: Room, rank: StructureType[] = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]) => {
 
   let sources: AnyStructure[] = [];
@@ -69,73 +132,12 @@ export const findSourceStructure = (room: Room, rank: StructureType[] = [STRUCTU
 }
 
 export const findSpawns = () => {
-  for (const key in Game.spawns) {
+  for (const spawnName in Game.spawns) {
 
-    const room = Game.spawns[key].room;
-    const roomName = room.name;
-
-    if (!Memory.rooms) {
-      Memory.rooms = {};
-    }
-
-    // 找到资源点附近可以放container的位置
-    if (!Memory.rooms[roomName]) {
-      Memory.rooms[roomName] = {
-        creepIndex: 0,
-        maxWorker: 4,
-        toFixedStructures: [],
-        toConstructionSite: [],
-        // 产房队列
-        spawnQueue: [],
-        sourcesList: [],
-        emptyStructureList: [],
-      };
-    };
-
-    if (!Memory.rooms[roomName].creepIndex) {
-      Memory.rooms[roomName].creepIndex = 0
-    }
-
-    if (!Memory.rooms[roomName].emptyStructureList) {
-      Memory.rooms[roomName].emptyStructureList = [];
-    }
-
-    if (!Memory.rooms[roomName].sourceStructure) {
-      Memory.rooms[roomName].sourceStructure = [];
-    }
+    const room = Game.spawns[spawnName].room;
 
 
-    // 最大工人数设置
-    if (!Memory.rooms[roomName].maxWorker) {
-      Memory.rooms[roomName].maxWorker = 4
-    }
-
-    // 产房队列
-    if (!Memory.rooms[roomName].spawnQueue) {
-      Memory.rooms[roomName].spawnQueue = []
-    }
-
-    // 资源列表
-    if (Memory.rooms[roomName].sourcesList.length === 0) {
-      // 找到资源点
-      const sources = room.find(FIND_SOURCES);
-      // 初始化container点的数据
-      Memory.rooms[roomName].sourcesList = sources.map(s => {
-        return {
-          id: s.id,
-          containerId: null,
-          creepId: null,
-          containerPos: null
-        }
-      });
-    }
-
-
-
-
-
-
-    updateSourceList(room, key);
+    updateSourceList(room, spawnName);
 
     findEmptySourceStructure(room, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_STORAGE]);
 
@@ -160,8 +162,30 @@ export const findSpawns = () => {
 export const updateSourceList = (room: Room, spawnName: string) => {
   const spawnQueue = new SpawnQueue(room);
   const roomName = room.name;
+  const roomMemory = Memory.rooms[roomName]
 
-  Memory.rooms[roomName].sourcesList.forEach((s, index) => {
+  // 资源列表
+  if (!roomMemory.noSource && roomMemory.sourcesList.length === 0) {
+    // 找到资源点
+    const sources = room.find(FIND_SOURCES);
+    // 初始化container点的数据
+    roomMemory.sourcesList = sources.map(s => {
+      return {
+        id: s.id,
+        containerId: null,
+        creepId: null,
+        containerPos: null
+      }
+    });
+
+    if (sources.length === 0) {
+      console.log(roomName + "没有资源点");
+      roomMemory.noSource = true
+    }
+  }
+
+
+  !roomMemory.noSource && roomMemory.sourcesList.forEach((s, index) => {
 
     // 检查container是否存在
     if (s.containerId) {
@@ -242,21 +266,45 @@ export const findAttackers = () => {
       filter: object => {
         return object.structureType === STRUCTURE_TOWER
       }
-    }) as StructureTower[]
+    }) as StructureTower[];
+
+    if (towns.length === 0) {
+      return
+    }
 
     towns.forEach(t => {
       t.attack(attackers[0])
     });
 
+    if (towns.length > 0) {
+      const toHeal = Game.rooms[roomName].find(FIND_MY_CREEPS, {
+        filter: object => {
+          // 生命值不慢的
+          return object.hits < object.hitsMax;
+        }
+      });
+      
+      if (toHeal.length > 0) {
+        towns[0].heal(toHeal[0])
+      }
+
+    }
+
+
+
   });
 
-}
+};
 
 
 export const roomScanner = () => {
+
+  initMemory();
+
   deleteCreepMemory();
   findSpawns();
   toFixedList();
+  findAttackers();
 
   runPerTime(() => {
     toBuildList();

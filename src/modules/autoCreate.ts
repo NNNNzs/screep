@@ -29,7 +29,7 @@ export class SpawnQueue {
     this.room = room
     this._spanQueue = Memory.rooms[room.name].spawnQueue || [];
   }
-  
+
   /** 每次只生产一种这个类型 */
   push(roleName: ROLE_NAME_ENUM) {
     // 队列里没有才加
@@ -83,6 +83,27 @@ const createWorker = (spawnQueue: SpawnQueue) => {
   if (workers.length < spawnQueue.room.memory.maxWorker) {
     spawnQueue.push(ROLE_NAME_ENUM.worker);
   }
+}
+
+
+const createCarry = (spawnQueue: SpawnQueue) => {
+  const storage = spawnQueue.room.storage;
+  const roomName = spawnQueue.room.name;
+  const totalScreep = Object.keys(Game.creeps);
+
+
+  const carrys = totalScreep.filter(creepName => {
+    const creep = Game.creeps[creepName];
+    return creep.memory.role === ROLE_NAME_ENUM.carry;
+  });
+
+  Memory.rooms[roomName].carrysLength = carrys.length;
+
+
+  if (storage && carrys.length < 1) {
+    spawnQueue.push(ROLE_NAME_ENUM.worker);
+  }
+
 }
 
 /**
@@ -201,6 +222,9 @@ export default {
       const spawnQueue = new SpawnQueue(spawn.room);
 
       createWorker(spawnQueue);
+
+      createCarry(spawnQueue);
+
 
       if (spawnQueue.length > 0) {
 

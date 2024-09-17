@@ -4,10 +4,13 @@ import { creepExtension } from "../modules/mount.js";
 import { toBuildList, toFixedList } from "@/modules/structure.js";
 import { log } from "@/utils";
 import { TaskType } from "@/modules/Task.js";
-import { findSpawns } from "@/modules/Scanner.js";
+import { StructureType, findSpawns } from "@/modules/Scanner.js";
 
 
 const assignTasks = (creep: Creep) => {
+
+  findSpawns();
+
   const roomName = creep.room.name
   const emptySource = creep.store.getUsedCapacity() == 0;
   const hasSource = creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
@@ -21,14 +24,38 @@ const assignTasks = (creep: Creep) => {
   }).findIndex(entry => entry[0] === creep.name);
 
 
-  const emptySpawn = roomMemory.emptyStructureList;
+
+
   const sourceStructure = Memory.rooms[roomName].sourceStructure;
-  const toConstructionSite = roomMemory.toConstructionSite
+  const toConstructionSite = roomMemory.toConstructionSite;
+
+
+  const hasCarry = roomMemory.carrysLength > 0;
+
+  // 已经被carry 分配到的建筑物
+  const carryTargetSet = new Set([...Object.values(Game.creeps).filter(s => s.memory.task === TaskType.carry).map(s => s.memory.targetId)]);
+
+
+  const emptySpawn = _.cloneDeep(roomMemory.emptyStructureList)
+    .filter(id => {
+      const structure = Game.getObjectById(id) as AnyStoreStructure;
+
+      const excludeList = [STRUCTURE_STORAGE];
+
+      // @ts-ignore
+      const exclude = hasCarry ? excludeList.includes(structure.structureType) : false;
+
+      const hasCarryTarget = carryTargetSet.has(id);
+      
+      return !hasCarryTarget && !exclude;
+
+    });
+
+
 
 
   /** 从建筑物里面拿出资源 */
   if (emptySource && sourceStructure.length > 0) {
-    // creep.memory.targetId = Memory.rooms[roomName].sourceStructure[0];
     const sourceStructure = _.cloneDeep(Memory.rooms[roomName].sourceStructure);
 
     if (sourceStructure.length > 1) {
@@ -71,12 +98,7 @@ const assignTasks = (creep: Creep) => {
   else if (hasSource && emptySpawn.length > 0) {
 
     // 先过滤到没有被分配的
-    const freeSpawn = emptySpawn.filter(e => {
-      return Object.values(Game.creeps).filter(s => s.memory.task === TaskType.carry).map(s => s.memory.targetId !== e)
-    });
-
-    // 找个最近的
-    freeSpawn.sort((a, b) => {
+    const freeSpawn = emptySpawn.sort((a, b) => {
       const aSource = Game.getObjectById(a) as StructureExtension
       const bSource = Game.getObjectById(b) as StructureExtension
       const adistance = aSource.pos.getRangeTo(creep.pos)
@@ -85,13 +107,8 @@ const assignTasks = (creep: Creep) => {
       return adistance - bdistance
     })
 
-    if (freeSpawn.length > 0) {
-      creep.memory.task = TaskType.carry;
-      creep.memory.targetId = freeSpawn[0]
-    } else {
-      log(`creep ${creep.name} 冗余去升级`, 'hasSource', hasSource, toConstructionSite.length)
-      creep.memory.task = TaskType.upgrade;
-    }
+    creep.memory.task = TaskType.carry;
+    creep.memory.targetId = freeSpawn[0];
 
   }
 
@@ -114,11 +131,6 @@ const assignTasks = (creep: Creep) => {
     creep.memory.targetId = roomMemory.toConstructionSite[0].id;
   }
 
-  //送货判断 
-  // else if (creep.store.getFreeCapacity() == 0) {
-  //   creep.memory.task = TaskType.carry;
-  // }
-
   // 冗余去升级 
   else {
     log(`creep ${creep.name} 冗余去升级`, 'hasSource', hasSource, toConstructionSite.length)
@@ -127,202 +139,236 @@ const assignTasks = (creep: Creep) => {
   // 升级控制器判断
 }
 
+
+export const harvest = function (creep: Creep) {
+  const target = Game.getObjectById(creep.memory.targetId) as Source;
+
+  const res = creep.harvest(target);
+
+  if (res === ERR_NOT_IN_RANGE) {
+    creep.moveTo(target, showDash);
+  }
+
+  if (res === ERR_INVALID_TARGET) {
+    return false;
+  }
+
+  if (creep.store.getFreeCapacity() == 0) {
+    return false
+  };
+
+  // 判断如果是采集完了，就切换任务
+  if (target.energy == 0) {
+    return false;
+  }
+};
+
+export const take = function (creep: Creep) {
+  const target = Game.getObjectById(creep.memory.targetId) as Structure;
+
+  const res = creep.withdraw(target, RESOURCE_ENERGY);
+
+  if (res == ERR_NOT_IN_RANGE) {
+    creep.moveTo(target);
+  };
+
+  const errStatus = [ERR_NOT_ENOUGH_RESOURCES, ERR_FULL] as ScreepsReturnCode[]
+
+  if (errStatus.includes(res)) {
+    return false
+  }
+
+}
+
+export const carry = function (creep: Creep) {
+
+  if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
+    return false;
+  }
+
+  const target = Game.getObjectById(creep.memory.targetId) as StructureExtension | StructureSpawn | StructureTower;
+
+  if (![STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_STORAGE].includes(target.structureType)) {
+    console.log('目标不是 spawn/tower/extension/storage', target.structureType);
+    return false
+  }
+
+  if (target.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
+    return false
+  }
+
+  const res = creep.transfer(target, RESOURCE_ENERGY);
+
+  if (res === ERR_NOT_IN_RANGE) {
+    // todo  这里不正确 虽然很远，但是还是要判断是不是满了
+    creep.moveTo(target, showDash);
+  };
+
+  if (res === ERR_NOT_ENOUGH_RESOURCES) {
+    return false
+  }
+
+  if (res === ERR_FULL) {
+    return false
+  }
+
+  if (target && target.structureType === STRUCTURE_SPAWN) {
+    let t = target as StructureSpawn
+    if (t.store.energy === 300) {
+      console.log('STRUCTURE_SPAWN 已满');
+      return false
+    }
+
+  }
+}
+
+export const upgrade = function (creep: Creep) {
+  const controller = creep.room.controller;
+
+  if (!controller) {
+    creep.memory.task = null;
+    // 该房间没有控制器
+    return false
+  }
+
+  const emptySource = creep.store.getUsedCapacity() == 0;
+
+  const res = creep.upgradeController(controller);
+
+  if (res === ERR_NOT_IN_RANGE) {
+    creep.moveTo(controller, showDash);
+  };
+
+  if (emptySource) {
+    return;
+  }
+
+}
+
+export const repair = function (creep: Creep) {
+  const target = Game.getObjectById(creep.memory.targetId) as Structure;
+
+
+  if (creep.store.getUsedCapacity() == 0) {
+    return false
+  }
+
+  // 还没去就修满了 就不去了
+  if (target.hits == target.hitsMax) {
+    toFixedList();
+    return false
+  }
+
+  const res = creep.repair(target);
+
+  if (res === ERR_NOT_IN_RANGE) {
+    creep.moveTo(target);
+  }
+
+  if (res == ERR_NOT_ENOUGH_RESOURCES) {
+    return false
+  }
+
+  // 修完了
+  if (target.hits == target.hitsMax) {
+    toFixedList();
+    return false
+  }
+}
+
+export const build = function (creep: Creep) {
+  const target = Game.getObjectById(creep.memory.targetId) as ConstructionSite;
+
+  if (creep.store.getUsedCapacity() == 0) {
+    return false
+  }
+
+  // 还没去就修满了 就不去了
+  if (target.progress == target.progressTotal) {
+    toBuildList();
+    return false
+  }
+
+  const res = creep.build(target);
+
+  if (res == ERR_NOT_IN_RANGE) {
+    creep.moveTo(target);
+  };
+
+  // 建造完毕
+  if (target.progress == target.progressTotal) {
+    toBuildList();
+    return false
+  }
+
+}
+
 export default {
   run: function (creep: Creep) {
 
-
-    const roomName = creep.room.name
     const emptySource = creep.store.getUsedCapacity() == 0;
-    const hasSource = creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
-    const roomMemory = Memory.rooms[roomName];
 
     if (!creep.memory.task) {
       assignTasks(creep);
     }
 
     const task = creep.memory.task;
+    const target = Game.getObjectById(creep.memory.targetId) as Source;
 
-    if (task === 'harvest') {
-      const target = Game.getObjectById(creep.memory.targetId) as Source;
-      if (!target) {
-        findSpawns();
-        assignTasks(creep);
-        return
-      }
-
-      const res = creep.harvest(target);
-
-      if (res === ERR_NOT_IN_RANGE) {
-        creep.moveTo(target, showDash);
-      }
-
-
-      if (res === -7) {
-        creep.memory.targetId = null;
-      }
-
-      if (creep.store.getFreeCapacity() == 0) {
-        creep.memory.task = null;
-      };
-
-      // 判断如果是采集完了，就切换任务
-      if (target.energy == 0) {
-        creep.memory.task = null;
-      }
-
-    } else if (task === 'take') {
-      const target = Game.getObjectById(creep.memory.targetId) as Structure;
-
-      if (!target) {
-        findSpawns();
-        assignTasks(creep);
-        return
-      }
-
-      const res = creep.withdraw(target, RESOURCE_ENERGY);
-
-      if (res == ERR_NOT_IN_RANGE) {
-        creep.moveTo(target);
-      };
-
-      const errStatus = [ERR_NOT_ENOUGH_RESOURCES, ERR_FULL] as ScreepsReturnCode[]
-      if (errStatus.includes(res)) {
-        creep.memory.task = null;
-        creep.memory.targetId = null;
-      }
-
+    if (!target) {
+      assignTasks(creep);
+      return
     }
 
-    else if (task === 'carry') {
-      if (creep.store.getUsedCapacity() == 0) {
-        findSpawns();
-        assignTasks(creep);
-        return;
-      }
+    switch (task) {
 
-      const target = Game.getObjectById(creep.memory.targetId) as StructureExtension | StructureSpawn | StructureTower;
-      if (!target) {
-        findSpawns();
-        assignTasks(creep);
-        return
-      }
-      const res = creep.transfer(target, RESOURCE_ENERGY);
-
-      if (![STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_STORAGE].includes(target.structureType)) {
-        console.log('目标不是 spawn/tower/extension/storage', target.structureType);
-        findSpawns();
-        assignTasks(creep);
-        return
-      }
-
-      if (res === ERR_NOT_IN_RANGE) {
-        // todo  这里不正确 虽然很远，但是还是要判断是不是满了
-        if (target.store.getFreeCapacity() == 0) {
-          findSpawns();
+      case TaskType.harvest: {
+        const res = harvest(creep);
+        if (res === false) {
           assignTasks(creep);
-        } else {
-          creep.moveTo(target, showDash);
         }
-      };
-
-      if (res === ERR_NOT_ENOUGH_RESOURCES) {
-        assignTasks(creep);
-
+        break;
       }
-
-      if (res === ERR_FULL) {
-        console.log('target store 已满');
-        findSpawns();
-        assignTasks(creep);
-      }
-
-
-      if (target && target.structureType === STRUCTURE_SPAWN) {
-        let t = target as StructureSpawn
-        if (t.store.energy === 300) {
-          console.log('STRUCTURE_SPAWN 已满');
-          findSpawns();
+      case TaskType.take: {
+        const res = take(creep);
+        if (res === false) {
           assignTasks(creep);
-
         }
-
+        break;
       }
 
-
-    }
-    else if (task === 'upgrade') {
-      const controller = creep.room.controller;
-
-      if (!controller) {
-        creep.memory.task = null;
-        // 该房间没有控制器
-        return
-      }
-      const res = creep.upgradeController(controller);
-
-      if (res === ERR_NOT_IN_RANGE) {
-        creep.moveTo(controller, showDash);
-      };
-
-      if (emptySource) {
-        creep.memory.task = null;
-      }
-    }
-
-    else if (task === 'repair') {
-      const target = Game.getObjectById(creep.memory.targetId) as Structure;
-      if (!target) {
-        assignTasks(creep);
-        return
+      case TaskType.carry: {
+        const res = carry(creep);
+        if (res === false) {
+          assignTasks(creep);
+        }
+        break;
       }
 
-      if (creep.store.getUsedCapacity() == 0) {
-        assignTasks(creep);
-        return
-      }
-      const res = creep.repair(target);
-
-      if (res === ERR_NOT_IN_RANGE) {
-        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
+      case TaskType.upgrade: {
+        const res = upgrade(creep);
+        if (res === false) {
+          assignTasks(creep);
+        }
+        break;
       }
 
-      if (res == ERR_NOT_ENOUGH_RESOURCES) {
-        assignTasks(creep);
-        return
+      case TaskType.repair: {
+        const res = repair(creep);
+        if (res === false) {
+          assignTasks(creep);
+        };
+        break;
       }
 
-      // 修完了
-      if (target.hits == target.hitsMax) {
-        toFixedList();
-        assignTasks(creep);
+      case TaskType.build: {
+        const res = build(creep);
+        if (res === false) {
+          assignTasks(creep);
+        }
+        break;
       }
     }
-    else if (task === 'build') {
-
-      const target = Game.getObjectById(creep.memory.targetId) as ConstructionSite;
-
-      if (!target) {
-        assignTasks(creep);
-        return
-      }
-
-      if (creep.store.getUsedCapacity() == 0) {
-        assignTasks(creep);
-        return
-      }
-
-      if (creep.build(target) == ERR_NOT_IN_RANGE) {
-        creep.moveTo(target, { visualizePathStyle: { stroke: '#ffffff' } });
-      };
-
-      // 建造完毕
-      if (target.progress == target.progressTotal) {
-        assignTasks(creep);
-        toBuildList();
-      }
-
-    }
-
     creep.say(task);
   },
 };

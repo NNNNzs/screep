@@ -22,7 +22,7 @@ declare global {
 
 
   interface Creep {
-
+    run: () => void
   }
 
   type AfterTickTask = {
@@ -77,16 +77,16 @@ declare global {
     /** 最大工人数 */
     maxWorker: number;
 
-    terminalId?: string;
+    /** carry数量 */
+    carrysLength: number;
 
-    storageId?: string;
+    terminalId?: string;
 
     transferList?: transferItem[];
 
-    controlId?: string;
 
-    /**塔的列表 */
-    towerIdList?: string[];
+    /** 无资源的过道房间 */
+    noSource?: boolean;
 
     /** 资源列表 */
     sourcesList: { id: string, containerId: string, creepId: string, containerPos: RoomPosition }[],
@@ -99,9 +99,6 @@ declare global {
 
     /** 待修复列表 */
     toFixedStructures?: AnyStructure[];
-
-    /** 需要转移的资源，目前没想好 */
-    carryList?: any[]
 
     /** 待治疗的screepId */
     toHealCreepId?: string[]
