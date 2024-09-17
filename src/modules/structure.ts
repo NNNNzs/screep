@@ -44,7 +44,13 @@ export const toFixedList = () => {
     const toFixedStructures = room.find(FIND_STRUCTURES, {
       filter: object => {
         const undo = unHealList.includes(object.structureType);
-        return object.hits / object.hitsMax < 0.8 && !undo
+        const heal = object.hits / object.hitsMax;
+        const rate = 0.8;
+        if (heal < rate && !undo) {
+          console.log(object.pos, object.structureType, 'to heal', `${object.hits} / ${object.hitsMax}`)
+        }
+
+        return heal < rate && !undo
       }
     });
 
@@ -52,13 +58,13 @@ export const toFixedList = () => {
       return a.hits / a.hitsMax - b.hits / b.hitsMax
     });
 
-    toFixedStructures.forEach((s, index) => {
-      globalTask.add({
-        targetId: s.id,
-        type: TaskType.repair,
-        orderNum: 5
-      })
-    });
+    // toFixedStructures.forEach((s, index) => {
+    //   globalTask.add({
+    //     targetId: s.id,
+    //     type: TaskType.repair,
+    //     orderNum: 5
+    //   })
+    // });
 
     Memory.rooms[roomName].toFixedStructures = toFixedStructures;
   })
@@ -72,12 +78,13 @@ export const toBuildList = () => {
     const constructionSites = room.find(FIND_CONSTRUCTION_SITES) as ConstructionSite[];
     Memory.rooms[room.name].toConstructionSite = constructionSites;
 
-    constructionSites.forEach((s, index) => {
-      globalTask.add({
-        targetId: s.id,
-        type: TaskType.build,
-        orderNum: 6
-      })
-    });
+    // constructionSites.forEach((s, index) => {
+    //   globalTask.add({
+    //     targetId: s.id,
+    //     type: TaskType.build,
+    //     orderNum: 6
+    //   })
+    // });
+
   });
 }

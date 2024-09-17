@@ -14,10 +14,6 @@ export const onlyHarvester = {
     // }, 10)
 
 
-    // if (creep.ticksToLive === 10) {
-    //   const spawnQueue = new SpawnQueue(creep.room);
-    //   spawnQueue.push(ROLE_NAME_ENUM.harvester);
-    // };
 
     // 挖矿
     try {
@@ -27,6 +23,7 @@ export const onlyHarvester = {
 
       if (!creep.memory.targetId) {
         freeSource = Memory.rooms[roomName].sourcesList.find(e => !e.creepId);
+
         if (freeSource) {
           creep.memory.targetId = freeSource.id;
           creep.memory.containerId = freeSource.containerId;

@@ -218,14 +218,47 @@ export const updateSourceList = (room: Room, spawnName: string) => {
 
 }
 
+/** 查找敌人 */
+export const findAttackers = () => {
+  Object.keys(Memory.rooms).forEach(roomName => {
+
+    if (!Memory.rooms[roomName].attackers) {
+      Memory.rooms[roomName].attackers = [];
+    };
+
+    const attackers = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS)
+
+    if (attackers.length > 0) {
+
+      Memory.rooms[roomName].attackers = attackers.map(a => {
+        return {
+          id: a.id
+        }
+      })
+      Game.notify(`房间${roomName}有${attackers.length}个攻击者, 请注意! 时间是${Game.time}`);
+    }
+
+    const towns = Game.rooms[roomName].find(FIND_MY_STRUCTURES, {
+      filter: object => {
+        return object.structureType === STRUCTURE_TOWER
+      }
+    }) as StructureTower[]
+
+    towns.forEach(t => {
+      t.attack(attackers[0])
+    });
+
+  });
+
+}
 
 
 export const roomScanner = () => {
+  deleteCreepMemory();
+  findSpawns();
+  toFixedList();
 
   runPerTime(() => {
-    deleteCreepMemory();
-    findSpawns();
-    toFixedList();
     toBuildList();
   }, 10);
 

@@ -29,7 +29,8 @@ export class SpawnQueue {
     this.room = room
     this._spanQueue = Memory.rooms[room.name].spawnQueue || [];
   }
-
+  
+  /** 每次只生产一种这个类型 */
   push(roleName: ROLE_NAME_ENUM) {
     // 队列里没有才加
     if (this._spanQueue.indexOf(roleName) === -1) {

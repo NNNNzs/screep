@@ -127,7 +127,7 @@ const assignTasks = (creep: Creep) => {
   // 升级控制器判断
 }
 
-const roleHarvester = {
+export default {
   run: function (creep: Creep) {
 
 
@@ -326,4 +326,3 @@ const roleHarvester = {
     creep.say(task);
   },
 };
-export default roleHarvester;
