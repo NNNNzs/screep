@@ -80,6 +80,9 @@ declare global {
     /** carry数量 */
     carrysLength: number;
 
+    /** 采集者数量 */
+    harvestersLength:number;
+
     terminalId?: string;
 
     transferList?: transferItem[];

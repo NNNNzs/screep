@@ -27,6 +27,8 @@ export const initMemory = () => {
 
         carrysLength: 0,
 
+        harvestersLength:0,
+
         toFixedStructures: [],
 
         toConstructionSite: [],
@@ -55,7 +57,8 @@ export const initMemory = () => {
 
     // 最大工人数设置
     if (!Memory.rooms[roomName].maxWorker) {
-      Memory.rooms[roomName].maxWorker = 4
+      Memory.rooms[roomName].maxWorker = 4;
+      
     }
 
     // 产房队列
@@ -104,6 +107,7 @@ export const findEmptySourceStructure = (room: Room, rank: StructureType[]) => {
  * 
  * @param room 
  * @param rank 
+ * @description 可以拿能量的建筑
  * @returns {sourceStructure} 
  */
 export const findSourceStructure = (room: Room, rank: StructureType[] = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]) => {
@@ -198,9 +202,9 @@ export const updateSourceList = (room: Room, spawnName: string) => {
           s.creepId = null
         }
 
-        if (!s.creepId) {
-          const res = spawnQueue.push(ROLE_NAME_ENUM.harvester)
-        }
+        // if (!s.creepId) {
+        //   const res = spawnQueue.push(ROLE_NAME_ENUM.harvester)
+        // }
 
       }
 
@@ -283,7 +287,7 @@ export const findAttackers = () => {
           return object.hits < object.hitsMax;
         }
       });
-      
+
       if (toHeal.length > 0) {
         towns[0].heal(toHeal[0])
       }
@@ -301,8 +305,9 @@ export const roomScanner = () => {
 
   initMemory();
 
-  deleteCreepMemory();
   findSpawns();
+  deleteCreepMemory();
+
   toFixedList();
   findAttackers();
 

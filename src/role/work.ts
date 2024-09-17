@@ -27,6 +27,7 @@ const assignTasks = (creep: Creep) => {
 
 
   const sourceStructure = Memory.rooms[roomName].sourceStructure;
+
   const toConstructionSite = roomMemory.toConstructionSite;
 
 
@@ -46,7 +47,7 @@ const assignTasks = (creep: Creep) => {
       const exclude = hasCarry ? excludeList.includes(structure.structureType) : false;
 
       const hasCarryTarget = carryTargetSet.has(id);
-      
+
       return !hasCarryTarget && !exclude;
 
     });
@@ -97,7 +98,6 @@ const assignTasks = (creep: Creep) => {
   // 如果有空的spawn extension，优先送货
   else if (hasSource && emptySpawn.length > 0) {
 
-    // 先过滤到没有被分配的
     const freeSpawn = emptySpawn.sort((a, b) => {
       const aSource = Game.getObjectById(a) as StructureExtension
       const bSource = Game.getObjectById(b) as StructureExtension
@@ -163,8 +163,9 @@ export const harvest = function (creep: Creep) {
   }
 };
 
+/** 从target里面拿出资源 */
 export const take = function (creep: Creep) {
-  const target = Game.getObjectById(creep.memory.targetId) as Structure;
+  const target = Game.getObjectById(creep.memory.targetId) as AnyStoreStructure;
 
   const res = creep.withdraw(target, RESOURCE_ENERGY);
 

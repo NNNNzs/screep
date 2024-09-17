@@ -106,6 +106,31 @@ const createCarry = (spawnQueue: SpawnQueue) => {
 
 }
 
+const createHarvester = (spawnQueue: SpawnQueue) => {
+  const roomName = spawnQueue.room.name;
+  const roomMemory = Memory.rooms[roomName]
+
+  const totalScreep = Object.keys(Game.creeps);
+
+
+  const harvesters = totalScreep.filter(creepName => {
+    const creep = Game.creeps[creepName];
+    return creep.memory.role === ROLE_NAME_ENUM.harvester;
+  });
+
+  Memory.rooms[roomName].harvestersLength = harvesters.length;
+
+  const sourceList = roomMemory.sourcesList;
+
+  if (harvesters.length < sourceList.length) {
+    spawnQueue.push(ROLE_NAME_ENUM.harvester)
+  }
+
+
+
+
+}
+
 /**
  * 
  * @param roleName 
@@ -221,10 +246,12 @@ export default {
       }
       const spawnQueue = new SpawnQueue(spawn.room);
 
-      createWorker(spawnQueue);
-
+      
       createCarry(spawnQueue);
-
+      
+      createHarvester(spawnQueue);
+      
+      createWorker(spawnQueue);
 
       if (spawnQueue.length > 0) {
 

@@ -6,7 +6,7 @@ import { findEmptySourceStructure, findSourceStructure, } from './Scanner'
 import { ROLE_NAME_ENUM } from "@/var";
 import { onlyHarvester } from "@/role/harvester";
 import roleWork from "@/role/work";
-
+import roleCarry from '@/role/carry';
 
 
 global.clearMemory = () => {
@@ -39,7 +39,7 @@ export const creepExtension = {
     const creep = this as Creep;
 
     switch (creep.memory.role) {
-      
+
       case ROLE_NAME_ENUM.harvester: {
         onlyHarvester.run(creep);
         break
@@ -47,6 +47,11 @@ export const creepExtension = {
 
       case ROLE_NAME_ENUM.worker: {
         roleWork.run(creep)
+        break
+      }
+
+      case ROLE_NAME_ENUM.carry: {
+        roleCarry.run(creep)
         break
       }
 
