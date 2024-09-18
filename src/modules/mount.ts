@@ -25,6 +25,10 @@ global.killAllScreep = () => {
   });
 };
 
+global.clearTasks = () => {
+  Memory.taskList = [];
+}
+
 global.clearMemeory = () => {
   Object.keys(Memory).forEach((name) => {
     delete Memory[name];

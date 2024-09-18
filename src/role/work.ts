@@ -236,13 +236,15 @@ export const upgrade = function (creep: Creep) {
 
   const res = creep.upgradeController(controller);
 
+  if (emptySource) {
+    return false;
+  }
+
   if (res === ERR_NOT_IN_RANGE) {
     creep.moveTo(controller, showDash);
   };
 
-  if (emptySource) {
-    return;
-  }
+
 
 }
 
@@ -304,72 +306,80 @@ export const build = function (creep: Creep) {
 
 }
 
+const workRun = function (creep: Creep) {
+
+  const emptySource = creep.store.getUsedCapacity() == 0;
+
+  if (!creep.memory.task) {
+    assignTasks(creep);
+  }
+
+  const task = creep.memory.task;
+  const target = Game.getObjectById(creep.memory.targetId) as Source;
+
+  if (!target) {
+    assignTasks(creep);
+    workRun(creep);
+    return
+  }
+
+  switch (task) {
+
+    case TaskType.harvest: {
+      const res = harvest(creep);
+      if (res === false) {
+        assignTasks(creep);
+        workRun(creep);
+      }
+      break;
+    }
+    case TaskType.take: {
+      const res = take(creep);
+      if (res === false) {
+        assignTasks(creep);
+        workRun(creep);
+      }
+      break;
+    }
+
+    case TaskType.carry: {
+      const res = carry(creep);
+      if (res === false) {
+        assignTasks(creep);
+        workRun(creep);
+      }
+      break;
+    }
+
+    case TaskType.upgrade: {
+      const res = upgrade(creep);
+      if (res === false) {
+        assignTasks(creep);
+        workRun(creep);
+      }
+      break;
+    }
+
+    case TaskType.repair: {
+      const res = repair(creep);
+      if (res === false) {
+        assignTasks(creep);
+        workRun(creep);
+      };
+      break;
+    }
+
+    case TaskType.build: {
+      const res = build(creep);
+      if (res === false) {
+        assignTasks(creep);
+        workRun(creep);
+      }
+      break;
+    }
+  }
+  creep.say(task);
+};
 export default {
-  run: function (creep: Creep) {
-
-    const emptySource = creep.store.getUsedCapacity() == 0;
-
-    if (!creep.memory.task) {
-      assignTasks(creep);
-    }
-
-    const task = creep.memory.task;
-    const target = Game.getObjectById(creep.memory.targetId) as Source;
-
-    if (!target) {
-      assignTasks(creep);
-      return
-    }
-
-    switch (task) {
-
-      case TaskType.harvest: {
-        const res = harvest(creep);
-        if (res === false) {
-          assignTasks(creep);
-        }
-        break;
-      }
-      case TaskType.take: {
-        const res = take(creep);
-        if (res === false) {
-          assignTasks(creep);
-        }
-        break;
-      }
-
-      case TaskType.carry: {
-        const res = carry(creep);
-        if (res === false) {
-          assignTasks(creep);
-        }
-        break;
-      }
-
-      case TaskType.upgrade: {
-        const res = upgrade(creep);
-        if (res === false) {
-          assignTasks(creep);
-        }
-        break;
-      }
-
-      case TaskType.repair: {
-        const res = repair(creep);
-        if (res === false) {
-          assignTasks(creep);
-        };
-        break;
-      }
-
-      case TaskType.build: {
-        const res = build(creep);
-        if (res === false) {
-          assignTasks(creep);
-        }
-        break;
-      }
-    }
-    creep.say(task);
-  },
+  run: workRun
 };

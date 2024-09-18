@@ -27,7 +27,7 @@ export const initMemory = () => {
 
         carrysLength: 0,
 
-        harvestersLength:0,
+        harvestersLength: 0,
 
         toFixedStructures: [],
 
@@ -58,7 +58,7 @@ export const initMemory = () => {
     // 最大工人数设置
     if (!Memory.rooms[roomName].maxWorker) {
       Memory.rooms[roomName].maxWorker = 4;
-      
+
     }
 
     // 产房队列
@@ -112,7 +112,7 @@ export const findEmptySourceStructure = (room: Room, rank: StructureType[]) => {
  */
 export const findSourceStructure = (room: Room, rank: StructureType[] = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]) => {
 
-  let sources: AnyStructure[] = [];
+  let sources: AnyStoreStructure[] = [];
   const roomName = room.name;
 
 
@@ -121,7 +121,7 @@ export const findSourceStructure = (room: Room, rank: StructureType[] = [STRUCTU
       filter: (s) => {
         return (s.structureType === structureType && s.store.getUsedCapacity(RESOURCE_ENERGY) > 0)
       }
-    });
+    }) as AnyStoreStructure[]
 
     if (hasSourceStructure.length > 0) {
       sources = hasSourceStructure

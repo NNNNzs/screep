@@ -81,7 +81,7 @@ declare global {
     carrysLength: number;
 
     /** 采集者数量 */
-    harvestersLength:number;
+    harvestersLength: number;
 
     terminalId?: string;
 
@@ -113,7 +113,7 @@ declare global {
     emptyStructureList?: string[];
 
     /** 可以拿能量的建筑 */
-    sourceStructure?: string[]
+    sourceStructure?: AnyStoreStructure['id'][];
 
   }
 

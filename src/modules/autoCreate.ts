@@ -89,9 +89,9 @@ const createWorker = (spawnQueue: SpawnQueue) => {
 
   const workerLength = spawnQueue.room.memory.maxWorker - hasHarvester - hasCarry;
 
-  console.log('workers', workers.length, 'w', workerLength, 'h', hasHarvester, 'c', hasCarry)
-
+  
   if (workers.length < workerLength) {
+    console.log('workers', workers.length, 'w', workerLength, 'h', hasHarvester, 'c', hasCarry)
     spawnQueue.push(ROLE_NAME_ENUM.worker);
   }
 }
@@ -257,12 +257,12 @@ export default {
       }
       const spawnQueue = new SpawnQueue(spawn.room);
 
-
-      createCarry(spawnQueue);
+      createWorker(spawnQueue);
 
       createHarvester(spawnQueue);
 
-      createWorker(spawnQueue);
+      createCarry(spawnQueue);
+
 
       if (spawnQueue.length > 0) {
 

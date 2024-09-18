@@ -21,6 +21,19 @@ export const sortByRange = (pos: RoomPosition, sortList = []) => {
   return list;
 }
 
+/** 根据剩余能量排序 */
+export const sortByUsedCapacity = (list: AnyStoreStructure['id'][]) => {
+  const l = _.cloneDeep(list);
+  l.sort((a, b) => {
+    const aSource = Game.getObjectById(a) as AnyStoreStructure
+    const bSource = Game.getObjectById(b) as AnyStoreStructure
+
+    return bSource.store.getUsedCapacity(RESOURCE_ENERGY) - aSource.store.getUsedCapacity(RESOURCE_ENERGY);
+
+  })
+  return l;
+}
+
 /**
  * 
  * @param {Array} bodys 
