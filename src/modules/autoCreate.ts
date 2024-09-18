@@ -1,5 +1,5 @@
 import { BodyCreateMap, calcMove, log } from "../utils";
-import { ROLE_NAME_ENUM, bodyCostMap, bodyRateMap } from "../var";
+import { ROLE_NAME_ENUM, bodyRateMap } from "../var";
 
 /**
  * 
@@ -108,6 +108,7 @@ const createCarry = (spawnQueue: SpawnQueue) => {
     return creep.memory.role === ROLE_NAME_ENUM.carry;
   });
 
+
   Memory.rooms[roomName].carrysLength = carrys.length;
 
 
@@ -151,7 +152,7 @@ const createHarvester = (spawnQueue: SpawnQueue) => {
  */
 export const createBody = (roleName: ROLE_NAME_ENUM, spawn: StructureSpawn) => {
   const bodys = bodyRateMap[roleName];
-  const moveCost = bodyCostMap[MOVE].cost;
+  const moveCost = BODYPART_COST[MOVE];
 
   let available = spawn.room.energyAvailable;
 
@@ -173,7 +174,7 @@ export const createBody = (roleName: ROLE_NAME_ENUM, spawn: StructureSpawn) => {
     const body = t.body;
     const min = t.min;
     bodyMap[body] += min;
-    available = available - bodyCostMap[body].cost * min;
+    available = available - BODYPART_COST[body] * min;
 
     bodyMap[MOVE] += min;
     available = available - moveCost * min;
@@ -198,7 +199,7 @@ export const createBody = (roleName: ROLE_NAME_ENUM, spawn: StructureSpawn) => {
         return false
       };
 
-      const newCost = bodyCostMap[t.body].cost;
+      const newCost = BODYPART_COST[t.body];
 
       // 可以添加其他部件
       if (available - newCost < 0) {
@@ -206,7 +207,7 @@ export const createBody = (roleName: ROLE_NAME_ENUM, spawn: StructureSpawn) => {
       }
 
       bodyMap[t.body] += 1;
-      available = available - bodyCostMap[t.body].cost;
+      available = available - BODYPART_COST[t.body];
       // 权重-1
       t.weight = t.weight - 1;
 
