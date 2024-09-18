@@ -312,6 +312,7 @@ const workRun = function (creep: Creep) {
 
   if (!creep.memory.task) {
     assignTasks(creep);
+    return;
   }
 
   const task = creep.memory.task;
@@ -319,7 +320,7 @@ const workRun = function (creep: Creep) {
 
   if (!target) {
     assignTasks(creep);
-    workRun(creep);
+    // workRun(creep);
     return
   }
 
