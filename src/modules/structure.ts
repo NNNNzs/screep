@@ -47,7 +47,7 @@ export const toFixedList = () => {
         const heal = object.hits / object.hitsMax;
         const rate = 0.8;
         if (heal < rate && !undo) {
-          console.log(object.pos, object.structureType, 'to heal', `${object.hits} / ${object.hitsMax}`)
+          // console.log(object.pos, object.structureType, 'to heal', `${object.hits} / ${object.hitsMax}`)
         }
 
         return heal < rate && !undo

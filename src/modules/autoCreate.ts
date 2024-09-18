@@ -89,6 +89,8 @@ const createWorker = (spawnQueue: SpawnQueue) => {
 
   const workerLength = spawnQueue.room.memory.maxWorker - hasHarvester - hasCarry;
 
+  console.log('workers', workers.length, 'w', workerLength, 'h', hasHarvester, 'c', hasCarry)
+
   if (workers.length < workerLength) {
     spawnQueue.push(ROLE_NAME_ENUM.worker);
   }
@@ -110,7 +112,7 @@ const createCarry = (spawnQueue: SpawnQueue) => {
 
 
   if (storage && carrys.length < 1) {
-    spawnQueue.push(ROLE_NAME_ENUM.worker);
+    spawnQueue.push(ROLE_NAME_ENUM.carry);
   }
 
 }
