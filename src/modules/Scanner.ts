@@ -1,4 +1,4 @@
-import { findBestContainerPosition, toFixedList, toBuildList } from '@/modules/structure';
+import { findBestContainerPosition, toFixedList, toBuildList, buildRoadBetween } from '@/modules/structure';
 import { ROLE_NAME_ENUM } from '@/var';
 import { SpawnQueue, deleteCreepMemory } from './autoCreate';
 import { log, runAfterTickTask, runPerTime, useCpu } from '@/utils';
@@ -164,7 +164,6 @@ export const findSpawns = () => {
  * @param spawnName The name of the spawn to use for creating new creeps
  */
 export const updateSourceList = (room: Room, spawnName: string) => {
-  const spawnQueue = new SpawnQueue(room);
   const roomName = room.name;
   const roomMemory = Memory.rooms[roomName]
 
@@ -175,12 +174,27 @@ export const updateSourceList = (room: Room, spawnName: string) => {
     // 初始化container点的数据
     roomMemory.sourcesList = sources.map(s => {
       return {
+        sourceType: RESOURCE_ENERGY,
         id: s.id,
         containerId: null,
         creepId: null,
         containerPos: null
       }
     });
+
+    const mineral = room.find(FIND_MINERALS);
+    if (mineral.length > 0) {
+      // 有矿物
+      mineral.forEach(m => {
+        roomMemory.sourcesList.push({
+          sourceType: m.mineralType,
+          id: m.id,
+          containerId: null,
+          creepId: null,
+          containerPos: null
+        })
+      });
+    }
 
     if (sources.length === 0) {
       console.log(roomName + "没有资源点");
@@ -201,26 +215,67 @@ export const updateSourceList = (room: Room, spawnName: string) => {
         if (!Memory.creeps[s.creepId]) {
           s.creepId = null
         }
-
-        // if (!s.creepId) {
-        //   const res = spawnQueue.push(ROLE_NAME_ENUM.harvester)
-        // }
-
       }
+    }
 
+    // 判断是否建造道路
+    if (!s.roaded && s.containerId) {
+      const mySpawns = room.find(FIND_MY_SPAWNS);
+      if (!mySpawns) return
+      const fromPos = mySpawns[0];
+      const toPos = Game.getObjectById(s.containerId) as AnyStructure;
+      const roaded = buildRoadBetween(room, fromPos.pos, toPos.pos);
+      if (roaded) {
+        s.roaded = true
+      }
     }
 
     if (!s.containerId) {
+
       // 没有位置container建造位置
       if (!s.containerPos) {
-        const source = Game.getObjectById(s.id) as Source;
-        const sourcePos = source.pos;
-        const bestPosition = findBestContainerPosition(source, Game.spawns[spawnName]);
-        s.containerPos = bestPosition;
-        room.createConstructionSite(bestPosition, STRUCTURE_CONTAINER);
-        // 绘制半径
-        room.visual.circle(sourcePos,
-          { fill: 'transparent', radius: 3, stroke: 'red' });
+        // 如果是能量资源
+        if (s.sourceType === RESOURCE_ENERGY) {
+          const source = Game.getObjectById(s.id) as Source;
+          console.log('source', source);
+          const sourcePos = source.pos;
+          const bestPosition = findBestContainerPosition(source, Game.spawns[spawnName]);
+          s.containerPos = bestPosition;
+          room.createConstructionSite(bestPosition, STRUCTURE_CONTAINER);
+          // 绘制半径
+          room.visual.circle(sourcePos,
+            { fill: 'transparent', radius: 3, stroke: 'red' });
+        }
+
+        // 如果是矿物
+        else {
+          const mineral = Game.getObjectById(s.id) as Mineral;
+          const extractorPosition = mineral.pos;
+
+          // 检查房间等级是否允许建造 StructureExtractor
+          if (room.controller.level >= 1) {
+            const extractorSite = room.createConstructionSite(extractorPosition, STRUCTURE_EXTRACTOR);
+            if (extractorSite === OK) {
+              console.log(`在矿物位置建造 StructureExtractor: ${extractorPosition}`);
+            } else if (extractorSite === ERR_INVALID_TARGET) {
+              console.log(`无法在矿物位置建造 StructureExtractor: ${extractorPosition}`);
+            }
+          }
+
+          const extractor = mineral.pos.lookFor(LOOK_STRUCTURES).find(struct => struct.structureType === STRUCTURE_EXTRACTOR);
+
+          if (extractor) {
+            // 建造容器
+            const bestContainerPosition = findBestContainerPosition(mineral, Game.spawns[spawnName]);
+            if (bestContainerPosition) {
+              s.containerPos = bestContainerPosition;
+              room.createConstructionSite(bestContainerPosition, STRUCTURE_CONTAINER);
+              room.visual.circle(mineral.pos, { fill: 'transparent', radius: 3, stroke: 'blue' });
+            }
+          }
+
+        }
+
       } else {
 
         // 有位置信息，判断是否创建建造任务
@@ -235,13 +290,9 @@ export const updateSourceList = (room: Room, spawnName: string) => {
         if (containerIndex > -1) {
           s.containerId = structures[containerIndex].id;
         }
+
       };
     }
-
-
-
-
-
   });
 
 }

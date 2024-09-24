@@ -71,6 +71,17 @@ declare global {
     profit: number;
   }
 
+  interface SourceListItem {
+    id: string,
+    sourceType: ResourceConstant,
+    linkId?: string,
+    containerId: string,
+    creepId: string,
+    roaded?: boolean,
+    containerPos: RoomPosition
+  }
+
+
 
   interface RoomMemory extends Record<string, any> {
 
@@ -92,7 +103,7 @@ declare global {
     noSource?: boolean;
 
     /** 资源列表 */
-    sourcesList: { id: string, containerId: string, creepId: string, containerPos: RoomPosition }[],
+    sourcesList: SourceListItem[]
 
     /** 容器id列表 */
     containerIdList?: string[];

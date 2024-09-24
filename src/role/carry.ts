@@ -1,10 +1,9 @@
 import { TaskType } from "@/modules/Task";
-
-import { take, carry } from '@/role/work';
+import take from "@/behavior/take";
+import carry from "@/behavior/carry";
 import { sortByUsedCapacity } from "@/utils";
+import renew, { CREEP_LIFE_TIME_MIN, assignRenewTask } from "@/behavior/renew";
 
-// storage: role.carry
-const tt = '60199445a8628c34e4c3bc81';
 
 const assignTasks = (creep: Creep) => {
 
@@ -36,8 +35,14 @@ const assignTasks = (creep: Creep) => {
     creep.memory.task = TaskType.carry;
   }
 
+  const shouldRenew = CREEP_LIFE_TIME_MIN > creep.ticksToLive;
+
+  if (shouldRenew) {
+    assignRenewTask(creep);
+  }
+
   // 拿资源模式
-  if (emptySource && Memory.rooms[roomName].sourceStructure.length > 0) {
+  else if (emptySource && Memory.rooms[roomName].sourceStructure.length > 0) {
     const sourceStructure = _.cloneDeep(Memory.rooms[roomName].sourceStructure);
 
     // 匹配到是从storage里面拿 需要注意
@@ -129,7 +134,8 @@ const assignTasks = (creep: Creep) => {
   else if (ruins.length > 0) {
     creep.memory.task = TaskType.take;
     creep.memory.targetId = ruins[0].id;
-  } else {
+  }
+  else {
     console.log('无任务');
     creep.memory.task = null;
   }
@@ -165,12 +171,20 @@ const roleCarryRun = (creep: Creep) => {
       if (res === false) {
         assignTasks(creep);
         roleCarryRun(creep);
-      }
+      } 
       break;
     }
 
     case TaskType.carry: {
       const res = carry(creep);
+      if (res === false) {
+        assignTasks(creep);
+        roleCarryRun(creep);
+      }
+      break;
+    }
+    case TaskType.renew: {
+      const res = renew(creep);
       if (res === false) {
         assignTasks(creep);
         roleCarryRun(creep);

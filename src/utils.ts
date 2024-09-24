@@ -91,6 +91,7 @@ export const addTickTask = (fun: () => any, timeout: number) => {
 
 /**
  * 运行已经到期的任务
+ * @deprecated
  */
 export const runAfterTickTask = () => {
 

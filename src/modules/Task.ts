@@ -17,6 +17,8 @@ export enum TaskType {
   carry = "carry",
   /** 拿东西过来 */
   take = "take",
+  /** 续命 */
+  renew = "renew"
 };
 
 export interface TaskItem {
@@ -88,7 +90,7 @@ export class Task {
     };
     dto.status = TaskStatus.READY;
 
-    dto.id = Game.time + Math.random() + ''; 
+    dto.id = Game.time + Math.random() + '';
 
     this._taskList.push(dto);
     this._taskSourceMap.set(dto.targetId, dto);

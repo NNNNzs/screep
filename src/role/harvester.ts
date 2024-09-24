@@ -8,12 +8,6 @@ const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
 export const onlyHarvester = {
   run(creep: Creep) {
 
-    // log('当前tick', Game.time, '添加执行tick', Game.time + 10);
-    // addAfterTickTask(() => {
-    //   log('执行tick', Game.time);
-    // }, 10)
-
-
 
     // 挖矿
     try {

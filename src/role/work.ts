@@ -5,6 +5,15 @@ import { toBuildList, toFixedList } from "@/modules/structure.js";
 import { log } from "@/utils";
 import { TaskType } from "@/modules/Task.js";
 import { StructureType, findSpawns } from "@/modules/Scanner.js";
+import harvest from "@/behavior/harvest.js";
+import take from "@/behavior/take.js";
+import carry from "@/behavior/carry.js";
+import upgrade from "@/behavior/upgrade.js";
+import repair from "@/behavior/repair.js";
+import build from "@/behavior/build.js";
+import renew from "@/behavior/renew.js";
+import { CREEP_LIFE_TIME_MIN } from "@/behavior/renew.js";
+
 
 
 const assignTasks = (creep: Creep) => {
@@ -24,11 +33,15 @@ const assignTasks = (creep: Creep) => {
   }).findIndex(entry => entry[0] === creep.name);
 
 
-
-
   const sourceStructure = Memory.rooms[roomName].sourceStructure;
 
   const toConstructionSite = roomMemory.toConstructionSite;
+
+  // 是否需要续命
+  const shouldRenew = CREEP_LIFE_TIME_MIN > creep.ticksToLive;
+
+  // 是否需要优先升级
+  const shouldUpdate = creep.room.controller.ticksToDowngrade < 10000;
 
 
   const hasCarry = roomMemory.carrysLength > 0;
@@ -54,9 +67,16 @@ const assignTasks = (creep: Creep) => {
 
 
 
+  if (shouldRenew) {
+    const nearestSpawn = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
+    if (nearestSpawn) {
+      creep.memory.task = TaskType.renew;
+      creep.memory.targetId = nearestSpawn.id;
+    }
+  }
 
   /** 从建筑物里面拿出资源 */
-  if (emptySource && sourceStructure.length > 0) {
+  else if (emptySource && sourceStructure.length > 0) {
     const sourceStructure = _.cloneDeep(Memory.rooms[roomName].sourceStructure);
 
     if (sourceStructure.length > 1) {
@@ -113,7 +133,7 @@ const assignTasks = (creep: Creep) => {
   }
 
   // 至少保留一个去升级
-  else if (hasSource && workIndex === 0) {
+  else if (hasSource && shouldUpdate && workIndex === 0) {
     log(`creep ${creep.name} 优先升级`)
     creep.memory.task = TaskType.upgrade;
   }
@@ -131,179 +151,14 @@ const assignTasks = (creep: Creep) => {
     creep.memory.targetId = roomMemory.toConstructionSite[0].id;
   }
 
+
+
   // 冗余去升级 
   else {
     log(`creep ${creep.name} 冗余去升级`, 'hasSource', hasSource, toConstructionSite.length)
     creep.memory.task = TaskType.upgrade;
   }
   // 升级控制器判断
-}
-
-
-export const harvest = function (creep: Creep) {
-  const target = Game.getObjectById(creep.memory.targetId) as Source;
-
-  const res = creep.harvest(target);
-
-  if (res === ERR_NOT_IN_RANGE) {
-    creep.moveTo(target, showDash);
-  }
-
-  if (res === ERR_INVALID_TARGET) {
-    return false;
-  }
-
-  if (creep.store.getFreeCapacity() == 0) {
-    return false
-  };
-
-  // 判断如果是采集完了，就切换任务
-  if (target.energy == 0) {
-    return false;
-  }
-};
-
-/** 从target里面拿出资源 */
-export const take = function (creep: Creep) {
-  const target = Game.getObjectById(creep.memory.targetId) as AnyStoreStructure;
-
-  const res = creep.withdraw(target, RESOURCE_ENERGY);
-
-  if (res == ERR_NOT_IN_RANGE) {
-    creep.moveTo(target);
-  };
-
-  const errStatus = [ERR_NOT_ENOUGH_RESOURCES, ERR_FULL] as ScreepsReturnCode[]
-
-  if (errStatus.includes(res)) {
-    return false
-  }
-
-}
-
-export const carry = function (creep: Creep) {
-
-  if (creep.store.getUsedCapacity(RESOURCE_ENERGY) == 0) {
-    return false;
-  }
-
-  const target = Game.getObjectById(creep.memory.targetId) as StructureExtension | StructureSpawn | StructureTower;
-
-  if (![STRUCTURE_SPAWN, STRUCTURE_TOWER, STRUCTURE_EXTENSION, STRUCTURE_STORAGE].includes(target.structureType)) {
-    console.log('目标不是 spawn/tower/extension/storage', target.structureType);
-    return false
-  }
-
-  if (target.store.getFreeCapacity(RESOURCE_ENERGY) == 0) {
-    return false
-  }
-
-  const res = creep.transfer(target, RESOURCE_ENERGY);
-
-  if (res === ERR_NOT_IN_RANGE) {
-    // todo  这里不正确 虽然很远，但是还是要判断是不是满了
-    creep.moveTo(target, showDash);
-  };
-
-  if (res === ERR_NOT_ENOUGH_RESOURCES) {
-    return false
-  }
-
-  if (res === ERR_FULL) {
-    return false
-  }
-
-  if (target && target.structureType === STRUCTURE_SPAWN) {
-    let t = target as StructureSpawn
-    if (t.store.energy === 300) {
-      console.log('STRUCTURE_SPAWN 已满');
-      return false
-    }
-
-  }
-}
-
-export const upgrade = function (creep: Creep) {
-  const controller = creep.room.controller;
-
-  if (!controller) {
-    creep.memory.task = null;
-    // 该房间没有控制器
-    return false
-  }
-
-  const emptySource = creep.store.getUsedCapacity() == 0;
-
-  const res = creep.upgradeController(controller);
-
-  if (emptySource) {
-    return false;
-  }
-
-  if (res === ERR_NOT_IN_RANGE) {
-    creep.moveTo(controller, showDash);
-  };
-
-
-
-}
-
-export const repair = function (creep: Creep) {
-  const target = Game.getObjectById(creep.memory.targetId) as Structure;
-
-
-  if (creep.store.getUsedCapacity() == 0) {
-    return false
-  }
-
-  // 还没去就修满了 就不去了
-  if (target.hits == target.hitsMax) {
-    toFixedList();
-    return false
-  }
-
-  const res = creep.repair(target);
-
-  if (res === ERR_NOT_IN_RANGE) {
-    creep.moveTo(target);
-  }
-
-  if (res == ERR_NOT_ENOUGH_RESOURCES) {
-    return false
-  }
-
-  // 修完了
-  if (target.hits == target.hitsMax) {
-    toFixedList();
-    return false
-  }
-}
-
-export const build = function (creep: Creep) {
-  const target = Game.getObjectById(creep.memory.targetId) as ConstructionSite;
-
-  if (creep.store.getUsedCapacity() == 0) {
-    return false
-  }
-
-  // 还没去就修满了 就不去了
-  if (target.progress == target.progressTotal) {
-    toBuildList();
-    return false
-  }
-
-  const res = creep.build(target);
-
-  if (res == ERR_NOT_IN_RANGE) {
-    creep.moveTo(target);
-  };
-
-  // 建造完毕
-  if (target.progress == target.progressTotal) {
-    toBuildList();
-    return false
-  }
-
 }
 
 const workRun = function (creep: Creep) {
@@ -372,6 +227,15 @@ const workRun = function (creep: Creep) {
 
     case TaskType.build: {
       const res = build(creep);
+      if (res === false) {
+        assignTasks(creep);
+        workRun(creep);
+      }
+      break;
+    }
+
+    case TaskType.renew: {
+      const res = renew(creep);
       if (res === false) {
         assignTasks(creep);
         workRun(creep);
