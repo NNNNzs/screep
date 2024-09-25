@@ -18,7 +18,10 @@ export enum TaskType {
   /** 拿东西过来 */
   take = "take",
   /** 续命 */
-  renew = "renew"
+  renew = "renew",
+  
+  /** 发呆 */
+  wait = "wait"
 };
 
 export interface TaskItem {

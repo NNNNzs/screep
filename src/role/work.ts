@@ -5,23 +5,16 @@ import { toBuildList, toFixedList } from "@/modules/structure.js";
 import { log } from "@/utils";
 import { TaskType } from "@/modules/Task.js";
 import { StructureType, findSpawns } from "@/modules/Scanner.js";
-import harvest from "@/behavior/harvest.js";
-import take from "@/behavior/take.js";
-import carry from "@/behavior/carry.js";
-import upgrade from "@/behavior/upgrade.js";
-import repair from "@/behavior/repair.js";
-import build from "@/behavior/build.js";
-import renew from "@/behavior/renew.js";
-import { CREEP_LIFE_TIME_MIN } from "@/behavior/renew.js";
+import { CREEP_LIFE_TIME_MIN, assignRenewTask, shouldRenew } from "@/behavior/renew.js";
 import taskRunner from "@/task/run.js";
 
 
 
 const assignTasks = (creep: Creep) => {
 
-  findSpawns();
 
   const roomName = creep.room.name
+  /** 是否是空口袋 */
   const emptySource = creep.store.getUsedCapacity() == 0;
   const hasSource = creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0;
   const roomMemory = Memory.rooms[roomName];
@@ -38,10 +31,8 @@ const assignTasks = (creep: Creep) => {
 
   const toConstructionSite = roomMemory.toConstructionSite;
 
-  // 是否需要续命
-  const shouldRenew = CREEP_LIFE_TIME_MIN > creep.ticksToLive;
 
-  // 是否需要优先升级
+  /** 是否需要优先升级 */
   const shouldUpdate = creep.room.controller.ticksToDowngrade < 10000;
 
 
@@ -68,17 +59,18 @@ const assignTasks = (creep: Creep) => {
 
 
 
-  if (shouldRenew) {
-    const nearestSpawn = creep.pos.findClosestByPath(FIND_MY_SPAWNS);
-    if (nearestSpawn) {
-      creep.memory.task = TaskType.renew;
-      creep.memory.targetId = nearestSpawn.id;
-    }
+  if (shouldRenew(creep)) {
+    assignRenewTask(creep);
+    return
   }
 
   /** 从建筑物里面拿出资源 */
   else if (emptySource && sourceStructure.length > 0) {
+    log(`shouldTake ${creep.name} ${creep.ticksToLive}`);
+
     const sourceStructure = _.cloneDeep(Memory.rooms[roomName].sourceStructure);
+
+    console.log('sourceStructure', sourceStructure);
 
     if (sourceStructure.length > 1) {
       sourceStructure.sort((a, b) => {
@@ -87,12 +79,9 @@ const assignTasks = (creep: Creep) => {
 
         // 根据剩余能量排序
         return bSource.store.getUsedCapacity(RESOURCE_ENERGY) - aSource.store.getUsedCapacity(RESOURCE_ENERGY);
-        const adistance = aSource.pos.getRangeTo(creep.pos)
-        const bdistance = bSource.pos.getRangeTo(creep.pos)
-        // 返回距离最近的
-        return adistance - bdistance
       });
     }
+
     creep.memory.task = TaskType.take;
     creep.memory.targetId = sourceStructure[0];
 
@@ -100,6 +89,7 @@ const assignTasks = (creep: Creep) => {
 
   // 挖矿判断
   else if (emptySource && creep.store.getUsedCapacity() == 0) {
+    log(`shouldMine ${creep.name} ${creep.ticksToLive}`);
     // 这里应该替换成没有harvester的资源矿
     const sources = creep.room.find(FIND_SOURCES, {
       filter: (s: Source) => s.energy > 0,
@@ -118,6 +108,7 @@ const assignTasks = (creep: Creep) => {
 
   // 如果有空的spawn extension，优先送货
   else if (hasSource && emptySpawn.length > 0) {
+    log(`creep ${creep.name} 优先送货`)
 
     const freeSpawn = emptySpawn.sort((a, b) => {
       const aSource = Game.getObjectById(a) as StructureExtension
@@ -141,6 +132,7 @@ const assignTasks = (creep: Creep) => {
 
   // 修理判断
   else if (hasSource && roomMemory.toFixedStructures.length > 0) {
+    log(`creep ${creep.name} 优先修理`)
     creep.memory.task = TaskType.repair;
     creep.memory.targetId = roomMemory.toFixedStructures[0].id;
   }
@@ -148,12 +140,10 @@ const assignTasks = (creep: Creep) => {
 
   // 建造判断
   else if (hasSource && toConstructionSite.length > 0) {
+    log(`creep ${creep.name} 优先建造`)
     creep.memory.task = TaskType.build;
     creep.memory.targetId = roomMemory.toConstructionSite[0].id;
   }
-
-
-
   // 冗余去升级 
   else {
     log(`creep ${creep.name} 冗余去升级`, 'hasSource', hasSource, toConstructionSite.length)
@@ -162,10 +152,9 @@ const assignTasks = (creep: Creep) => {
   // 升级控制器判断
 }
 
-const workRun = function (creep: Creep) {
-  taskRunner(creep, assignTasks)
-};
 
 export default {
-  run: workRun
+  run: function (creep: Creep) {
+    taskRunner(creep, assignTasks)
+  }
 };

@@ -31,6 +31,7 @@ export default function (creep: Creep) {
       creep.moveTo(target, showDash);
       return true;
     };
+
     if (res === OK) {
       return true;
     } else {

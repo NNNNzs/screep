@@ -4,7 +4,7 @@ import { createBody, deleteCreepMemory } from "./autoCreate";
 import { findEmptySourceStructure, findSourceStructure, } from './Scanner'
 
 import { ROLE_NAME_ENUM } from "@/var";
-import { onlyHarvester } from "@/role/harvester";
+import roleHarvester from "@/role/harvester";
 import roleWork from "@/role/work";
 import roleCarry from '@/role/carry';
 
@@ -45,7 +45,7 @@ export const creepExtension = {
     switch (creep.memory.role) {
 
       case ROLE_NAME_ENUM.harvester: {
-        onlyHarvester.run(creep);
+        roleHarvester.run(creep);
         break
       }
 

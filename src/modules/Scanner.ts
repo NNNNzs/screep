@@ -143,7 +143,7 @@ export const findSpawns = () => {
 
     updateSourceList(room, spawnName);
 
-    findEmptySourceStructure(room, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER, STRUCTURE_STORAGE]);
+    findEmptySourceStructure(room, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER]);
 
     findSourceStructure(room, [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]);
 
@@ -215,6 +215,12 @@ export const updateSourceList = (room: Room, spawnName: string) => {
         if (!Memory.creeps[s.creepId]) {
           s.creepId = null
         }
+
+        // 如果 creepId的target不是这个 清楚
+        if (Game.creeps[s.creepId] && Game.creeps[s.creepId].memory.targetId !== s.id) {
+          s.creepId = null
+        }
+
       }
     }
 

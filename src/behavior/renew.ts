@@ -12,9 +12,11 @@ export const assignRenewTask = (creep: Creep) => {
 
 export const shouldRenew = (creep: Creep) => {
   // todo 当前的身体组件是否已经满足了最大要求
-
-  return CREEP_LIFE_TIME_MIN > creep.ticksToLive;
+  // creep.body
+  console.log('shouldRenew', creep.ticksToLive, creep.body);
   
+  return CREEP_LIFE_TIME_MIN > creep.ticksToLive;
+
 }
 
 export default function (creep: Creep) {
@@ -24,7 +26,11 @@ export default function (creep: Creep) {
 
   if (res === ERR_NOT_IN_RANGE) {
     creep.moveTo(nearestSpawn, showDash);
-  } else {
+  }
+  else if (res === OK) {
+
+  }
+  else {
     console.log('renew error ', creep.name, res);
   }
 

@@ -137,9 +137,10 @@ const createHarvester = (spawnQueue: SpawnQueue) => {
   if (harvesters.length < sourceList.length) {
     spawnQueue.push(ROLE_NAME_ENUM.harvester)
   }
+}
 
-
-
+// 统计creep身体组件的数量
+export const isMaxCountBodyPart = (body: Creep['body']) => {
 
 }
 

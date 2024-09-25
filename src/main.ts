@@ -1,6 +1,5 @@
 
 import { ErrorMapper } from "./modules/errorMappere";
-import { onlyHarvester } from "./role/harvester";
 import autoCreate from "./modules/autoCreate";
 import { roomScanner } from "./modules/Scanner";
 import mount from "./modules/mount.js";
@@ -19,5 +18,5 @@ export const loop = ErrorMapper.wrapLoop(() => {
     const creep = Game.creeps[name];
     creep.run();
   }
-  
+
 });
