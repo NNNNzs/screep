@@ -225,23 +225,28 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
 
   // 开始贪心算法
   function addBody() {
+    // 重制一轮
     let resetBody = body.filter(t => t?.weight > 0);
 
+    // 如果一轮结束 ，重置
     if (resetBody.length == 0) {
       body = _.cloneDeep(bodys);
       resetBody = body.filter(t => t?.weight > 0);
     }
 
     for (let i = 0; i < resetBody.length; i++) {
+      // 权重
       const t = resetBody[i];
 
+      // 如果当前的数量超过最大值 则直接退出
       if (bodyMap[t.body] > t.max) {
         return false
       };
 
+      // 某个部件消耗的能量
       const newCost = BODYPART_COST[t.body];
 
-      // 可以添加其他部件
+      // 如果超出 则退出
       if (available - newCost < 0) {
         return false
       }
