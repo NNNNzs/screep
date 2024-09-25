@@ -25,6 +25,12 @@ const taskRunner = function (creep: Creep, assignTasks: (creep: Creep) => void) 
     return;
   }
 
+  if (creep.memory.targetId && !Game.getObjectById(creep.memory.targetId)) {
+    assignTasks(creep);
+    // taskRunner(creep, assignTasks);
+  }
+
+
   const task = creep.memory.task;
 
   creep.say(task);

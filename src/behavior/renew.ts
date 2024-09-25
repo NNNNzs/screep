@@ -1,4 +1,6 @@
 import { TaskType } from "@/modules/Task";
+import { isMaxCountBodyPart } from "@/modules/autoCreate";
+import { log } from "@/utils";
 import { showDash } from "@/var";
 export const CREEP_LIFE_TIME_MIN = CREEP_LIFE_TIME / 5;
 
@@ -13,9 +15,13 @@ export const assignRenewTask = (creep: Creep) => {
 export const shouldRenew = (creep: Creep) => {
   // todo 当前的身体组件是否已经满足了最大要求
   // creep.body
-  console.log('shouldRenew', creep.ticksToLive, creep.body);
-  
-  return CREEP_LIFE_TIME_MIN > creep.ticksToLive;
+
+  const ticksToLive = CREEP_LIFE_TIME_MIN > creep.ticksToLive
+  const maxCountBodyPart = isMaxCountBodyPart(creep);
+
+  log(creep.name, 'maxCountBodyPart', maxCountBodyPart, 'ticksToLive', ticksToLive);
+
+  return ticksToLive && maxCountBodyPart;
 
 }
 
@@ -32,15 +38,10 @@ export default function (creep: Creep) {
   }
   else {
     console.log('renew error ', creep.name, res);
-  }
-
-  const existStatus = [ERR_FULL, ERR_NOT_ENOUGH_ENERGY];
-  const isExis = existStatus.some(stats => res == stats);
-
-  if (isExis) {
     return false;
   }
 
-  creep.say(`renew error ${creep.name}-${res}`);
+
+  creep.say(`renewing ${creep.name}-${res}`);
 
 }

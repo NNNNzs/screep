@@ -46,7 +46,7 @@ declare global {
   /** 通用的CreepMemory */
   interface CreepMemory extends Record<string, any> {
     /** 角色 */
-    role: string;
+    role: ROLE_NAME_ENUM;
     /** 索引 */
     creepIndex?: number;
 

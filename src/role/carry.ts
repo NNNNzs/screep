@@ -176,7 +176,9 @@ const assignTasks = (creep: Creep) => {
 
   else {
     console.log('无任务');
-    creep.memory.task = null;
+    creep.memory.task = TaskType.wait;
+    creep.memory.waitTime = Game.time + 10;
+    // assignRenewTask(creep);
   }
 
 }

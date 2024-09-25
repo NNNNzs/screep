@@ -16,7 +16,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
-    creep.run();
+    creep.run(); 
   }
 
 });

@@ -42,6 +42,10 @@ export const creepExtension = {
   run() {
     const creep = this as Creep;
 
+    if (creep.spawning) {
+      return;
+    }
+
     switch (creep.memory.role) {
 
       case ROLE_NAME_ENUM.harvester: {

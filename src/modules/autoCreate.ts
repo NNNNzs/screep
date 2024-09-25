@@ -140,7 +140,46 @@ const createHarvester = (spawnQueue: SpawnQueue) => {
 }
 
 // 统计creep身体组件的数量
-export const isMaxCountBodyPart = (body: Creep['body']) => {
+export const isMaxCountBodyPart = (creep: Creep) => {
+
+  const body = creep.body;
+
+  const bodyMap: BodyCreateMap = {
+    [MOVE]: 0,
+    [WORK]: 0,
+    [CARRY]: 0,
+    [ATTACK]: 0,
+    [RANGED_ATTACK]: 0,
+    [HEAL]: 0,
+    [CLAIM]: 0,
+    [TOUGH]: 0,
+  };
+
+  body.forEach(t => {
+    bodyMap[t.type] += 1
+  });
+
+
+  const maxBody = createBody(creep.memory.role, creep.room);;
+
+  const maxBodyMap: BodyCreateMap = {
+    [MOVE]: 0,
+    [WORK]: 0,
+    [CARRY]: 0,
+    [ATTACK]: 0,
+    [RANGED_ATTACK]: 0,
+    [HEAL]: 0,
+    [CLAIM]: 0,
+    [TOUGH]: 0,
+  };
+
+  maxBody.forEach(t => {
+    maxBodyMap[t] += 1
+  });
+
+  console.log(creep.name, 'bodyMap', JSON.stringify(bodyMap), 'maxBodyMap', JSON.stringify(maxBodyMap))
+
+  return _.isEqual(bodyMap, maxBodyMap);
 
 }
 
@@ -151,11 +190,11 @@ export const isMaxCountBodyPart = (body: Creep['body']) => {
  * @description 动态规划，根据角色选择body按照一定配比
  * @returns 
  */
-export const createBody = (roleName: ROLE_NAME_ENUM, spawn: StructureSpawn) => {
+export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
   const bodys = bodyRateMap[roleName];
   const moveCost = BODYPART_COST[MOVE];
 
-  let available = spawn.room.energyAvailable;
+  let available = room.energyAvailable;
 
   let bodyMap: BodyCreateMap = {
     [MOVE]: 0,
@@ -235,7 +274,7 @@ export const createBody = (roleName: ROLE_NAME_ENUM, spawn: StructureSpawn) => {
     }
   })
 
-  console.log('available', available, 'bodyMap', JSON.stringify(bodyMap));
+  log('available', available, 'bodyMap', JSON.stringify(bodyMap));
   return createBodyWithMap(bodyMap);
 
 }
@@ -278,7 +317,7 @@ export default {
           directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT],
         };
 
-        const body = createBody(roleName, spawn)
+        const body = createBody(roleName, spawn.room)
 
         const res = spawn.spawnCreep(body, name, opt);
 
