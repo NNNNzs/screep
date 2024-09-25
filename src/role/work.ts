@@ -13,6 +13,7 @@ import repair from "@/behavior/repair.js";
 import build from "@/behavior/build.js";
 import renew from "@/behavior/renew.js";
 import { CREEP_LIFE_TIME_MIN } from "@/behavior/renew.js";
+import taskRunner from "@/task/run.js";
 
 
 
@@ -162,89 +163,9 @@ const assignTasks = (creep: Creep) => {
 }
 
 const workRun = function (creep: Creep) {
-
-  const emptySource = creep.store.getUsedCapacity() == 0;
-
-  if (!creep.memory.task) {
-    assignTasks(creep);
-    return;
-  }
-
-  const task = creep.memory.task;
-  const target = Game.getObjectById(creep.memory.targetId) as Source;
-
-  if (!target) {
-    assignTasks(creep);
-    // workRun(creep);
-    return
-  }
-
-  switch (task) {
-
-    case TaskType.harvest: {
-      const res = harvest(creep);
-      if (res === false) {
-        assignTasks(creep);
-        workRun(creep);
-      }
-      break;
-    }
-    case TaskType.take: {
-      const res = take(creep);
-      if (res === false) {
-        assignTasks(creep);
-        workRun(creep);
-      }
-      break;
-    }
-
-    case TaskType.carry: {
-      const res = carry(creep);
-      if (res === false) {
-        assignTasks(creep);
-        workRun(creep);
-      }
-      break;
-    }
-
-    case TaskType.upgrade: {
-      const res = upgrade(creep);
-      if (res === false) {
-        assignTasks(creep);
-        workRun(creep);
-      }
-      break;
-    }
-
-    case TaskType.repair: {
-      const res = repair(creep);
-      if (res === false) {
-        assignTasks(creep);
-        workRun(creep);
-      };
-      break;
-    }
-
-    case TaskType.build: {
-      const res = build(creep);
-      if (res === false) {
-        assignTasks(creep);
-        workRun(creep);
-      }
-      break;
-    }
-
-    case TaskType.renew: {
-      const res = renew(creep);
-      if (res === false) {
-        assignTasks(creep);
-        workRun(creep);
-      }
-      break;
-    }
-  }
-  creep.say(task);
+  taskRunner(creep, assignTasks)
 };
+
 export default {
   run: workRun
 };

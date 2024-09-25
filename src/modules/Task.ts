@@ -164,7 +164,11 @@ const getSourceTask = (roomName) => {
     return null;
   }
 }
-
+/**
+ * 
+ * @param creep 
+ * @deprecated
+ */
 export const taskExecutor = (creep: Creep) => {
 
   const currentTask = creep.memory.taskList[0];
