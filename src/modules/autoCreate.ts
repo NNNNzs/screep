@@ -139,6 +139,22 @@ const createHarvester = (spawnQueue: SpawnQueue) => {
   }
 }
 
+const createExplorer = (spawnQueue: SpawnQueue) => {
+  const roomName = spawnQueue.room.name;
+  const roomMemory = Memory.rooms[roomName]
+  const totalScreep = Object.keys(Game.creeps);
+
+  const explorers = totalScreep.filter(creepName => {
+    const creeps = Game.creeps[creepName];
+    return creeps.memory.role === ROLE_NAME_ENUM.explorer;
+  });
+
+  if (explorers.length < 1) {
+    spawnQueue.push(ROLE_NAME_ENUM.explorer)
+  }
+
+}
+
 // 统计creep身体组件的数量
 export const isMaxCountBodyPart = (creep: Creep) => {
 
@@ -221,6 +237,7 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
 
   });
 
+  // 身体部件对应的map
   let body = _.cloneDeep(bodys);
 
   // 开始贪心算法
@@ -309,6 +326,8 @@ export default {
 
       createCarry(spawnQueue);
 
+      createExplorer(spawnQueue);
+
 
       if (spawnQueue.length > 0) {
 
@@ -343,9 +362,5 @@ export default {
 
     return;
 
-
-    if (Game.time % 400 === 0) {
-      deleteCreepMemory();
-    }
   },
 };

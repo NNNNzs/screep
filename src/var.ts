@@ -1,12 +1,21 @@
 
 export const showDash = { visualizePathStyle: { stroke: "#fffff" } };
 export enum ROLE_NAME_ENUM {
+  /** 负责工作的工人 */
   worker = 'work',
+  /** 负责运输资源的运输者 */
   carry = 'carry',
+  /** 负责采集资源的采集者 */
   harvester = 'harvester',
-  upgrader = 'upgrader',
-  builder = 'builder',
+
+  /** 探索者 */
+  explorer = 'explorer',
+
+  /** 士兵 */
+  soldier = 'soldier',
+
   miner = 'miner',
+
   miner1 = 'miner1',
 };
 
@@ -43,5 +52,16 @@ export const bodyRateMap: BodyRateMap = {
   /** 专职搬运者 */
   [ROLE_NAME_ENUM.carry]: [
     { body: CARRY, min: 1, weight: 1 },
+  ],
+  /** 探索者 */
+  [ROLE_NAME_ENUM.explorer]: [
+    { body: MOVE, max: 1, weight: 1 },
+  ],
+  /** 士兵 */
+  [ROLE_NAME_ENUM.soldier]: [
+    { body: MOVE, max: 1, weight: 1 },
+    { body: ATTACK, max: 1, weight: 1 },
+    { body: RANGED_ATTACK, max: 1, weight: 1 },
+    { body: HEAL, max: 1, weight: 1 },
   ]
 }

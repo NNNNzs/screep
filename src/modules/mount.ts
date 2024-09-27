@@ -7,6 +7,7 @@ import { ROLE_NAME_ENUM } from "@/var";
 import roleHarvester from "@/role/harvester";
 import roleWork from "@/role/work";
 import roleCarry from '@/role/carry';
+import roleExplorer from '@/role/explorer';
 
 
 global.clearMemory = () => {
@@ -60,6 +61,11 @@ export const creepExtension = {
 
       case ROLE_NAME_ENUM.carry: {
         roleCarry.run(creep)
+        break
+      }
+
+      case ROLE_NAME_ENUM.explorer: {
+        roleExplorer.run(creep)
         break
       }
 

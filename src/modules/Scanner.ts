@@ -363,6 +363,7 @@ export const roomScanner = () => {
   initMemory();
 
   findSpawns();
+
   deleteCreepMemory();
 
   toFixedList();
