@@ -12,7 +12,7 @@ export const initMemory = () => {
     Memory.rooms = {};
   }
 
-  Object.keys(Memory.rooms).forEach((roomName) => {
+  Object.keys(Game.rooms).forEach((roomName) => {
 
     // 找到资源点附近可以放container的位置
     if (!Memory.rooms[roomName]) {
@@ -359,6 +359,8 @@ export const findAttackers = () => {
 
 
 export const roomScanner = () => {
+  // 初始化rooms 
+
 
   initMemory();
 
