@@ -212,6 +212,10 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
 
   let available = room.energyAvailable;
 
+  let cost = 0;
+
+  let bodyCount = 0;
+
   let bodyMap: BodyCreateMap = {
     [MOVE]: 0,
     [WORK]: 0,
@@ -232,8 +236,14 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
     bodyMap[body] += min;
     available = available - BODYPART_COST[body] * min;
 
+    cost += BODYPART_COST[body] * min;
+    bodyCount = bodyCount + min;
+
     bodyMap[MOVE] += min;
     available = available - moveCost * min;
+
+    cost += moveCost * min;
+    bodyCount = bodyCount + min;
 
   });
 
@@ -260,6 +270,10 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
         return false
       };
 
+      if (bodyCount >= MAX_CREEP_SIZE) {
+        return false
+      }
+
       // 某个部件消耗的能量
       const newCost = BODYPART_COST[t.body];
 
@@ -270,6 +284,13 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
 
       bodyMap[t.body] += 1;
       available = available - BODYPART_COST[t.body];
+      cost += BODYPART_COST[t.body];
+
+      bodyCount = bodyCount + 1;
+      if (bodyCount >= MAX_CREEP_SIZE) {
+        return false
+      }
+
       // 权重-1
       t.weight = t.weight - 1;
 
@@ -280,6 +301,12 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
 
       bodyMap[MOVE] += 1;
       available = available - moveCost;
+      cost += moveCost;
+
+      bodyCount = bodyCount + 1;
+      if (bodyCount >= MAX_CREEP_SIZE) {
+        return false
+      }
 
       return true;
 
@@ -296,7 +323,8 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
     }
   })
 
-  log('available', available, 'bodyMap', JSON.stringify(bodyMap));
+  log('available', room.energyAvailable, 'bodyMap', JSON.stringify(bodyMap), 'cost', cost);
+
   return createBodyWithMap(bodyMap);
 
 }
@@ -326,7 +354,7 @@ export default {
 
       createCarry(spawnQueue);
 
-      createExplorer(spawnQueue);
+      // createExplorer(spawnQueue);
 
 
       if (spawnQueue.length > 0) {
@@ -341,7 +369,8 @@ export default {
           directions: [BOTTOM, LEFT, RIGHT, BOTTOM_RIGHT],
         };
 
-        const body = createBody(roleName, spawn.room)
+        const body = createBody(roleName, spawn.room);
+
 
         const res = spawn.spawnCreep(body, name, opt);
 
@@ -350,7 +379,7 @@ export default {
           Memory.rooms[spawn.room.name].creepIndex++;
           log(`spawn ${roleName} ok`, name);
         } else {
-          log('spawnCreep error', res)
+          log('spawnCreep error', JSON.stringify(body))
         }
       }
 
