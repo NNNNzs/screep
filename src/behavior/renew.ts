@@ -36,6 +36,9 @@ export default function (creep: Creep) {
   else if (res === OK) {
 
   }
+  else if (res === ERR_BUSY) {
+    console.log('renew busy ', creep.name, res);
+  }
   else {
     console.log('renew error ', creep.name, res);
     return false;
