@@ -26,6 +26,8 @@ export const shouldRenew = (creep: Creep) => {
 }
 
 export default function (creep: Creep) {
+
+  return;
   const nearestSpawn = Game.getObjectById(creep.memory.targetId) as StructureSpawn;
 
   const res = nearestSpawn.renewCreep(creep);
@@ -37,7 +39,7 @@ export default function (creep: Creep) {
 
   }
   else if (res === ERR_BUSY) {
-    console.log('renew busy ', creep.name, res);
+    // console.log('renew busy ', creep.name, res);
   }
   else {
     console.log('renew error ', creep.name, res);
