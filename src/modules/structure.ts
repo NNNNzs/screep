@@ -47,7 +47,10 @@ export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: Roo
   // 使用 PathFinder 查找从 startPos 到 endPos 的路径
   const path = room.findPath(startPos, endPos, { ignoreCreeps: true });
 
-  let rodedLength = 0;
+  // 检查路径是否为空
+  if (path.length === 0) return false;
+
+  let roadedLength = 0; // 修正拼写错误
 
   // 遍历路径上的每个位置
   for (const step of path) {
@@ -63,7 +66,7 @@ export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: Roo
     for (const structure of structures) {
       if (structure.structureType === STRUCTURE_ROAD) {
         hasRoad = true;
-        rodedLength++
+        roadedLength++; // 修正拼写错误
         break;
       }
     }
@@ -72,7 +75,7 @@ export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: Roo
     for (const site of constructionSites) {
       if (site.structureType === STRUCTURE_ROAD) {
         hasRoad = true;
-        rodedLength++
+        roadedLength++; // 修正拼写错误
         break;
       }
     }
@@ -91,7 +94,7 @@ export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: Roo
     }
   }
 
-  return rodedLength === path.length
+  return roadedLength === path.length
 }
 
 
