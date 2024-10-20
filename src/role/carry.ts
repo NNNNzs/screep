@@ -97,7 +97,7 @@ const assignTasks = (creep: Creep) => {
     });
 
     if (energyContainers.length > 0) {
-      sortByUsedCapacity(energyContainers);
+      sortByUsedCapacity(energyContainers, { orderBy: 'desc', resource: void 0 })
       const target = energyContainers[0];
 
       assignTakeTask(creep, {
