@@ -17,6 +17,11 @@ global.clearMemory = () => {
   console.log("clearMemory");
 }
 
+global.clearTask = (creepName: string) => {
+  Game.creeps[creepName].memory.task = null;
+  Game.creeps[creepName].memory.targetId = null;
+}
+
 global.deleteCreepMemory = deleteCreepMemory;
 
 global.killAllScreep = () => {

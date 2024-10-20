@@ -7,32 +7,29 @@ export function log(...args) {
   console.log(...args)
 }
 
-/** 根据距离排序 */
-export const sortByRange = (pos: RoomPosition, sortList = []) => {
+/** 
+ *
+ * @param {RoomPosition} pos  
+ * @param {AnyStructure['id'][]} sortList  
+ * @description 根据距离排序 
+ * 
+*/
+export const sortByRange = (pos: RoomPosition, sortList: AnyStructure[] = []) => {
   const list = _.cloneDeep(sortList);
 
   list.sort((a, b) => {
-    const aSource = Game.getObjectById(a) as AnyStructure
-    const bSource = Game.getObjectById(b) as AnyStructure
-    const adistance = aSource.pos.getRangeTo(pos)
-    const bdistance = bSource.pos.getRangeTo(pos)
+    const adistance = a.pos.getRangeTo(pos)
+    const bdistance = b.pos.getRangeTo(pos)
     // 返回距离最近的
     return adistance - bdistance
   });
-  return list;
 }
 
 /** 根据剩余能量排序 */
-export const sortByUsedCapacity = (list: AnyStoreStructure['id'][]) => {
-  const l = _.cloneDeep(list);
-  l.sort((a, b) => {
-    const aSource = Game.getObjectById(a) as AnyStoreStructure
-    const bSource = Game.getObjectById(b) as AnyStoreStructure
-
-    return bSource.store.getUsedCapacity(RESOURCE_ENERGY) - aSource.store.getUsedCapacity(RESOURCE_ENERGY);
-
+export const sortByUsedCapacity = (list: AnyStoreStructure[], resource: ResourceConstant = RESOURCE_ENERGY) => {
+  list.sort((a, b) => {
+    return a.store.getUsedCapacity(resource) - b.store.getUsedCapacity(resource);
   })
-  return l;
 }
 
 /**

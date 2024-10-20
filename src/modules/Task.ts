@@ -13,13 +13,13 @@ export enum TaskType {
   upgrade = "upgrade",
   /** 维修任务 */
   repair = "repair",
-  /** 把东西拿走 */
+  /** 把东西拿到target   */
   carry = "carry",
-  /** 拿东西过来 */
+  /** 从target中拿东西 */
   take = "take",
   /** 续命 */
   renew = "renew",
-  
+
   /** 发呆 */
   wait = "wait"
 };
@@ -50,7 +50,7 @@ export interface TaskItem {
   maxExecutorId?: number
 
   /** 任务额外信息 */
-  params?: string
+  params?: Record<string, any>
 };
 
 
@@ -77,7 +77,7 @@ export class Task {
 
   }
 
-  add(dto: TaskItem) {
+  add(dto: TaskItem, param?: Record<string, any>) {
     const exis = this._taskSourceMap.has(dto.targetId);
 
     if (exis) return
@@ -91,6 +91,9 @@ export class Task {
     if (!dto.maxExecutorId) {
       dto.maxExecutorId = 1
     };
+    if (param) {
+      dto.params = param
+    }
     dto.status = TaskStatus.READY;
 
     dto.id = Game.time + Math.random() + '';

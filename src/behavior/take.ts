@@ -1,5 +1,5 @@
 import { log } from "@/utils";
-
+import { TaskType } from "@/modules/Task";
 /** 从target里面拿出资源 */
 export default function (creep: Creep) {
 
@@ -48,4 +48,20 @@ export default function (creep: Creep) {
   if (!success) {
     return false
   }
+}
+
+interface AssignTakeTaskParams {
+  targetId: Id<AnyStoreStructure> | Id<Tombstone> | Id<Ruin> | Id<Resource>,
+  taskType: TaskType.take,
+  targetType: StructureConstant | Tombstone | Ruin | Resource,
+  takeFrom: AnyStoreStructure | Tombstone | Ruin | Resource
+}
+
+/** 从 target中拿东西  */
+export const assignTakeTask = (creep: Creep, params: AssignTakeTaskParams) => {
+  creep.memory.targetId = params.targetId;
+  creep.memory.task = params.taskType;
+  creep.memory.targetType = params.targetType;
+  creep.memory.takeFrom = params.takeFrom;
+  return true;
 }
