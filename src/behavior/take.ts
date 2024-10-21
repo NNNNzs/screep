@@ -21,6 +21,30 @@ export default function (creep: Creep) {
     }
   }
 
+  if (creep.memory.sourceType) {
+    const sourceType = creep.memory.sourceType;
+    const res = creep.withdraw(target, sourceType as ResourceConstant);
+
+    if (res == ERR_NOT_IN_RANGE) {
+      creep.moveTo(target);
+      return true;
+    };
+
+    if (target.store.getUsedCapacity() < 50) {
+      // 如果目标仓库容量小于50，则不继续取资源
+      // 因为如果目标仓库容量小于50，则目标仓库已经满了，再取资源也没有意义
+      console.log('target store used capacity', target.store.getUsedCapacity())
+      return false
+    }
+
+    if (res === OK) {
+      return true;
+    } else {
+      log('take', sourceType, res)
+      return false;
+    }
+  }
+
 
 
   // 有可能是掉落在地上的资源
@@ -36,6 +60,13 @@ export default function (creep: Creep) {
       creep.moveTo(target);
       return true;
     };
+
+    if (target.store.getUsedCapacity() < 50) {
+      // 如果目标仓库容量小于50，则不继续取资源
+      // 因为如果目标仓库容量小于50，则目标仓库已经满了，再取资源也没有意义
+      console.log('target store used capacity', target.store.getUsedCapacity())
+      return false
+    }
 
     if (res === OK) {
       return true;
@@ -53,6 +84,7 @@ export default function (creep: Creep) {
 interface AssignTakeTaskParams {
   targetId: Id<AnyStoreStructure> | Id<Tombstone> | Id<Ruin> | Id<Resource>,
   taskType: TaskType.take,
+  sourceType?: ResourceConstant,
   targetType: StructureConstant | Tombstone | Ruin | Resource,
   takeFrom: AnyStoreStructure | Tombstone | Ruin | Resource
 }
@@ -63,5 +95,6 @@ export const assignTakeTask = (creep: Creep, params: AssignTakeTaskParams) => {
   creep.memory.task = params.taskType;
   creep.memory.targetType = params.targetType;
   creep.memory.takeFrom = params.takeFrom;
+  creep.memory.sourceType = params.sourceType;
   return true;
 }

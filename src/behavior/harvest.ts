@@ -17,7 +17,11 @@ export default function (creep: Creep) {
       // 满了
       if (container.store.getFreeCapacity() == 0) {
         creep.say('偷懒1');
-      } else {
+        return false
+      } else if (target.energy === 0) {
+        return false
+      }
+      else {
         const res = creep.harvest(target);
       }
     }

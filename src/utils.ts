@@ -25,6 +25,10 @@ export const sortByRange = (pos: RoomPosition, sortList: AnyStructure[] = []) =>
   });
 }
 
+type SortByUsedCapacityOptions = {
+  orderBy: 'asc' | 'desc',
+  resource?: ResourceConstant
+}
 /** 
  * @param {AnyStoreStructure[]} list 
  * @param {orderBy: 'asc' | 'desc', resource: ResourceConstant} options asc 从小到大，desc 从大到小
@@ -32,8 +36,8 @@ export const sortByRange = (pos: RoomPosition, sortList: AnyStructure[] = []) =>
 */
 export const sortByUsedCapacity = (list: AnyStoreStructure[], {
   orderBy = 'asc',
-  resource = RESOURCE_ENERGY
-}: { orderBy: 'asc' | 'desc', resource: ResourceConstant } = { orderBy: 'asc', resource: RESOURCE_ENERGY }) => {
+  resource
+}: SortByUsedCapacityOptions = { orderBy: 'asc' }) => {
   list.sort((a, b) => {
     return orderBy === 'asc' ? a.store.getUsedCapacity(resource) - b.store.getUsedCapacity(resource) : b.store.getUsedCapacity(resource) - a.store.getUsedCapacity(resource);
   })

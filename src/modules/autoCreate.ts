@@ -159,6 +159,15 @@ const createExplorer = (spawnQueue: SpawnQueue) => {
 export const isMaxCountBodyPart = (creep: Creep) => {
 
   const body = creep.body;
+  //  如果是50个部件，直接返回true
+  if (body.length === MAX_CREEP_SIZE) {
+    return true;
+  }
+
+  // 如果有缓存的isMaxCoutBody 则直接返回
+  if (creep.memory.isMaxCountBody) {
+    return creep.memory.isMaxCountBody;
+  }
 
   const bodyMap: BodyCreateMap = {
     [MOVE]: 0,
@@ -193,9 +202,12 @@ export const isMaxCountBodyPart = (creep: Creep) => {
     maxBodyMap[t] += 1
   });
 
-  console.log(creep.name, 'bodyMap', JSON.stringify(bodyMap), 'maxBodyMap', JSON.stringify(maxBodyMap))
+  // console.log(creep.name, 'bodyMap', JSON.stringify(bodyMap), 'maxBodyMap', JSON.stringify(maxBodyMap))
+  const isMax = _.isEqual(bodyMap, maxBodyMap);
 
-  return _.isEqual(bodyMap, maxBodyMap);
+  creep.memory.isMaxCountBody = isMax;
+
+  return isMax
 
 }
 

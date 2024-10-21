@@ -1,4 +1,5 @@
 import { showDash } from "@/var";
+import { assignCarryTask } from "./carry";
 
 export default function (creep: Creep) {
   const controller = creep.room.controller;
@@ -10,6 +11,11 @@ export default function (creep: Creep) {
   }
 
   const emptySource = creep.store.getUsedCapacity() == 0;
+
+  // 如果有其他东西，先送到storage
+  if (creep.store.getUsedCapacity() !== creep.store.getUsedCapacity(RESOURCE_ENERGY)) {
+    assignCarryTask(creep, { targetId: creep.room.storage.id });
+  }
 
   const res = creep.upgradeController(controller);
 

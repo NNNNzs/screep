@@ -1,3 +1,4 @@
+import { TaskType } from "@/modules/Task";
 import { showDash } from "@/var";
 
 /** 从creep的store中 转移资源 */
@@ -47,4 +48,32 @@ export default function (creep: Creep) {
 
 
 
+}
+interface AssignCarryTaskParams {
+  targetId: Id<AnyStoreStructure>,
+}
+
+interface AssignCarryTaskParams {
+  targetId: Id<AnyStoreStructure>,
+  sourceType?: ResourceConstant,
+  amount?: number
+}
+
+
+/**
+ * 
+ * @param creep 
+ * @param params 
+ * @description 分配搬运任务 拿东西到 target 
+ */
+export const assignCarryTask = function (creep: Creep, params: AssignCarryTaskParams) {
+  creep.memory.task = TaskType.carry;
+  creep.memory.targetId = params.targetId
+
+  if (params.sourceType) {
+    creep.memory.sourceType = params.sourceType;
+  }
+  if (params.amount) {
+    creep.memory.amount = params.amount;
+  }
 }

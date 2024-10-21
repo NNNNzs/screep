@@ -12,18 +12,48 @@ const assignTasks = function (creep: Creep) {
 
   const freeSource = Memory.rooms[roomName].sourcesList.find(e => !e.creepId);
 
+  const containerId = creep.memory.containerId;
+  const targetId = creep.memory.targetId;
+
+
+  const watiSomeTime = () => {
+    console.log('无任务'); // 输出无任务
+    creep.memory.task = TaskType.wait; // 设置任务为等待
+    creep.memory.waitTime = Game.time + 10; // 设置等待时间
+  }
+
+
+
   if (shouldRenew(creep)) {
     assignRenewTask(creep);
     return
-  } else if (freeSource) {
+  }
+
+  // 没有容器，有空闲的source
+  else if (!containerId && freeSource) {
     creep.memory.targetId = freeSource.id;
     freeSource.creepId = creep.name;
     creep.memory.containerId = freeSource.containerId;
     creep.memory.task = TaskType.harvest;
-  } else {
+
+  }
+
+  // 有容器，没有采集任务 
+  else if (containerId && creep.memory.task !== TaskType.harvest) {
+    const source = Memory.rooms[roomName].sourcesList.find(e => e.containerId === creep.memory.containerId);
+
+    if (source) {
+      creep.memory.targetId = source.id;
+      source.creepId = creep.name;
+      creep.memory.task = TaskType.harvest;
+    }
+
+  }
+
+  else {
     creep.memory.task = TaskType.wait;
-    creep.memory.waitTime = Game.time + 100;
-    log("没有空闲的source了")
+    creep.memory.waitTime = Game.time + 20;
+    log(creep.name, "没有空闲的source了")
   }
 
 }

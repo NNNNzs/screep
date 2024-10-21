@@ -21,30 +21,22 @@ export const shouldRenew = (creep: Creep) => {
   // 2. 检查身体部件是否达到最大要求
   const maxCountBodyPart = isMaxCountBodyPart(creep);
 
+  console.log('maxCountBodyPart', maxCountBodyPart)
+
   // 3. 检查房间能量情况
   const room = creep.room;
   const energyAvailable = room.energyAvailable;
   const energyCapacityAvailable = room.energyCapacityAvailable;
   const energySufficient = energyAvailable > energyCapacityAvailable * 0.8;
 
-  // 4. 计算Creep的重要性和替代成本
-  // const creepCost = getCreepCost(creep.body);
-  const isExpensive = false;
 
-  // 5. 检查是否有空闲的 Spawn
-  const availableSpawn = room.find(FIND_MY_SPAWNS, {
-    filter: (spawn) => !spawn.spawning
-  }).length > 0;
 
-  // 6. 检查当前是否正在进行重要任务
-  const isPerformingCriticalTask = creep.memory.criticalTask === true;
 
   const flag = ticksToLive &&
     maxCountBodyPart &&
-    energySufficient &&
-    isExpensive &&
-    availableSpawn &&
-    !isPerformingCriticalTask;
+    energySufficient
+
+  console.log('shouldRenew', ticksToLive, maxCountBodyPart, energySufficient);
 
   // 记录日志
   // log(
@@ -77,7 +69,8 @@ export default function (creep: Creep) {
 
   }
   else if (res === ERR_BUSY) {
-    // console.log('renew busy ', creep.name, res);
+    console.log('renew busy ', creep.name, res);
+    // return false
   }
   else {
     console.log('renew error ', creep.name, res);

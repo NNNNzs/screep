@@ -41,6 +41,12 @@ global.clearMemeory = () => {
   });
 };
 
+global.showPos = (id: AnyStructure['id']) => {
+  const obj = Game.getObjectById(id);
+  console.log('showPos', obj.room.name,obj);
+  obj.room.visual.circle(obj.pos, { stroke: "#ffaa00" });
+}
+
 
 
 export const creepExtension = {
