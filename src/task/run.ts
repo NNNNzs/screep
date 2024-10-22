@@ -41,7 +41,7 @@ const taskRunner = function (creep: Creep, assignTasks: (creep: Creep) => void) 
     case TaskType.harvest: {
       const res = harvest(creep);
       if (res === false) {
-        log("harvest error")
+        log('task', 'harvest', 'error')
         assignTasks(creep);
         taskRunner(creep, assignTasks);
       }
@@ -51,7 +51,7 @@ const taskRunner = function (creep: Creep, assignTasks: (creep: Creep) => void) 
     case TaskType.take: {
       const res = take(creep);
       if (res === false) {
-        log("take error")
+        log('task', 'take', 'error')
         assignTasks(creep);
         taskRunner(creep, assignTasks);
       }
@@ -61,7 +61,7 @@ const taskRunner = function (creep: Creep, assignTasks: (creep: Creep) => void) 
     case TaskType.carry: {
       const res = carry(creep);
       if (res === false) {
-        log("carry error")
+        log('task', 'carry', 'error')
         assignTasks(creep);
         taskRunner(creep, assignTasks);
       }
@@ -71,7 +71,7 @@ const taskRunner = function (creep: Creep, assignTasks: (creep: Creep) => void) 
     case TaskType.upgrade: {
       const res = upgrade(creep);
       if (res === false) {
-        log("upgrade error")
+        log('task', 'upgrade', 'error')
         assignTasks(creep);
         taskRunner(creep, assignTasks);
       }
@@ -81,7 +81,7 @@ const taskRunner = function (creep: Creep, assignTasks: (creep: Creep) => void) 
     case TaskType.repair: {
       const res = repair(creep);
       if (res === false) {
-        log("repair error")
+        log('task', 'repair', 'error')
         assignTasks(creep);
         taskRunner(creep, assignTasks);
       };
@@ -91,7 +91,7 @@ const taskRunner = function (creep: Creep, assignTasks: (creep: Creep) => void) 
     case TaskType.build: {
       const res = build(creep);
       if (res === false) {
-        log("build error")
+        log('task', 'build', 'error')
         assignTasks(creep);
         taskRunner(creep, assignTasks);
       }

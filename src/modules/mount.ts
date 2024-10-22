@@ -14,7 +14,7 @@ global.clearMemory = () => {
   Object.keys(Memory).forEach((key) => {
     delete Memory[key];
   });
-  console.log("clearMemory");
+  return 'clearMemory'
 }
 
 global.clearTask = (creepName: string) => {

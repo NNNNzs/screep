@@ -29,8 +29,8 @@
     "dev": "rollup -cw --environment DEST:dev",
     "local": "rollup -cw --environment DEST:local",
     "push": "rollup -cw --environment DEST:main",
-    "client": "screeps-steamless-client --port=7878",
-    "client:local": "screeps-steamless-client --port=7878 --host=127.0.0.1 --backend=127.0.0.1:21025",
+    "client": "screeps-steamless-client --port=7878 --package=E:\\SteamLibrary\\steamapps\\common\\Screeps\\package.nw",
+    "client:local": "screeps-steamless-client --port=7878 --host=127.0.0.1 --backend=localhost:21025 --package=E:\\SteamLibrary\\steamapps\\common\\Screeps\\package.nw",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

@@ -1,9 +1,5 @@
 lockfileVersion: '6.0'
 
-settings:
-  autoInstallPeers: true
-  excludeLinksFromLockfile: false
-
 dependencies:
   '@types/node':
     specifier: ^22.5.2
@@ -1863,3 +1859,7 @@ packages:
       argparse: registry.npmjs.org/argparse@1.0.10
       glob: 7.2.3
     dev: true
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false

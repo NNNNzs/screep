@@ -14,6 +14,11 @@ const assignTasks = function (creep: Creep) {
 
   const containerId = creep.memory.containerId;
   const targetId = creep.memory.targetId;
+  let target = null as Source | null;
+
+  if (targetId) {
+    target = Game.getObjectById(targetId);
+  }
 
 
   const watiSomeTime = () => {
@@ -29,7 +34,7 @@ const assignTasks = function (creep: Creep) {
     return
   }
 
-  // 没有容器，有空闲的source
+  // 刚出生 没有容器，有空闲的source 
   else if (!containerId && freeSource) {
     creep.memory.targetId = freeSource.id;
     freeSource.creepId = creep.name;
@@ -38,7 +43,7 @@ const assignTasks = function (creep: Creep) {
 
   }
 
-  // 有容器，没有采集任务 
+  // 有容器，没有采集任务 是刚刚renew完成
   else if (containerId && creep.memory.task !== TaskType.harvest) {
     const source = Memory.rooms[roomName].sourcesList.find(e => e.containerId === creep.memory.containerId);
 
@@ -49,10 +54,16 @@ const assignTasks = function (creep: Creep) {
     }
 
   }
+  // 采集完成 空了，则等待
+  else if (targetId && target.energy === 0) {
+    creep.memory.task = TaskType.wait;
+    creep.memory.waitTime = Game.time + target.ticksToRegeneration;
+    log(creep.name, "采集完成 空了，则等待")
+  }
 
   else {
     creep.memory.task = TaskType.wait;
-    creep.memory.waitTime = Game.time + 20;
+    creep.memory.waitTime = Game.time + 5;
     log(creep.name, "没有空闲的source了")
   }
 

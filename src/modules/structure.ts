@@ -42,6 +42,7 @@ export function findBestContainerPosition(source: Source | Mineral, spawn: Struc
  * @param {Room} room
  * @param {RoomPosition} startPos
  * @param {RoomPosition} endPos
+ * @returns {boolean} 是否成功
  */
 export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: RoomPosition) {
   // 使用 PathFinder 查找从 startPos 到 endPos 的路径
@@ -99,7 +100,6 @@ export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: Roo
 
 
 const unHealList: StructureConstant[] = [STRUCTURE_WALL, STRUCTURE_RAMPART, STRUCTURE_EXTENSION]
-
 export const toFixedList = () => {
   Object.keys(Memory.rooms).forEach(roomName => {
     const room = Game.rooms[roomName];
@@ -150,3 +150,132 @@ export const toBuildList = () => {
 
   });
 }
+
+export const isMaxExtension = (room: Room) => {
+  const maxExtension = Memory.rooms[room.name].maxExtension;
+
+  if (maxExtension) {
+    return true
+  }
+  const controller = room.controller;
+  if (!controller) {
+    Memory.rooms[room.name].maxExtension = true;
+    return true;
+  }
+  const level = controller.level;
+
+
+  const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][level];
+
+  const extensions = _.filter(room.find(FIND_STRUCTURES), (structure) => structure.structureType === STRUCTURE_EXTENSION);
+  const isExtensionLimitReached = extensions.length >= maxExtensions;
+
+  if (isExtensionLimitReached) {
+    Memory.rooms[room.name].maxExtension = true;
+    return true
+  } else {
+    return false
+  }
+}
+
+
+const hasStructureInRange = (pos: RoomPosition, range = 1) => {
+  // 判断这个点周围3*3的范围内是否有建筑
+  for (let x = -range; x <= range; x++) {
+    for (let y = -range; y <= range; y++) {
+      const checkPos = new RoomPosition(pos.x + x, pos.y + y, pos.roomName);
+      const structures = checkPos.lookFor(LOOK_STRUCTURES);
+      const constructionSites = checkPos.lookFor(LOOK_CONSTRUCTION_SITES);
+      if (structures.length > 0 || constructionSites.length > 0) {
+        return true;
+      }
+    }
+  }
+  return true;
+};
+
+
+export const buildExtensions = (room: Room) => {
+  // 需要确保有控制器
+  const currentExtension = room.find(FIND_STRUCTURES, {
+    filter: object => object.structureType === STRUCTURE_EXTENSION
+  });
+  const level = room.controller?.level;
+  const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][level];
+
+  let left = maxExtensions - currentExtension.length;
+
+  const spawns = room.find(FIND_MY_SPAWNS);
+
+  // 是否可以建造
+  const canBuild = (pos: RoomPosition) => {
+    // 这个点附近的建筑
+    const structures = pos.lookFor(LOOK_STRUCTURES);
+    const constructionSites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
+    const hasRoad = structures.some(s => s.structureType === STRUCTURE_ROAD);
+
+  };
+
+  if (spawns.length > 0) {
+    const spawn = spawns[0]
+    const center = spawn.pos;
+    // 以spawn  为中心，先建造道路，再建造extension，顺序是从内向外建造，按照上右下左的顺序，逐次增加半径
+    let range = 1;
+
+    let positions = [
+      // 上
+      new RoomPosition(center.x, center.y - range, center.roomName),
+      // 右
+      new RoomPosition(center.x + range, center.y, center.roomName),
+      // 下
+      new RoomPosition(center.x, center.y + range, center.roomName),
+      // 左
+      new RoomPosition(center.x - range, center.y, center.roomName),
+    ];
+
+    const generatePositions = (range: number) => {
+      positions = [
+        // 上
+        new RoomPosition(center.x, center.y - range, center.roomName),
+        // 右
+        new RoomPosition(center.x + range, center.y, center.roomName),
+        // 下
+        new RoomPosition(center.x, center.y + range, center.roomName),
+        // 左
+        new RoomPosition(center.x - range, center.y, center.roomName),
+      ]
+    }
+
+
+    while (left > 0) {
+      positions.shift();
+    }
+
+  }
+
+
+}
+
+export const autoStructure = (room: Room) => {
+  // 有控制器的房间
+  if (room.controller) {
+    // 房间控制等级
+    const level = room.controller?.level;
+
+    if (!isMaxExtension(room)) {
+      buildExtensions(room)
+      // 如果达到extension建造上限，则不建造
+    }
+
+    if (level >= 1) {
+      // 一级的时候，建造
+    }
+
+    if (level >= 2) {
+      // 二级的时候，升级
+    }
+
+  }
+
+}
+

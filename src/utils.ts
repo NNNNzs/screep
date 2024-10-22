@@ -2,9 +2,8 @@ export type BodyCreateMap = {
   [key in BodyPartConstant]?: number
 }
 
-export function log(...args) {
-  const self = this;
-  console.log(...args)
+export function log(first: string, ...args) {
+  console.log(first, ...args)
 }
 
 /** 

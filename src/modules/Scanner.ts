@@ -66,6 +66,11 @@ export const initMemory = () => {
       Memory.rooms[roomName].spawnQueue = []
     }
 
+    if (!Memory.rooms[roomName].controllerLevel) {
+      Memory.rooms[roomName].controllerLevel = 0
+    }
+
+
   })
 
 }
@@ -151,6 +156,22 @@ export const findSpawns = () => {
   }
 }
 
+
+export const onControllerLevelChange = (room: Room, oldLevel: number, newLevel: number) => {
+  Memory.rooms[room.name].maxExtension = false;
+}
+
+export const updateControllerLevel = (room: Room) => {
+  const controller = room.controller;
+  if (controller) {
+    const oldLevel = Memory.rooms[room.name].controllerLevel;
+    const newLevel = controller.level;
+    if (oldLevel !== newLevel) {
+      Memory.rooms[room.name].controllerLevel = newLevel
+      onControllerLevelChange(room, oldLevel, newLevel)
+    }
+  }
+}
 
 /**
  * Updates the source list for the given room. This is called every tick and manages the
@@ -350,8 +371,6 @@ export const findAttackers = () => {
       }
 
     }
-
-
 
   });
 
