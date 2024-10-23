@@ -196,7 +196,7 @@ const hasStructureInRange = (pos: RoomPosition, range = 1) => {
 
 
 export const buildExtensions = (room: Room) => {
-  // 需要确保有控制器
+  // Ensure there is a controller
   const currentExtension = room.find(FIND_STRUCTURES, {
     filter: object => object.structureType === STRUCTURE_EXTENSION
   });
@@ -207,54 +207,49 @@ export const buildExtensions = (room: Room) => {
 
   const spawns = room.find(FIND_MY_SPAWNS);
 
-  // 是否可以建造
-  const canBuild = (pos: RoomPosition) => {
-    // 这个点附近的建筑
-    const structures = pos.lookFor(LOOK_STRUCTURES);
-    const constructionSites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
-    const hasRoad = structures.some(s => s.structureType === STRUCTURE_ROAD);
-
-  };
-
   if (spawns.length > 0) {
-    const spawn = spawns[0]
+    const spawn = spawns[0];
     const center = spawn.pos;
-    // 以spawn  为中心，先建造道路，再建造extension，顺序是从内向外建造，按照上右下左的顺序，逐次增加半径
     let range = 1;
 
-    let positions = [
-      // 上
-      new RoomPosition(center.x, center.y - range, center.roomName),
-      // 右
-      new RoomPosition(center.x + range, center.y, center.roomName),
-      // 下
-      new RoomPosition(center.x, center.y + range, center.roomName),
-      // 左
-      new RoomPosition(center.x - range, center.y, center.roomName),
-    ];
-
     const generatePositions = (range: number) => {
-      positions = [
-        // 上
+      return [
+        // Top
         new RoomPosition(center.x, center.y - range, center.roomName),
-        // 右
+        // Right
         new RoomPosition(center.x + range, center.y, center.roomName),
-        // 下
+        // Bottom
         new RoomPosition(center.x, center.y + range, center.roomName),
-        // 左
+        // Left
         new RoomPosition(center.x - range, center.y, center.roomName),
-      ]
-    }
-
+      ];
+    };
 
     while (left > 0) {
-      positions.shift();
+      const positions = generatePositions(range);
+      for (const pos of positions) {
+        if (left <= 0) break;
+
+        // Check if the position is buildable
+        const terrain = room.getTerrain().get(pos.x, pos.y);
+        if (terrain === TERRAIN_MASK_WALL) continue;
+
+        const structures = pos.lookFor(LOOK_STRUCTURES);
+        const constructionSites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
+        const hasRoad = structures.some(s => s.structureType === STRUCTURE_ROAD);
+
+        if (!hasRoad && structures.length === 0 && constructionSites.length === 0) {
+          const result = room.createConstructionSite(pos, STRUCTURE_EXTENSION);
+          if (result === OK) {
+            left--;
+          }
+        }
+      }
+      range++;
     }
-
   }
+};
 
-
-}
 
 export const autoStructure = (room: Room) => {
   // 有控制器的房间
@@ -278,4 +273,5 @@ export const autoStructure = (room: Room) => {
   }
 
 }
+
 
