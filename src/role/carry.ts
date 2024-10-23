@@ -63,10 +63,6 @@ const assignTasks = (creep: Creep) => {
   const needCarryEnergy = hasEmptySpawn || hasEmergency;
 
 
-  // 获取可用的容器
-  const containers = room.find(FIND_STRUCTURES, {
-    filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() >= 0
-  }) as StructureContainer[];
 
 
 
@@ -92,13 +88,14 @@ const assignTasks = (creep: Creep) => {
 
   /** 从容器中取能量 */
   const getFromContainer = () => {
-    const energyContainers = containers.filter(container => {
-      return container.store.getUsedCapacity() > 0
-    });
+    // 获取可用的容器
+    const containers = room.find(FIND_STRUCTURES, {
+      filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() >= 0
+    }) as StructureContainer[];
 
-    if (energyContainers.length > 0) {
-      sortByUsedCapacity(energyContainers, { orderBy: 'desc' })
-      const target = energyContainers[0];
+    if (containers.length > 0) {
+      sortByUsedCapacity(containers, { orderBy: 'desc' })
+      const target = containers[0];
 
       assignTakeTask(creep, {
         targetId: target.id,
