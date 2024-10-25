@@ -1,5 +1,5 @@
 const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
-import { runAfterStart } from "@/utils.js";
+import { log, runAfterStart } from "@/utils.js";
 import { createBody, deleteCreepMemory } from "./autoCreate";
 import { findEmptySourceStructure, findSourceStructure, } from './Scanner'
 
@@ -43,7 +43,7 @@ global.clearMemeory = () => {
 
 global.showPos = (id: AnyStructure['id']) => {
   const obj = Game.getObjectById(id);
-  console.log('showPos', obj.room.name,obj);
+  // log('module/mount', 'showPos', obj.room.name,obj);
   obj.room.visual.circle(obj.pos, { stroke: "#ffaa00" });
 }
 
@@ -58,30 +58,17 @@ export const creepExtension = {
       return;
     }
 
-    switch (creep.memory.role) {
+    const roleActions = {
+      [ROLE_NAME_ENUM.harvester]: roleHarvester.run,
+      [ROLE_NAME_ENUM.worker]: roleWork.run,
+      [ROLE_NAME_ENUM.carry]: roleCarry.run,
+      [ROLE_NAME_ENUM.explorer]: roleExplorer.run,
+    };
 
-      case ROLE_NAME_ENUM.harvester: {
-        roleHarvester.run(creep);
-        break
-      }
-
-      case ROLE_NAME_ENUM.worker: {
-        roleWork.run(creep)
-        break
-      }
-
-      case ROLE_NAME_ENUM.carry: {
-        roleCarry.run(creep)
-        break
-      }
-
-      case ROLE_NAME_ENUM.explorer: {
-        roleExplorer.run(creep)
-        break
-      }
-
+    const action = roleActions[creep.memory.role];
+    if (action) {
+      action(creep);
     }
-
   },
 
 
@@ -125,7 +112,7 @@ export default function () {
   // 日期设置为八小时之后
   Memory.lastModified = new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString();
   Memory.startTick = Game.time;
-  console.log('reload at ' + Memory.lastModified);
+  log('module/mount', 'reload at ' + Memory.lastModified);
 
   _.assign(Creep.prototype, creepExtension);
 }

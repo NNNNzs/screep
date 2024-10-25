@@ -21,7 +21,7 @@ export const shouldRenew = (creep: Creep) => {
   // 2. 检查身体部件是否达到最大要求
   const maxCountBodyPart = isMaxCountBodyPart(creep);
 
-  // console.log('maxCountBodyPart', maxCountBodyPart)
+  // log('behavior/renew', 'maxCountBodyPart', maxCountBodyPart)
 
   // 3. 检查房间能量情况
   const room = creep.room;
@@ -36,7 +36,6 @@ export const shouldRenew = (creep: Creep) => {
     maxCountBodyPart &&
     energySufficient
 
-  console.log('shouldRenew', ticksToLive, maxCountBodyPart, energySufficient);
 
   // 记录日志
   // log(
@@ -69,11 +68,11 @@ export default function (creep: Creep) {
 
   }
   else if (res === ERR_BUSY) {
-    console.log('renew busy ', creep.name, res);
+    log('behavior/renew', 'renew busy ', creep.name, res);
     // return false
   }
   else {
-    console.log('renew error ', creep.name, res);
+    log('behavior/renew', 'renew error ', creep.name, res);
     return false;
   }
 

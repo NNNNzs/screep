@@ -1,4 +1,6 @@
+import { log } from "@/utils";
 import { globalTask, TaskType } from "./Task";
+import { onControllerLevelChange } from "./Scanner";
 
 /**
  * 
@@ -85,12 +87,12 @@ export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: Roo
     if (!hasRoad) {
       const result = room.createConstructionSite(pos, STRUCTURE_ROAD);
       if (result === OK) {
-        console.log(`道路建设已开始: (${pos.x}, ${pos.y})`);
+        log('module/structure', `道路建设已开始: (${pos.x}, ${pos.y})`);
       } else if (result === ERR_FULL) {
-        console.log('建筑工地已满，无法创建更多建设任务');
+        log('module/structure', '建筑工地已满，无法创建更多建设任务');
         return;
       } else if (result === ERR_INVALID_TARGET) {
-        console.log('目标位置不适合建造道路');
+        log('module/structure', '目标位置不适合建造道路');
       }
     }
   }
@@ -100,6 +102,8 @@ export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: Roo
 
 
 const unHealList: StructureConstant[] = [STRUCTURE_WALL, STRUCTURE_RAMPART, STRUCTURE_EXTENSION]
+
+/** 扫描待修复列表 */
 export const toFixedList = () => {
   Object.keys(Memory.rooms).forEach(roomName => {
     const room = Game.rooms[roomName];
@@ -109,7 +113,7 @@ export const toFixedList = () => {
         const heal = object.hits / object.hitsMax;
         const rate = 0.8;
         if (heal < rate && !undo) {
-          // console.log(object.pos, object.structureType, 'to heal', `${object.hits} / ${object.hitsMax}`)
+          // log('module/structure/toFixedList', object.pos, object.structureType, 'to heal', `${object.hits} / ${object.hitsMax}`)
         }
 
         return heal < rate && !undo
@@ -151,12 +155,14 @@ export const toBuildList = () => {
   });
 }
 
+/**  */
 export const isMaxExtension = (room: Room) => {
-  const maxExtension = Memory.rooms[room.name].maxExtension;
+  // const maxExtension = Memory.rooms[room.name].maxExtension;
 
-  if (maxExtension) {
-    return true
-  }
+  // if (maxExtension) {
+  //   return true
+  // };
+
   const controller = room.controller;
   if (!controller) {
     Memory.rooms[room.name].maxExtension = true;
@@ -168,7 +174,20 @@ export const isMaxExtension = (room: Room) => {
   const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][level];
 
   const extensions = _.filter(room.find(FIND_STRUCTURES), (structure) => structure.structureType === STRUCTURE_EXTENSION);
-  const isExtensionLimitReached = extensions.length >= maxExtensions;
+
+  if (extensions.length === maxExtensions) {
+    onControllerLevelChange(room)
+    Memory.rooms[room.name].maxExtension = true;
+    return true
+  }
+
+  // 正在建造中的 STRUCTURE_EXTENSION
+  const constructionExtension = _.filter(room.find(FIND_CONSTRUCTION_SITES), structure => {
+    return structure.structureType === STRUCTURE_EXTENSION
+  });
+
+
+  const isExtensionLimitReached = extensions.length + constructionExtension.length >= maxExtensions;
 
   if (isExtensionLimitReached) {
     Memory.rooms[room.name].maxExtension = true;
@@ -179,23 +198,40 @@ export const isMaxExtension = (room: Room) => {
 }
 
 
-const hasStructureInRange = (pos: RoomPosition, range = 1) => {
-  // 判断这个点周围3*3的范围内是否有建筑
-  for (let x = -range; x <= range; x++) {
-    for (let y = -range; y <= range; y++) {
-      const checkPos = new RoomPosition(pos.x + x, pos.y + y, pos.roomName);
-      const structures = checkPos.lookFor(LOOK_STRUCTURES);
-      const constructionSites = checkPos.lookFor(LOOK_CONSTRUCTION_SITES);
-      if (structures.length > 0 || constructionSites.length > 0) {
-        return true;
-      }
-    }
+
+
+export function isBuildable(pos: RoomPosition): boolean {
+  // Check if the terrain is not a wall
+  const terrain = Game.map.getRoomTerrain(pos.roomName);
+  if (terrain.get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
+    return false;
   }
+
+  // Check for existing structures
+  const structures = pos.lookFor(LOOK_STRUCTURES);
+  if (structures.length > 0) {
+    return false;
+  }
+
+  // Check for existing construction sites
+  const constructionSites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
+  if (constructionSites.length > 0) {
+    return false;
+  }
+
+  // If all checks pass, the position is buildable
   return true;
-};
+}
 
-
+/** 建造扩展 */
 export const buildExtensions = (room: Room) => {
+  // 清除所有带建造的建筑
+  // room.find(FIND_CONSTRUCTION_SITES).forEach(s => {
+  //   s.remove();
+  // });
+
+  // return
+
   // Ensure there is a controller
   const currentExtension = room.find(FIND_STRUCTURES, {
     filter: object => object.structureType === STRUCTURE_EXTENSION
@@ -203,7 +239,7 @@ export const buildExtensions = (room: Room) => {
   const level = room.controller?.level;
   const maxExtensions = CONTROLLER_STRUCTURES[STRUCTURE_EXTENSION][level];
 
-  let left = maxExtensions - currentExtension.length;
+  let leftExtensionNum = maxExtensions - currentExtension.length;
 
   const spawns = room.find(FIND_MY_SPAWNS);
 
@@ -212,37 +248,58 @@ export const buildExtensions = (room: Room) => {
     const center = spawn.pos;
     let range = 1;
 
-    const generatePositions = (range: number) => {
-      return [
-        // Top
-        new RoomPosition(center.x, center.y - range, center.roomName),
-        // Right
-        new RoomPosition(center.x + range, center.y, center.roomName),
-        // Bottom
-        new RoomPosition(center.x, center.y + range, center.roomName),
-        // Left
-        new RoomPosition(center.x - range, center.y, center.roomName),
-      ];
+    type Pos = [number, number, string];
+
+    const generatePositions = (range: number): Pos[] => {
+      // 生成center 为中心  range为边长的矩形
+      const positions: Pos[] = [];
+
+      for (let x = -range; x <= range; x++) {
+        positions.push([center.x + x, -range, center.roomName,]);
+      }
+
+      for (let y = -range; y <= range; y++) {
+        positions.push([center.x + range, center.y + y, center.roomName,]);
+      }
+      for (let x = range; x >= -range; x--) {
+        positions.push([center.x + x, center.y + range, center.roomName,]);
+      }
+      for (let y = range; y >= -range; y--) {
+        positions.push([center.x - range, center.y + y, center.roomName,]);
+      }
+      return positions;
     };
 
-    while (left > 0) {
-      const positions = generatePositions(range);
-      for (const pos of positions) {
-        if (left <= 0) break;
+    let constructionType = STRUCTURE_ROAD as StructureConstant;
 
-        // Check if the position is buildable
-        const terrain = room.getTerrain().get(pos.x, pos.y);
-        if (terrain === TERRAIN_MASK_WALL) continue;
+    const toggleConstructionType = () => {
+      constructionType = constructionType === STRUCTURE_ROAD ? STRUCTURE_EXTENSION : STRUCTURE_ROAD;
+    }
 
-        const structures = pos.lookFor(LOOK_STRUCTURES);
-        const constructionSites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
-        const hasRoad = structures.some(s => s.structureType === STRUCTURE_ROAD);
+    while (leftExtensionNum > 0 ) {
+      const positionsArray = generatePositions(range);
+      for (const pos of positionsArray) {
+        if (leftExtensionNum <= 0) break;
+        if (pos[0] > 49 || pos[1] > 49 || pos[0] < 0 || pos[1] < 0) continue;
 
-        if (!hasRoad && structures.length === 0 && constructionSites.length === 0) {
-          const result = room.createConstructionSite(pos, STRUCTURE_EXTENSION);
-          if (result === OK) {
-            left--;
-          }
+
+        const posObj = new RoomPosition(pos[0], pos[1], pos[2])
+
+
+        if (!isBuildable(posObj)) continue;
+
+        const result = room.createConstructionSite(posObj, constructionType);
+        log('module/structure/buildExtensions', result, 'constructionType', constructionType, 'leftExtensionNum', leftExtensionNum)
+
+        if (result === OK) {
+
+          if (constructionType === STRUCTURE_EXTENSION) {
+            leftExtensionNum--;
+          };
+
+          toggleConstructionType();
+
+          log('module/structure/buildExtensions', 'toggleConstructionType', constructionType)
         }
       }
       range++;
@@ -250,6 +307,102 @@ export const buildExtensions = (room: Room) => {
   }
 };
 
+
+/**
+ * 建造资源容器
+ * @param room 
+ */
+export const buildSourceContainer = (room: Room) => {
+  const roomMemory = Memory.rooms[room.name];
+
+  if (roomMemory.noSource) {
+    return;
+  }
+
+  roomMemory.sourcesList.forEach(s => {
+
+    // 没有containerId
+    if (!s.containerId) {
+
+      // 没有位置container建造位置
+      if (!s.containerPos) {
+        // 如果是能量资源
+        if (s.sourceType === RESOURCE_ENERGY) {
+          const source = Game.getObjectById(s.id) as Source;
+          const sourcePos = source.pos;
+          const spawn = room.find(FIND_MY_SPAWNS)[0];
+
+          const bestPosition = findBestContainerPosition(source, spawn);
+          s.containerPos = bestPosition;
+          room.createConstructionSite(bestPosition, STRUCTURE_CONTAINER);
+          // 绘制半径
+          room.visual.circle(sourcePos,
+            { fill: 'transparent', radius: 3, stroke: 'red' });
+        }
+
+
+        const sourceType = s.sourceType as MineralConstant;
+        // 如果是矿物
+        if ([RESOURCE_UTRIUM, RESOURCE_LEMERGIUM, RESOURCE_KEANIUM, RESOURCE_ZYNTHIUM, RESOURCE_OXYGEN, RESOURCE_HYDROGEN, RESOURCE_CATALYST].includes(sourceType)) {
+
+          const mineral = Game.getObjectById(s.id) as Mineral;
+          const extractorPosition = mineral.pos;
+
+          // 检查房间等级是否允许建造 StructureExtractor
+          if (room.controller.level >= 6) {
+            const extractorSite = room.createConstructionSite(extractorPosition, STRUCTURE_EXTRACTOR);
+            if (extractorSite === OK) {
+              log('module/structure/buildSourceContainer', `在矿物位置建造 StructureExtractor: ${extractorPosition}`);
+            } else if (extractorSite === ERR_INVALID_TARGET) {
+              log('module/structure/buildSourceContainer', `无法在矿物位置建造 StructureExtractor: ${extractorPosition}`);
+            }
+          }
+
+          const extractor = mineral.pos.lookFor(LOOK_STRUCTURES).find(struct => struct.structureType === STRUCTURE_EXTRACTOR);
+
+          if (extractor) {
+            // 建造容器
+            const spawn = room.find(FIND_MY_SPAWNS)[0];
+            const bestContainerPosition = findBestContainerPosition(mineral, spawn);
+            if (bestContainerPosition) {
+              s.containerPos = bestContainerPosition;
+              room.createConstructionSite(bestContainerPosition, STRUCTURE_CONTAINER);
+              room.visual.circle(mineral.pos, { fill: 'transparent', radius: 3, stroke: 'blue' });
+            }
+          }
+        }
+      }
+
+      // 有位置信息，判断是否创建建造任务
+      // 判断位置的container是否建造完成 此时才能设置建造采集者功能
+      else {
+        const pos = new RoomPosition(s.containerPos.x, s.containerPos.y, s.containerPos.roomName);
+        /** 当前位置的建筑信息 */
+        const structures = room.lookForAt(LOOK_STRUCTURES, pos)
+        const containerIndex = structures.findIndex(s => s.structureType === STRUCTURE_CONTAINER);
+
+        // 判断是否有带建造的建筑
+        /** 有建筑 且是container 但是没有采集者 */
+        if (containerIndex > -1) {
+          s.containerId = structures[containerIndex].id;
+        }
+      };
+    }
+
+    // 有containerId 没有道路
+    if (s.containerId && !s.roaded) {
+      const mySpawns = room.find(FIND_MY_SPAWNS);
+      if (!mySpawns) return
+      const fromPos = mySpawns[0];
+      const toPos = Game.getObjectById(s.containerId) as AnyStructure;
+      const roaded = buildRoadBetween(room, fromPos.pos, toPos.pos);
+      if (roaded) {
+        s.roaded = true
+      }
+    }
+
+  })
+}
 
 export const autoStructure = (room: Room) => {
   // 有控制器的房间
@@ -262,6 +415,9 @@ export const autoStructure = (room: Room) => {
       // 如果达到extension建造上限，则不建造
     }
 
+    buildSourceContainer(room)
+
+
     if (level >= 1) {
       // 一级的时候，建造
     }
@@ -273,5 +429,6 @@ export const autoStructure = (room: Room) => {
   }
 
 }
+
 
 

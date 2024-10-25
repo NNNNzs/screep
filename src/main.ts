@@ -3,11 +3,12 @@ import { ErrorMapper } from "./modules/errorMappere";
 import autoCreate from "./modules/autoCreate";
 import { roomScanner } from "./modules/Scanner";
 import mount from "./modules/mount.js";
-// init();
+// import { debugerForTest } from "./utils";
 
 mount();
 
 export const loop = ErrorMapper.wrapLoop(() => {
+
 
   roomScanner();
 
@@ -16,7 +17,7 @@ export const loop = ErrorMapper.wrapLoop(() => {
 
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
-    creep.run(); 
+    creep.run();
   }
 
 });

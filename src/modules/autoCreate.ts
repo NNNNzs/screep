@@ -91,7 +91,7 @@ const createWorker = (spawnQueue: SpawnQueue) => {
 
 
   if (workers.length < workerLength) {
-    console.log('workers', workers.length, 'w', workerLength, 'h', hasHarvester, 'c', hasCarry)
+    // log('module/autoCreate', 'workers', workers.length, 'w', workerLength, 'h', hasHarvester, 'c', hasCarry)
     spawnQueue.push(ROLE_NAME_ENUM.worker);
   }
 }
@@ -201,8 +201,6 @@ export const isMaxCountBodyPart = (creep: Creep) => {
   maxBody.forEach(t => {
     maxBodyMap[t] += 1
   });
-
-  // console.log(creep.name, 'bodyMap', JSON.stringify(bodyMap), 'maxBodyMap', JSON.stringify(maxBodyMap))
   const isMax = _.isEqual(bodyMap, maxBodyMap);
 
   creep.memory.isMaxCountBody = isMax;

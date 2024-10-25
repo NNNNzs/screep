@@ -2,8 +2,11 @@ export type BodyCreateMap = {
   [key in BodyPartConstant]?: number
 }
 
+
 export function log(first: string, ...args) {
-  console.log(first, ...args)
+  if (first === 'module/structure/buildExtensions') {
+    console.log(first, args)
+  }
 }
 
 /** 
@@ -13,10 +16,9 @@ export function log(first: string, ...args) {
  * @description 根据距离排序 
  * 
 */
-export const sortByRange = (pos: RoomPosition, sortList: AnyStructure[] = []) => {
-  const list = _.cloneDeep(sortList);
+export const sortByRange = (pos: RoomPosition, sortList: RoomObject[] = []) => {
 
-  list.sort((a, b) => {
+  sortList.sort((a, b) => {
     const adistance = a.pos.getRangeTo(pos)
     const bdistance = b.pos.getRangeTo(pos)
     // 返回距离最近的
@@ -70,7 +72,7 @@ export const useCpu = (fun: () => any, name: string) => {
   const res = fun();
   const functionName = name || fun.name;
   const elapsed = Game.cpu.getUsed() - startCpu;
-  console.log(functionName, 'cost', elapsed)
+  log('utils/useCpu', functionName, 'cost', elapsed)
   return res;
 }
 

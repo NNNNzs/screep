@@ -7,6 +7,7 @@ export class ErrorMapper {
   public static get consumer(): SourceMapConsumer {
     if (this._consumer == null) {
       this._consumer = new SourceMapConsumer(require("main.js.map"));
+      console.log('consumer', this._consumer)
     }
 
     return this._consumer;
@@ -73,8 +74,10 @@ export class ErrorMapper {
       try {
         loop();
       } catch (e) {
-        console.log('e',e);
+        // console.log('e',e);
         if (e instanceof Error) {
+          console.log(e.stack);
+          return
           if ("sim" in Game.rooms) {
             const message = `Source maps don't work in the simulator - displaying original error`;
             console.log(`<span style='color:red'>${message}<br>${_.escape(e.stack)}</span>`);

@@ -2,9 +2,9 @@
 import { ROLE_NAME_ENUM, showDash } from "../var.js";
 import { creepExtension } from "../modules/mount.js";
 import { toBuildList, toFixedList } from "@/modules/structure.js";
-import { log } from "@/utils";
+import { log, sortByRange } from "@/utils";
 import { TaskType } from "@/modules/Task.js";
-import { StructureType, findSpawns } from "@/modules/Scanner.js";
+import { StructureType } from "@/modules/Scanner.js";
 import { CREEP_LIFE_TIME_MIN, assignRenewTask, shouldRenew } from "@/behavior/renew.js";
 import taskRunner from "@/task/run.js";
 
@@ -66,11 +66,11 @@ const assignTasks = (creep: Creep) => {
 
   /** 从建筑物里面拿出资源 */
   else if (emptySource && sourceStructure.length > 0) {
-    log(`shouldTake ${creep.name} ${creep.ticksToLive}`);
-
+    log('behavior/work/shouldTake', `shouldTake ${creep.name} ${creep.ticksToLive}`);
     const sourceStructure = _.cloneDeep(Memory.rooms[roomName].sourceStructure);
 
-    console.log('sourceStructure', sourceStructure);
+    log('behavior/work/shouldTake', 'sourceStructure', sourceStructure);
+
 
     if (sourceStructure.length > 1) {
       sourceStructure.sort((a, b) => {
@@ -89,15 +89,14 @@ const assignTasks = (creep: Creep) => {
 
   // 挖矿判断
   else if (emptySource && creep.store.getUsedCapacity() == 0) {
-    log(`shouldMine ${creep.name} ${creep.ticksToLive}`);
+    log(`shouldHarvest ${creep.name} ${creep.ticksToLive}`);
     // 这里应该替换成没有harvester的资源矿
     const sources = creep.room.find(FIND_SOURCES, {
       filter: (s: Source) => s.energy > 0,
     });
 
-    sources.sort((a, b) => {
-      return b.energy - a.energy
-    })
+
+    sortByRange(creep.pos, sources);
 
     if (sources.length !== 0) {
       creep.memory.task = TaskType.harvest;
@@ -142,7 +141,17 @@ const assignTasks = (creep: Creep) => {
   else if (hasSource && toConstructionSite.length > 0) {
     log(`creep ${creep.name} 优先建造`)
     creep.memory.task = TaskType.build;
-    creep.memory.targetId = roomMemory.toConstructionSite[0].id;
+    // 根据带建造的建筑 完成的排序 优先 剩余低的
+    const sortedToConstructionSite = toConstructionSite.sort((a, b) => {
+      // 剩余的进度
+      const aProgress = a.progressTotal - a.progress;
+      // 剩余的进度
+      const bProgress = b.progressTotal - b.progress;
+      // 剩余的进度越小 优先级越高
+      return aProgress - bProgress
+    })
+
+    creep.memory.targetId = sortedToConstructionSite[0].id;
   }
   // 冗余去升级 
   else {

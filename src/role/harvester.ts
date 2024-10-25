@@ -22,7 +22,7 @@ const assignTasks = function (creep: Creep) {
 
 
   const watiSomeTime = () => {
-    console.log('无任务'); // 输出无任务
+    log('behavior/harvester/watiSomeTime', '无任务');
     creep.memory.task = TaskType.wait; // 设置任务为等待
     creep.memory.waitTime = Game.time + 10; // 设置等待时间
   }
@@ -58,13 +58,13 @@ const assignTasks = function (creep: Creep) {
   else if (targetId && target.energy === 0) {
     creep.memory.task = TaskType.wait;
     creep.memory.waitTime = Game.time + target.ticksToRegeneration;
-    log(creep.name, "采集完成 空了，则等待")
+    log('behavior/harvester/shouldWait', creep.name, "采集完成 空了，则等待")
   }
 
   else {
     creep.memory.task = TaskType.wait;
     creep.memory.waitTime = Game.time + 5;
-    log(creep.name, "没有空闲的source了")
+    log('behavior/harvester/shouldWait', creep.name, "没有空闲的source了")
   }
 
 }

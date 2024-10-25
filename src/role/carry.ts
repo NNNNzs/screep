@@ -1,7 +1,7 @@
 import { TaskType } from "@/modules/Task";
 import renew, { CREEP_LIFE_TIME_MIN, assignRenewTask, shouldRenew } from "@/behavior/renew";
 import taskRunner from "@/task/run";
-import { sortByRange, sortByUsedCapacity } from "@/utils";
+import { log, sortByRange, sortByUsedCapacity } from "@/utils";
 import { assignTakeTask } from "@/behavior/take";
 
 /**
@@ -104,7 +104,7 @@ const assignTasks = (creep: Creep) => {
         takeFrom: target
       })
 
-      console.log('take from', STRUCTURE_CONTAINER)
+      log('behavior/carry/getFromContainer', 'take from', STRUCTURE_CONTAINER)
 
 
       return true;
@@ -129,7 +129,7 @@ const assignTasks = (creep: Creep) => {
       filter: (s) => s.amount > 0
     });
 
-    console.log('dropped', dropped)
+    log('behavior/carry/getFromTombstonesAndRuins', 'tombstones', tombstones, 'ruins', ruins, 'dropped', dropped)
 
     if (tombstones.length > 0) {
 
@@ -198,7 +198,7 @@ const assignTasks = (creep: Creep) => {
   }
 
   const watiSomeTime = () => {
-    console.log('无任务'); // 输出无任务
+    log('behavior/carry/watiSomeTime', '无任务')
     creep.memory.task = TaskType.wait; // 设置任务为等待
     creep.memory.waitTime = Game.time + 10; // 设置等待时间
   }
@@ -235,15 +235,15 @@ const assignTasks = (creep: Creep) => {
       }
     }
     else if (shouldRenew(creep)) { // 检查是否需要更新 creep
-      console.log('should renew');
+      log('behavior/carry/shouldRenew', 'should renew')
       assignRenewTask(creep); // 分配更新任务
     }
     // 尝试从墓碑和废墟获取能量
     else if (getFromTombstonesAndRuins()) {
-      console.log('getFromTombstonesAndRuins success');
+      log('behavior/carry/getFromTombstonesAndRuins', 'getFromTombstonesAndRuins success');
     }
     else if (getFromContainer()) { // 再次尝试从容器获取能量
-      console.log('getFromContainer success');
+      log('behavior/carry/getFromContainer', 'getFromContainer success');
     } else {
       watiSomeTime() // 如果都不能获取，等待一段时间
     }

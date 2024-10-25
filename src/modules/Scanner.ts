@@ -1,4 +1,4 @@
-import { findBestContainerPosition, toFixedList, toBuildList, buildRoadBetween } from '@/modules/structure';
+import { findBestContainerPosition, toFixedList, toBuildList, buildRoadBetween, autoStructure } from '@/modules/structure';
 import { ROLE_NAME_ENUM } from '@/var';
 import { SpawnQueue, deleteCreepMemory } from './autoCreate';
 import { log, runAfterTickTask, runPerTime, useCpu } from '@/utils';
@@ -6,6 +6,7 @@ import { globalTask, TaskType } from './Task'
 
 export type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CONTAINER | STRUCTURE_STORAGE | STRUCTURE_TERMINAL | STRUCTURE_TOWER;
 
+/** 扫描所有可见范围的房间，添加Memory */
 export const initMemory = () => {
 
   if (!Memory.rooms) {
@@ -140,25 +141,32 @@ export const findSourceStructure = (room: Room, rank: StructureType[] = [STRUCTU
 
 }
 
-export const findSpawns = () => {
-  for (const spawnName in Game.spawns) {
+/**  */
+export const scanStructure = () => {
 
-    const room = Game.spawns[spawnName].room;
+  for (const roomName in Memory.rooms) {
+    const room = Game.rooms[roomName];
+    if (!room) continue;
 
+    autoStructure(room);
 
-    updateSourceList(room, spawnName);
+    updateSourceList(room);
 
     findEmptySourceStructure(room, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER]);
 
     findSourceStructure(room, [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]);
 
-
+    updateControllerLevel(room);
   }
+
 }
 
 
-export const onControllerLevelChange = (room: Room, oldLevel: number, newLevel: number) => {
+export const onControllerLevelChange = (room: Room) => {
   Memory.rooms[room.name].maxExtension = false;
+  for (const creepName in Game.creeps) {
+    Game.creeps[creepName].memory.isMaxCountBody = false;
+  }
 }
 
 export const updateControllerLevel = (room: Room) => {
@@ -168,7 +176,7 @@ export const updateControllerLevel = (room: Room) => {
     const newLevel = controller.level;
     if (oldLevel !== newLevel) {
       Memory.rooms[room.name].controllerLevel = newLevel
-      onControllerLevelChange(room, oldLevel, newLevel)
+      onControllerLevelChange(room)
     }
   }
 }
@@ -184,14 +192,22 @@ export const updateControllerLevel = (room: Room) => {
  * @param room The room to update
  * @param spawnName The name of the spawn to use for creating new creeps
  */
-export const updateSourceList = (room: Room, spawnName: string) => {
+export const updateSourceList = (room: Room) => {
   const roomName = room.name;
-  const roomMemory = Memory.rooms[roomName]
+  const roomMemory = Memory.rooms[roomName];
+
+  if (roomMemory.noSource) {
+    return;
+  }
 
   // 资源列表
-  if (!roomMemory.noSource && roomMemory.sourcesList.length === 0) {
+  if (roomMemory.sourcesList.length === 0) {
     // 找到资源点
     const sources = room.find(FIND_SOURCES);
+
+    const mineral = room.find(FIND_MINERALS);
+
+
     // 初始化container点的数据
     roomMemory.sourcesList = sources.map(s => {
       return {
@@ -203,7 +219,7 @@ export const updateSourceList = (room: Room, spawnName: string) => {
       }
     });
 
-    const mineral = room.find(FIND_MINERALS);
+
     if (mineral.length > 0) {
       // 有矿物
       mineral.forEach(m => {
@@ -218,108 +234,41 @@ export const updateSourceList = (room: Room, spawnName: string) => {
     }
 
     if (sources.length === 0) {
-      console.log(roomName + "没有资源点");
       roomMemory.noSource = true
     }
   }
 
+  roomMemory.sourcesList.forEach((s, index) => {
 
-  !roomMemory.noSource && roomMemory.sourcesList.forEach((s, index) => {
-
-    // 检查container是否存在
+    // 检查container 是否过期
     if (s.containerId) {
       const container = Game.getObjectById(s.containerId) as StructureContainer;
+
       if (!container) {
         s.containerId = null;
-      } else {
+      }
 
-        if (!Memory.creeps[s.creepId]) {
+      // 如果有container 检查采集者是否过期
+      if (container) {
+
+        const creepDied = !Game.creeps[s.creepId];
+
+        // 如果采集者过期
+        if (creepDied) {
           s.creepId = null
         }
 
-        // 如果 creepId的target不是这个 清楚
-        if (Game.creeps[s.creepId] && Game.creeps[s.creepId].memory.targetId !== s.id) {
+        // 如果 creepId的target不是这个 清除
+
+        if (!creepDied && Game.creeps[s.creepId].memory.targetId !== s.id) {
           s.creepId = null
         }
-
-      }
-    }
-
-    // 判断是否建造道路
-    if (!s.roaded && s.containerId) {
-      const mySpawns = room.find(FIND_MY_SPAWNS);
-      if (!mySpawns) return
-      const fromPos = mySpawns[0];
-      const toPos = Game.getObjectById(s.containerId) as AnyStructure;
-      const roaded = buildRoadBetween(room, fromPos.pos, toPos.pos);
-      if (roaded) {
-        s.roaded = true
-      }
-    }
-
-    if (!s.containerId) {
-
-      // 没有位置container建造位置
-      if (!s.containerPos) {
-        // 如果是能量资源
-        if (s.sourceType === RESOURCE_ENERGY) {
-          const source = Game.getObjectById(s.id) as Source;
-          console.log('source', source);
-          const sourcePos = source.pos;
-          const bestPosition = findBestContainerPosition(source, Game.spawns[spawnName]);
-          s.containerPos = bestPosition;
-          room.createConstructionSite(bestPosition, STRUCTURE_CONTAINER);
-          // 绘制半径
-          room.visual.circle(sourcePos,
-            { fill: 'transparent', radius: 3, stroke: 'red' });
-        }
-
-        // 如果是矿物
-        else {
-          const mineral = Game.getObjectById(s.id) as Mineral;
-          const extractorPosition = mineral.pos;
-
-          // 检查房间等级是否允许建造 StructureExtractor
-          if (room.controller.level >= 1) {
-            const extractorSite = room.createConstructionSite(extractorPosition, STRUCTURE_EXTRACTOR);
-            if (extractorSite === OK) {
-              console.log(`在矿物位置建造 StructureExtractor: ${extractorPosition}`);
-            } else if (extractorSite === ERR_INVALID_TARGET) {
-              console.log(`无法在矿物位置建造 StructureExtractor: ${extractorPosition}`);
-            }
-          }
-
-          const extractor = mineral.pos.lookFor(LOOK_STRUCTURES).find(struct => struct.structureType === STRUCTURE_EXTRACTOR);
-
-          if (extractor) {
-            // 建造容器
-            const bestContainerPosition = findBestContainerPosition(mineral, Game.spawns[spawnName]);
-            if (bestContainerPosition) {
-              s.containerPos = bestContainerPosition;
-              room.createConstructionSite(bestContainerPosition, STRUCTURE_CONTAINER);
-              room.visual.circle(mineral.pos, { fill: 'transparent', radius: 3, stroke: 'blue' });
-            }
-          }
-
-        }
-
-      } else {
-
-        // 有位置信息，判断是否创建建造任务
-        // 判断位置的container是否建造完成 此时才能设置建造采集者功能
-        const pos = new RoomPosition(s.containerPos.x, s.containerPos.y, s.containerPos.roomName);
-        /** 当前位置的建筑信息 */
-        const structures = room.lookForAt(LOOK_STRUCTURES, pos)
-        const containerIndex = structures.findIndex(s => s.structureType === STRUCTURE_CONTAINER);
-        // 判断是否有带建造的建筑
-
-        /** 有建筑 且是container 但是没有采集者 */
-        if (containerIndex > -1) {
-          s.containerId = structures[containerIndex].id;
-        }
-
       };
+
     }
+
+
+
   });
 
 }
@@ -376,24 +325,21 @@ export const findAttackers = () => {
 
 };
 
-
 export const roomScanner = () => {
   // 初始化rooms 
 
-
   initMemory();
 
-  findSpawns();
+  scanStructure();
 
   deleteCreepMemory();
 
   toFixedList();
   findAttackers();
 
-  runPerTime(() => {
-    toBuildList();
-  }, 10);
+  toBuildList();
 
   runAfterTickTask();
+
 
 }

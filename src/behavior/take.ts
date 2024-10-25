@@ -5,7 +5,6 @@ export default function (creep: Creep) {
 
   // 有可能是建筑类型
   const target = Game.getObjectById(creep.memory.targetId) as AnyStoreStructure;
-  // console.log('typeof target', typeof target)
 
   if (target instanceof Resource) {
     const res = creep.pickup(target);
@@ -21,6 +20,7 @@ export default function (creep: Creep) {
     }
   }
 
+  // 如果有指定资源类型 则直接取指定资源类型
   if (creep.memory.sourceType) {
     const sourceType = creep.memory.sourceType;
     const res = creep.withdraw(target, sourceType as ResourceConstant);
@@ -33,7 +33,7 @@ export default function (creep: Creep) {
     if (target.store.getUsedCapacity() < 50) {
       // 如果目标仓库容量小于50，则不继续取资源
       // 因为如果目标仓库容量小于50，则目标仓库已经满了，再取资源也没有意义
-      console.log('target store used capacity', target.store.getUsedCapacity())
+      log('behavior/take/withdraw', 'target store used capacity', target.store.getUsedCapacity())
       return false
     }
 
@@ -45,12 +45,15 @@ export default function (creep: Creep) {
     }
   }
 
+  
+
 
 
   // 有可能是掉落在地上的资源
 
   // 判断是不是掉在地上的资源类型
 
+  // return 
   const success = Object.keys(target.store).some(sourceType => {
 
     const res = creep.withdraw(target, sourceType as ResourceConstant);
@@ -60,13 +63,6 @@ export default function (creep: Creep) {
       creep.moveTo(target);
       return true;
     };
-
-    if (target.store.getUsedCapacity() < 50) {
-      // 如果目标仓库容量小于50，则不继续取资源
-      // 因为如果目标仓库容量小于50，则目标仓库已经满了，再取资源也没有意义
-      console.log('target store used capacity', target.store.getUsedCapacity())
-      return false
-    }
 
     if (res === OK) {
       return true;
