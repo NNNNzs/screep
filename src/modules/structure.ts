@@ -142,14 +142,16 @@ export const generatePostionWithRange = (params: GeneratePostionWithRangeParams)
 export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: RoomPosition) {
   // 使用 PathFinder 查找从 startPos 到 endPos 的路径
   const path = room.findPath(startPos, endPos, { ignoreCreeps: true });
+  // path 去除掉 startPos 和 endPos
+  const newPath = path.slice(1, path.length - 1);
 
   // 检查路径是否为空
-  if (path.length === 0) return false;
+  if (newPath.length === 0) return false;
 
   let roadedLength = 0; // 修正拼写错误
 
   // 遍历路径上的每个位置
-  for (const step of path) {
+  for (const step of newPath) {
     // 去除 startPos 和 endPos
     if (step.x === startPos.x && step.y === startPos.y || step.x === endPos.x && step.y === endPos.y) continue;
 
@@ -193,7 +195,8 @@ export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: Roo
     }
   }
 
-  return roadedLength === path.length
+  return roadedLength === path.length;
+  // return true;
 }
 
 export const isRoomExist = (roomName: string) => {

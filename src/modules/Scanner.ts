@@ -1,4 +1,4 @@
-import { findBestContainerPosition, toFixedList, toBuildList, buildRoadBetween, autoStructure, isRoomExist } from '@/modules/structure';
+import { findBestContainerPosition, toFixedList, toBuildList, autoStructure, isRoomExist } from '@/modules/structure';
 import { ROLE_NAME_ENUM } from '@/var';
 import { SpawnQueue, deleteCreepMemory } from './autoCreate';
 import { log, runAfterTickTask, runPerTime, useCpu } from '@/utils';
@@ -199,12 +199,13 @@ export const roomRoaded = (room: Room) => {
     if (level >= 2) {
       const roaded = energyContainerRoaded();
       checkList.push(roaded);
+      // log.warn('module/Scanner/roomRoaded', 'roaded', roaded)
     }
 
-    else if (level >= 3) {
-      const roaded = energyContainerRoaded();
+    if (level >= 3) {
       const controllerRoaded = roomMemory.controllerRoaded;
-      checkList.push(roaded && controllerRoaded);
+      // log.warn('module/Scanner/roomRoaded', 'controllerRoaded', controllerRoaded)
+      checkList.push(controllerRoaded);
     }
     roomMemory.roaded = checkList.every(e => e);
 
@@ -217,7 +218,7 @@ export const onControllerLevelChange = (room: Room) => {
   Memory.rooms[room.name].maxExtension = false;
   // 重置 道路
   Memory.rooms[room.name].roaded = false;
-  
+
   // 重置 最大工人数
   for (const creepName in Game.creeps) {
     Game.creeps[creepName].memory.isMaxCountBody = false;
