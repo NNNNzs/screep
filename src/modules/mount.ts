@@ -112,7 +112,7 @@ export default function () {
   // 日期设置为八小时之后
   Memory.lastModified = new Date(new Date().getTime() + 8 * 60 * 60 * 1000).toLocaleString();
   Memory.startTick = Game.time;
-  log('module/mount', 'reload at ' + Memory.lastModified);
+  log.warn('module/mount', 'reload at ' + Memory.lastModified);
 
   _.assign(Creep.prototype, creepExtension);
 }

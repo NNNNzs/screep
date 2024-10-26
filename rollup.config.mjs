@@ -26,6 +26,7 @@ const dest = win32 ? config.winPath : config.copyPath;
 
 // 根据指定的配置决定是上传还是复制到文件夹
 const pluginDeploy = () => {
+  console.log('pluginDeploy');
   if (env === 'dev') {
     return copy({
       targets: [
@@ -67,6 +68,7 @@ export default {
     resolve(),
     // 模块化依赖
     commonjs(),
+
 
     typescript({ tsconfig: "./tsconfig.json" }),
 

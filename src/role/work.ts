@@ -8,7 +8,14 @@ import { StructureType } from "@/modules/Scanner.js";
 import { CREEP_LIFE_TIME_MIN, assignRenewTask, shouldRenew } from "@/behavior/renew.js";
 import taskRunner from "@/task/run.js";
 
-
+// 建造列表的优先级
+const BUILD_PRIORITY = {
+  [STRUCTURE_SPAWN]: 99,
+  [STRUCTURE_STORAGE]: 98,
+  [STRUCTURE_CONTAINER]: 97,
+  [STRUCTURE_EXTENSION]: 95,
+  [STRUCTURE_ROAD]: 90,
+}
 
 const assignTasks = (creep: Creep) => {
 
@@ -33,7 +40,7 @@ const assignTasks = (creep: Creep) => {
 
 
   /** 是否需要优先升级 */
-  const shouldUpdate = creep.room.controller.ticksToDowngrade < 10000;
+  const shouldUpdate = creep.room.controller.ticksToDowngrade < 10000 || Game.rooms[roomName].controller.level <= 3;
 
 
   const hasCarry = roomMemory.carrysLength > 0;
@@ -141,17 +148,24 @@ const assignTasks = (creep: Creep) => {
   else if (hasSource && toConstructionSite.length > 0) {
     log(`creep ${creep.name} 优先建造`)
     creep.memory.task = TaskType.build;
-    // 根据带建造的建筑 完成的排序 优先 剩余低的
-    const sortedToConstructionSite = toConstructionSite.sort((a, b) => {
-      // 剩余的进度
-      const aProgress = a.progressTotal - a.progress;
-      // 剩余的进度
-      const bProgress = b.progressTotal - b.progress;
-      // 剩余的进度越小 优先级越高
-      return aProgress - bProgress
-    })
+    // 根据优先级和剩余进度排序
+    toConstructionSite.sort((a, b) => {
+      const aPriority = BUILD_PRIORITY[a.structureType] || 0;
+      const bPriority = BUILD_PRIORITY[b.structureType] || 0;
+      // 优先级越大 优先级越高
+      if (bPriority !== aPriority) {
+        return bPriority - aPriority;
+      }
+      // 如果优先级相同，根据剩余进度排序
+      const aProgress = a.progress / a.progressTotal;
+      const bProgress = b.progress / b.progressTotal;
+      // 剩余的进度越大 优先级越高
+      return bProgress - aProgress
+    });
 
-    creep.memory.targetId = sortedToConstructionSite[0].id;
+    log('behavior/work/build', 'toConstructionSite', toConstructionSite.map(s => s.structureType));
+
+    creep.memory.targetId = toConstructionSite[0].id;
   }
   // 冗余去升级 
   else {

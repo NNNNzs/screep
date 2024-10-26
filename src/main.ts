@@ -9,7 +9,7 @@ mount();
 
 export const loop = ErrorMapper.wrapLoop(() => {
 
-
+  // console.log('loop', Game.time);
   roomScanner();
 
   autoCreate.run();
@@ -18,6 +18,13 @@ export const loop = ErrorMapper.wrapLoop(() => {
   for (const name in Game.creeps) {
     const creep = Game.creeps[name];
     creep.run();
+  }
+
+  for (const flag of Object.values(Game.flags)) {
+
+    if (flag.name.startsWith('explorer')) {
+      // explorer.run(flag.pos);
+    }
   }
 
 });

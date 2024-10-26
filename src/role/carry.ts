@@ -67,14 +67,15 @@ const assignTasks = (creep: Creep) => {
 
 
   /** 从桶中取能量 */
-  const getFromStorage = () => {
-    const storageEnergy = storage.store.getUsedCapacity(RESOURCE_ENERGY); // 获取存储能量
+  const getFromStorage = (sourceType?: ResourceConstant) => {
+    const storageEnergy = storage.store.getUsedCapacity(sourceType); // 获取存储能量
     if (storageEnergy > 0) {
-      creep.say('getFromStorage');
+      
       assignTakeTask(creep, {
         targetId: storage.id,
         taskType: TaskType.take,
         targetType: STRUCTURE_STORAGE,
+        sourceType: sourceType,
         takeFrom: storage
       })
       creep.say('getFromStorage success');
@@ -87,10 +88,12 @@ const assignTasks = (creep: Creep) => {
   }
 
   /** 从容器中取能量 */
-  const getFromContainer = () => {
+  const getFromContainer = (sourceType?: ResourceConstant) => {
+
+    // return false;
     // 获取可用的容器
     const containers = room.find(FIND_STRUCTURES, {
-      filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity() >= 0
+      filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity(sourceType) >= 0
     }) as StructureContainer[];
 
     if (containers.length > 0) {
@@ -101,6 +104,7 @@ const assignTasks = (creep: Creep) => {
         targetId: target.id,
         taskType: TaskType.take,
         targetType: STRUCTURE_CONTAINER,
+        sourceType: sourceType,
         takeFrom: target
       })
 
@@ -164,6 +168,7 @@ const assignTasks = (creep: Creep) => {
         targetType: target,
         takeFrom: target
       })
+      return true;
     }
 
     return false;
@@ -223,11 +228,11 @@ const assignTasks = (creep: Creep) => {
     if (needCarryEnergy) { // 检查是否需要携带能量
       creep.say('need carry energy');
       // 不能从桶里拿
-      if (getFromStorage()) {
+      if (getFromStorage(RESOURCE_ENERGY)) {
         creep.say('getFromStorage');
       } // 尝试从存储获取能量
       // 不能从容器里拿
-      else if (getFromContainer()) { // 尝试从容器获取能量
+      else if (getFromContainer(RESOURCE_ENERGY)) { // 尝试从容器获取能量
         creep.say('getFromContainer');
       } else {
         creep.say('watiSomeTime');

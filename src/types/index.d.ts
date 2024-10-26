@@ -30,10 +30,13 @@ declare global {
     fun: Function
   }
 
+  type LogLevel = 'info' | 'warn' | 'error' | 'all';
   interface Memory {
     lastModified: string;
     startTick: number;
     stats?: stateItem;
+    logLevel: LogLevel[];
+    logBan: string[];
 
     taskList: TaskItem[];
 
@@ -72,7 +75,7 @@ declare global {
   }
 
   interface SourceListItem {
-    id: string,
+    id: Resource['id'] | Mineral['id'] | Source['id'],
     sourceType: ResourceConstant,
     linkId?: string,
     containerId: string,
@@ -97,6 +100,12 @@ declare global {
     terminalId?: string;
 
     transferList?: transferItem[];
+
+    /** 是否已经道路齐全 */
+    roaded?: boolean;
+
+    /** 控制器是否已经道路齐全 */
+    controllerRoaded?: boolean;
 
 
     /** 无资源的过道房间 */

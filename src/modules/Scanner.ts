@@ -1,4 +1,4 @@
-import { findBestContainerPosition, toFixedList, toBuildList, buildRoadBetween, autoStructure } from '@/modules/structure';
+import { findBestContainerPosition, toFixedList, toBuildList, buildRoadBetween, autoStructure, isRoomExist } from '@/modules/structure';
 import { ROLE_NAME_ENUM } from '@/var';
 import { SpawnQueue, deleteCreepMemory } from './autoCreate';
 import { log, runAfterTickTask, runPerTime, useCpu } from '@/utils';
@@ -8,6 +8,10 @@ export type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CO
 
 /** 扫描所有可见范围的房间，添加Memory */
 export const initMemory = () => {
+
+  if (!Memory.logLevel) {
+  }
+  Memory.logLevel = ['info', 'warn', 'error', 'all'];
 
   if (!Memory.rooms) {
     Memory.rooms = {};
@@ -157,13 +161,64 @@ export const scanStructure = () => {
     findSourceStructure(room, [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]);
 
     updateControllerLevel(room);
+
+    roomRoaded(room);
   }
 
 }
 
+export const roomRoaded = (room: Room) => {
+
+
+  const roomName = room.name;
+  const roomMemory = Memory.rooms[roomName];
+
+  runPerTime(() => {
+    roomMemory.roaded = false;
+  }, 601)
+
+  if (roomMemory.roaded) {
+    return true
+  };
+
+  if (room.controller && room.controller.my) {
+    const controller = room.controller;
+    const level = controller.level;
+
+    const energyContainerRoaded = () => {
+      const sourceNotRoaded = roomMemory.sourcesList.some(s => {
+        if (s.sourceType === RESOURCE_ENERGY && !s.roaded) {
+          return false
+        }
+        return true
+      });
+      return !sourceNotRoaded
+    }
+    let checkList = [];
+
+    if (level >= 2) {
+      const roaded = energyContainerRoaded();
+      checkList.push(roaded);
+    }
+
+    else if (level >= 3) {
+      const roaded = energyContainerRoaded();
+      const controllerRoaded = roomMemory.controllerRoaded;
+      checkList.push(roaded && controllerRoaded);
+    }
+    roomMemory.roaded = checkList.every(e => e);
+
+  }
+}
+
 
 export const onControllerLevelChange = (room: Room) => {
+  // 重置 最大扩展 
   Memory.rooms[room.name].maxExtension = false;
+  // 重置 道路
+  Memory.rooms[room.name].roaded = false;
+  
+  // 重置 最大工人数
   for (const creepName in Game.creeps) {
     Game.creeps[creepName].memory.isMaxCountBody = false;
   }
@@ -276,6 +331,8 @@ export const updateSourceList = (room: Room) => {
 /** 查找敌人 */
 export const findAttackers = () => {
   Object.keys(Memory.rooms).forEach(roomName => {
+
+    if (!Game.rooms[roomName]) return;
 
     if (!Memory.rooms[roomName].attackers) {
       Memory.rooms[roomName].attackers = [];

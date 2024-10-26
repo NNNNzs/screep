@@ -331,9 +331,13 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
     if (bodyMap[key] === 0) {
       delete bodyMap[key];
     }
-  })
+  });
 
-  log('available', room.energyAvailable, 'bodyMap', JSON.stringify(bodyMap), 'cost', cost);
+  if (Memory.rooms[room.name].roaded) {
+    // bodyMap[MOVE] 除以二 向上取整
+    bodyMap[MOVE] = Math.ceil(bodyMap[MOVE] / 2);
+  }
+
 
   return createBodyWithMap(bodyMap);
 
@@ -345,13 +349,14 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
 const freeEnergy = 300;
 export default {
   run() {
-
     Object.keys(Game.spawns).forEach((key) => {
       const spawn = Game.spawns[key];
 
       if (spawn.spawning) {
+        log('spawn.spawning', spawn.spawning);
         return;
       };
+      // log('spawn', spawn.room.name, spawn.room.energyAvailable)
       // 低于300 就不考虑 了
       if (spawn.room.energyAvailable < freeEnergy) {
         return
@@ -365,6 +370,7 @@ export default {
       createCarry(spawnQueue);
 
       // createExplorer(spawnQueue);
+
 
 
       if (spawnQueue.length > 0) {
