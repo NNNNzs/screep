@@ -103,13 +103,13 @@ const assignTasks = (creep: Creep) => {
       const newContainers = sortByUsedCapacity(containers, { orderBy: 'desc', resource: sourceType })
       const target = newContainers[0];
 
-      const source = roomMemory.sourcesList.find(e => e.containerId === target.id);
+      // const source = roomMemory.sourcesList.find(e => e.containerId === target.id);
 
-      const containerResourceType = source?.sourceType;
-      if (!sourceType && containerResourceType) {
-        sourceType = containerResourceType;
-        log.info('behavior/carry/getFromContainer', 'containerResourceType', containerResourceType)
-      }
+      // const containerResourceType = source?.sourceType;
+      // if (!sourceType && containerResourceType) {
+      //   sourceType = containerResourceType;
+      //   log.info('behavior/carry/getFromContainer', 'containerResourceType', containerResourceType)
+      // }
 
 
       assignTakeTask(creep, {

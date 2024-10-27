@@ -1,4 +1,15 @@
 
+interface GraphNode {
+  roomName: string;
+  visited: boolean;
+  exits: RoomPosition[];
+};
+
+//  构建一个图，每个房间的出口，然后每个房间的出口都连通
+class Graph {
+  nodes: { [key: string]: RoomPosition[] } = {};
+}
+
 export const isMaxControllerRooms = () => {
   // 判断当前控制的房间数量是否达到上限
   const controllerLevelRooms = Object.keys(Game.rooms).filter(roomName => Game.rooms[roomName].controller?.my);
@@ -16,7 +27,8 @@ const run = function (creep: Creep) {
   // 找到房间的出口
   // 找到房间的出口
   const exits = creep.room.find(FIND_EXIT);
-  if (exits.length === 0) return;
+
+
   const exit = exits[Math.floor(Math.random() * exits.length)];
 
 

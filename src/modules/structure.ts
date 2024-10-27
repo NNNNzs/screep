@@ -317,6 +317,41 @@ export const isOverBorder = (pos: RoomPosition) => {
   return pos.x > 49 || pos.y > 49 || pos.x < 0 || pos.y < 0
 }
 
+// 拆除某个坐标的所有建筑 和 建设中的建筑
+export const destroyStructure = (pos: RoomPosition) => {
+  pos.lookFor(LOOK_STRUCTURES).forEach(s => s.destroy());
+  pos.lookFor(LOOK_CONSTRUCTION_SITES).forEach(s => s.remove());
+}
+
+const canBeDestroyedStructure: StructureConstant[] = [STRUCTURE_ROAD, STRUCTURE_EXTENSION,];
+
+/** 环 stoage 周围 可以建造的点 */
+export const randStorageBuildAble = (pos: RoomPosition, destroyStructureType: StructureConstant[] = canBeDestroyedStructure) => {
+  const terrain = Game.map.getRoomTerrain(pos.roomName);
+
+  // 判断这个坐标是不是 road 或者extension 或者空地
+  if (terrain.get(pos.x, pos.y) === TERRAIN_MASK_WALL) {
+    return false;
+  }
+
+  const structures = pos.lookFor(LOOK_STRUCTURES);
+  const constructionSites = pos.lookFor(LOOK_CONSTRUCTION_SITES);
+
+  if (structures.length === 0 && constructionSites.length === 0) {
+    return true;
+  };
+
+  const structuresCanBeDestroyed = structures.every(s => destroyStructureType.includes(s.structureType));
+  const constructionSitesCanBeDestroyed = constructionSites.every(s => destroyStructureType.includes(s.structureType));
+
+  if (structuresCanBeDestroyed && constructionSitesCanBeDestroyed) {
+    return true;
+  }
+
+
+  return false;
+}
+
 export function isBuildable(pos: RoomPosition): boolean {
   // Check if the terrain is not a wall
   const terrain = Game.map.getRoomTerrain(pos.roomName);
@@ -585,6 +620,7 @@ export const buildSourceContainer = (room: Room, targetPos?: RoomPosition) => {
   })
 }
 
+/** 建造控制器道路 */
 export const buildControllerRoad = (room: Room, targetPos?: RoomPosition) => {
   const roomMemory = Memory.rooms[room.name];
 
@@ -604,6 +640,33 @@ export const buildControllerRoad = (room: Room, targetPos?: RoomPosition) => {
   if (success) {
     roomMemory.controllerRoaded = true;
   }
+}
+
+export const buildLink = (room: Room) => {
+  /** 5级2个 6级3个 7级4个 */
+
+  const storage = room.storage;
+
+  const link = room.find(FIND_STRUCTURES, {
+    filter: object => object.structureType === STRUCTURE_LINK
+  });
+
+  const center = storage.pos;
+
+  const { getCurrentPos, getCurrentIndex } = generatePostionWithRange({
+    center: center,
+    skipUnbuildable: false,
+    range: 2,
+  });
+
+  const pos = getCurrentPos();
+
+
+  // 如果是
+  // 
+
+
+
 }
 
 export const autoStructure = (room: Room) => {

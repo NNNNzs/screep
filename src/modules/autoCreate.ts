@@ -165,7 +165,7 @@ export const isMaxCountBodyPart = (creep: Creep) => {
   }
 
   // 如果有缓存的isMaxCoutBody 则直接返回
-  if (creep.memory.isMaxCountBody) {
+  if (creep.memory.isMaxCountBody === true || creep.memory.isMaxCountBody === false) {
     return creep.memory.isMaxCountBody;
   }
 
@@ -335,7 +335,10 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
 
   if (Memory.rooms[room.name].roaded) {
     // bodyMap[MOVE] 除以二 向上取整
+    const preMoveLength = bodyMap[MOVE];
     bodyMap[MOVE] = Math.ceil(bodyMap[MOVE] / 2);
+    const nextMoveLength = bodyMap[MOVE];
+    log.warn('moudle/autoCreate', 'createBody', roleName, 'preMoveLength', preMoveLength, 'nextMoveLength', nextMoveLength)
   }
 
 

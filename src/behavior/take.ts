@@ -75,7 +75,7 @@ export default function (creep: Creep) {
     if (res === OK) {
       return true;
     } else {
-      log.warn('behavior/take5', 'target', creep, target, target.store, sourceType)
+      // log.warn('behavior/take5', 'target', creep, target, target.store, sourceType)
       return false;
     }
 

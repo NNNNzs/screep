@@ -10,8 +10,8 @@ export type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CO
 export const initMemory = () => {
 
   if (!Memory.logLevel) {
+    Memory.logLevel = ['info', 'warn', 'error'];
   }
-  Memory.logLevel = ['info', 'warn', 'error', 'all'];
 
   if (!Memory.rooms) {
     Memory.rooms = {};
@@ -152,6 +152,7 @@ export const scanStructure = () => {
     const room = Game.rooms[roomName];
     if (!room) continue;
 
+    
     autoStructure(room);
 
     updateSourceList(room);
@@ -188,9 +189,9 @@ export const roomRoaded = (room: Room) => {
     const energyContainerRoaded = () => {
       const sourceNotRoaded = roomMemory.sourcesList.some(s => {
         if (s.sourceType === RESOURCE_ENERGY && !s.roaded) {
-          return false
+          return true
         }
-        return true
+        return false
       });
       return !sourceNotRoaded
     }
@@ -207,6 +208,7 @@ export const roomRoaded = (room: Room) => {
       // log.warn('module/Scanner/roomRoaded', 'controllerRoaded', controllerRoaded)
       checkList.push(controllerRoaded);
     }
+    log.warn('module/Scanner/roomRoaded', 'checkList', checkList)
     roomMemory.roaded = checkList.every(e => e);
 
   }

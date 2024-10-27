@@ -92,7 +92,7 @@ export const sortByUsedCapacity = (list: AnyStoreStructure[], {
   orderBy = 'asc',
   resource
 }: SortByUsedCapacityOptions = { orderBy: 'asc' }) => {
-  if (list.length <= 1) return;
+  if (list.length <= 1) return list;
   const order = orderBy === 'asc' ? 1 : -1;
   const newList = list.map((e => {
     return Game.getObjectById(e.id) as AnyStoreStructure
