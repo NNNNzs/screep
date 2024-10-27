@@ -130,7 +130,7 @@ declare global {
     spawnQueue: ROLE_NAME_ENUM[]
 
     /** 能量未满的生产建筑 spwan extension */
-    emptyStructureList?: AnyStructure['id'][]
+    emptyStructureList?: AnyStoreStructure['id'][]
 
     /** 可以拿能量的建筑 */
     sourceStructure?: AnyStoreStructure['id'][];

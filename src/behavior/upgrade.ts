@@ -14,7 +14,7 @@ export default function (creep: Creep) {
 
   // 如果有其他东西，先送到storage
   if (creep.store.getUsedCapacity() !== creep.store.getUsedCapacity(RESOURCE_ENERGY)) {
-    assignCarryTask(creep, { targetId: creep.room.storage.id });
+    assignCarryTask(creep, { targetId: creep.room.storage.id, targetType: STRUCTURE_STORAGE });
   }
 
   const res = creep.upgradeController(controller);

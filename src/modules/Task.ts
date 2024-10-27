@@ -146,27 +146,3 @@ export class Task {
 
 
 export const globalTask = new Task();
-
-
-const getSourceTask = (roomName) => {
-
-  const sourceStructure = _.cloneDeep(Memory.rooms[roomName].sourceStructure);
-  if (sourceStructure.length > 1) {
-    sourceStructure.sort((a, b) => {
-      const aSource = Game.getObjectById(a) as StructureContainer
-      const bSource = Game.getObjectById(b) as StructureContainer
-      // 根据剩余能量排序
-      return bSource.store.getUsedCapacity(RESOURCE_ENERGY) - aSource.store.getUsedCapacity(RESOURCE_ENERGY);
-    });
-  }
-  const target = sourceStructure[0];
-
-  if (target) {
-    return {
-      type: TaskType.take,
-      targetId: target
-    }
-  } else {
-    return null;
-  }
-}

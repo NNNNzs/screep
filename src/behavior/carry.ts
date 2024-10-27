@@ -50,12 +50,10 @@ export default function (creep: Creep) {
 
 
 }
-interface AssignCarryTaskParams {
-  targetId: Id<AnyStoreStructure>,
-}
 
 interface AssignCarryTaskParams {
   targetId: Id<AnyStoreStructure>,
+  targetType: StructureConstant,
   sourceType?: ResourceConstant,
   amount?: number
 }
@@ -70,6 +68,8 @@ interface AssignCarryTaskParams {
 export const assignCarryTask = function (creep: Creep, params: AssignCarryTaskParams) {
   creep.memory.task = TaskType.carry;
   creep.memory.targetId = params.targetId
+  creep.memory.taskType = TaskType.carry
+  creep.memory.targetType = params.targetType;
 
   if (params.sourceType) {
     creep.memory.sourceType = params.sourceType;

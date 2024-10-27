@@ -1,4 +1,4 @@
-const sleepTime = 100;
+const sleepTime = 2;
 export default function (creep: Creep) {
   if (creep.memory.waitTime) {
     if (Game.time > creep.memory.waitTime) {

@@ -11,8 +11,6 @@ import { assignTakeTask } from "@/behavior/take";
  * 3. 
  */
 
-// 新增：定义资源优先级
-const RESOURCE_PRIORITY = [RESOURCE_ENERGY, RESOURCE_POWER, RESOURCE_GHODIUM, /* 其他资源类型 */];
 
 // 新增：定义任务优先级
 const TASK_PRIORITY = {
@@ -70,7 +68,7 @@ const assignTasks = (creep: Creep) => {
   const getFromStorage = (sourceType?: ResourceConstant) => {
     const storageEnergy = storage.store.getUsedCapacity(sourceType); // 获取存储能量
     if (storageEnergy > 0) {
-      
+
       assignTakeTask(creep, {
         targetId: storage.id,
         taskType: TaskType.take,
@@ -92,13 +90,27 @@ const assignTasks = (creep: Creep) => {
 
     // return false;
     // 获取可用的容器
+
     const containers = room.find(FIND_STRUCTURES, {
-      filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity(sourceType) >= 0
+      filter: (s) => s.structureType === STRUCTURE_CONTAINER && s.store.getUsedCapacity(sourceType) > 0
     }) as StructureContainer[];
 
+    if (!containers || containers.length === 0) {
+      return false;
+    }
+
     if (containers.length > 0) {
-      sortByUsedCapacity(containers, { orderBy: 'desc' })
-      const target = containers[0];
+      const newContainers = sortByUsedCapacity(containers, { orderBy: 'desc', resource: sourceType })
+      const target = newContainers[0];
+
+      const source = roomMemory.sourcesList.find(e => e.containerId === target.id);
+
+      const containerResourceType = source?.sourceType;
+      if (!sourceType && containerResourceType) {
+        sourceType = containerResourceType;
+        log.info('behavior/carry/getFromContainer', 'containerResourceType', containerResourceType)
+      }
+
 
       assignTakeTask(creep, {
         targetId: target.id,
@@ -108,12 +120,10 @@ const assignTasks = (creep: Creep) => {
         takeFrom: target
       })
 
-      log('behavior/carry/getFromContainer', 'take from', STRUCTURE_CONTAINER)
-
-
+      log.info('behavior/carry/getFromContainer', 'take from', STRUCTURE_CONTAINER)
       return true;
     } else {
-      creep.say('no energy container'); // 如果没有可用容器，发出提示
+      log.warn('behavior/carry/getFromContainer', 'no energy container')
       return false;
     }
   };
@@ -226,29 +236,29 @@ const assignTasks = (creep: Creep) => {
   }
   else { // 如果没有资源
     if (needCarryEnergy) { // 检查是否需要携带能量
-      creep.say('need carry energy');
+      log('behavior/carry/needCarryEnergy', 'need carry energy')
       // 不能从桶里拿
       if (getFromStorage(RESOURCE_ENERGY)) {
-        creep.say('getFromStorage');
+        log('behavior/carry/getFromStorage', 'getFromStorage success');
       } // 尝试从存储获取能量
       // 不能从容器里拿
       else if (getFromContainer(RESOURCE_ENERGY)) { // 尝试从容器获取能量
-        creep.say('getFromContainer');
+        // log.info('behavior/carry/getFromContainer', 'needCarryEnergy', 'getFromContainer success');
       } else {
-        creep.say('watiSomeTime');
+        log.warn('behavior/carry/watiSomeTime', '无任务')
         watiSomeTime() // 如果都不能获取，等待一段时间
       }
     }
     else if (shouldRenew(creep)) { // 检查是否需要更新 creep
-      log('behavior/carry/shouldRenew', 'should renew')
+      // log.info('behavior/carry/shouldRenew', 'should renew')
       assignRenewTask(creep); // 分配更新任务
     }
     // 尝试从墓碑和废墟获取能量
     else if (getFromTombstonesAndRuins()) {
-      log('behavior/carry/getFromTombstonesAndRuins', 'getFromTombstonesAndRuins success');
+      log.info('behavior/carry/getFromTombstonesAndRuins', 'getFromTombstonesAndRuins success');
     }
     else if (getFromContainer()) { // 再次尝试从容器获取能量
-      log('behavior/carry/getFromContainer', 'getFromContainer success');
+      // log.warn('behavior/carry/getFromContainer', 'needCarry', 'getFromContainer success');
     } else {
       watiSomeTime() // 如果都不能获取，等待一段时间
     }

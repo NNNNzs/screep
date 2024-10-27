@@ -43,8 +43,12 @@ global.clearMemeory = () => {
 
 global.showPos = (id: AnyStructure['id']) => {
   const obj = Game.getObjectById(id);
-  // log('module/mount', 'showPos', obj.room.name,obj);
-  obj.room.visual.circle(obj.pos, { stroke: "#ffaa00" });
+  if (!obj) {
+    log.warn('module/mount/showPos', 'no obj', id)
+    return;
+  }
+  log.info('module/mount/showPos', obj.room.name, obj, obj.pos);
+  obj.room.visual.circle(obj.pos, { stroke: "#ffaa00", radius: 10 });
 }
 
 

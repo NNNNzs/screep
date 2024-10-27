@@ -11,6 +11,7 @@ export const assignRenewTask = (creep: Creep) => {
   if (nearestSpawn) {
     creep.memory.task = TaskType.renew;
     creep.memory.targetId = nearestSpawn.id;
+    creep.memory.targetType = STRUCTURE_SPAWN;
   }
 }
 
@@ -26,8 +27,9 @@ export const shouldRenew = (creep: Creep) => {
   // 3. 检查房间能量情况
   const room = creep.room;
   const energyAvailable = room.energyAvailable;
-  const energyCapacityAvailable = room.energyCapacityAvailable;
-  const energySufficient = energyAvailable > energyCapacityAvailable * 0.8;
+  const energyCapacityAvailable = isNaN(room.energyCapacityAvailable) ? room.energyAvailable : room.energyCapacityAvailable;
+  const energySufficient = energyAvailable > energyCapacityAvailable * 0.5;
+  // log.warn('behavior/renew', 'energyAvailable', energyAvailable, 'energyCapacityAvailable', energyCapacityAvailable, 'energySufficient', energySufficient)
 
 
 
@@ -35,22 +37,9 @@ export const shouldRenew = (creep: Creep) => {
   const flag = ticksToLive &&
     maxCountBodyPart &&
     energySufficient
-
-
-  // 记录日志
-  // log(
-  //   creep.name,
-  //   flag,
-  //   'renewCheck:',
-  //   'ticksToLive:', ticksToLive,
-  //   'maxCountBodyPart:', maxCountBodyPart,
-  //   'energySufficient:', energySufficient,
-  //   'isExpensive:', isExpensive,
-  //   'availableSpawn:', availableSpawn,
-  //   'isPerformingCriticalTask:', isPerformingCriticalTask
-  // );
-
-  // 决定是否应该更新
+  if (flag) {
+    log.info('behavior/renew', 'shouldRenew', creep.name, ticksToLive);
+  }
   return flag
 }
 

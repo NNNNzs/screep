@@ -112,7 +112,7 @@ export const generatePostionWithRange = (params: GeneratePostionWithRangeParams)
       generatePositions();
       range++;
     }
-    log.warn('module/structure/generatePostionWithRange', 'currentIndex', currentIndex, 'positionsArray.length', positionsArray, positionsArray.length)
+    // log.warn('module/structure/generatePostionWithRange', 'currentIndex', currentIndex, 'positionsArray.length', positionsArray, positionsArray.length)
 
     // if (currentIndex === positionsArray.length - 1) {
     //   generatePositions();
@@ -195,8 +195,8 @@ export function buildRoadBetween(room: Room, startPos: RoomPosition, endPos: Roo
     }
   }
 
-  return roadedLength === path.length;
-  // return true;
+  // return roadedLength === path.length;
+  return true;
 }
 
 export const isRoomExist = (roomName: string) => {
@@ -269,7 +269,7 @@ export const toBuildList = () => {
 export const isMaxExtension = (room: Room) => {
 
   // 每个600tick 重置maxExtension
-  runPerTime(() => {
+  runPerTime(function resetMaxExtension() {
     Memory.rooms[room.name].maxExtension = false;
   }, 600);
 
@@ -415,7 +415,7 @@ export const buildExtensions = (room: Room) => {
     // return false;
     while (leftExtensionNum > 0) {
       const posObj = getCurrentPos();
-      log.error('module/structure/buildExtensions', 'getIndex', getCurrentIndex());
+      // log.error('module/structure/buildExtensions', 'getIndex', getCurrentIndex());
 
       const result = room.createConstructionSite(posObj, constructionType);
 
@@ -587,7 +587,12 @@ export const buildSourceContainer = (room: Room, targetPos?: RoomPosition) => {
 
 export const buildControllerRoad = (room: Room, targetPos?: RoomPosition) => {
   const roomMemory = Memory.rooms[room.name];
-  if (roomMemory.controllerRoad) {
+
+  runPerTime(function resetControllerRoaded() {
+    roomMemory.controllerRoaded = false;
+  }, 603);
+
+  if (roomMemory.controllerRoaded) {
     return true
   }
   let target: RoomPosition;
@@ -597,7 +602,7 @@ export const buildControllerRoad = (room: Room, targetPos?: RoomPosition) => {
   }
   const success = buildRoadBetween(room, target, room.controller.pos)
   if (success) {
-    roomMemory.controllerRoad = true;
+    roomMemory.controllerRoaded = true;
   }
 }
 

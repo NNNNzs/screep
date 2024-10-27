@@ -20,17 +20,16 @@ log.info = function (first: string, ...args) {
     console.log(`<span style='color:green'>[info] ${first}</span>`, args)
   }
 }
-log.error = function (first: string, ...args) {
-  if (Memory.logLevel?.includes('error') || Memory.logLevel?.includes('all')) {
-    if (disaabled(first)) return;
-    console.log(`<span style='color:red'>[error] ${first}</span>`, args)
-  }
-}
-
 log.warn = function (first: string, ...args) {
   if (Memory.logLevel?.includes('warn') || Memory.logLevel?.includes('all')) {
-    if (disaabled(first)) return;
+
     console.log(`<span style='color:yellow'>[warn] ${first}</span>`, args)
+  }
+}
+log.error = function (first: string, ...args) {
+  if (Memory.logLevel?.includes('error') || Memory.logLevel?.includes('all')) {
+
+    console.log(`<span style='color:red'>[error] ${first}</span>`, args)
   }
 }
 log.addLevel = function (level: LogLevel) {
@@ -93,9 +92,19 @@ export const sortByUsedCapacity = (list: AnyStoreStructure[], {
   orderBy = 'asc',
   resource
 }: SortByUsedCapacityOptions = { orderBy: 'asc' }) => {
-  list.sort((a, b) => {
-    return orderBy === 'asc' ? a.store.getUsedCapacity(resource) - b.store.getUsedCapacity(resource) : b.store.getUsedCapacity(resource) - a.store.getUsedCapacity(resource);
-  })
+  if (list.length <= 1) return;
+  const order = orderBy === 'asc' ? 1 : -1;
+  const newList = list.map((e => {
+    return Game.getObjectById(e.id) as AnyStoreStructure
+  }));
+  // log.info('utils/sortByUsedCapacity', 'newList', newList)
+
+  newList.sort((a, b) => {
+    return order * (a.store.getUsedCapacity(resource) - b.store.getUsedCapacity(resource));
+  });
+
+  return newList;
+
 }
 
 /**
@@ -133,6 +142,7 @@ export const useCpu = (fun: () => any, name: string) => {
 /** 每多少tick运行一次 */
 export const runPerTime = (fun: () => any, everyTick: number) => {
   if (Game.time % everyTick === 0) {
+    log.info('utils/runPerTime', fun.name, 'run')
     return fun()
   }
 }

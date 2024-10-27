@@ -6,6 +6,11 @@ export default function (creep: Creep) {
   // 有可能是建筑类型
   const target = Game.getObjectById(creep.memory.targetId) as AnyStoreStructure;
 
+  if (!target) {
+    log.warn('behavior/take1', 'target not found', creep.memory.targetId)
+    return false
+  }
+
   if (target instanceof Resource) {
     const res = creep.pickup(target);
     if (res == ERR_NOT_IN_RANGE) {
@@ -19,12 +24,12 @@ export default function (creep: Creep) {
       return false
     }
   }
+  // log.warn('behavior/take2', 'target', target, target.store,)
 
   // 如果有指定资源类型 则直接取指定资源类型
   if (creep.memory.sourceType) {
     const sourceType = creep.memory.sourceType;
     const res = creep.withdraw(target, sourceType as ResourceConstant);
-
     if (res == ERR_NOT_IN_RANGE) {
       creep.moveTo(target);
       return true;
@@ -45,7 +50,8 @@ export default function (creep: Creep) {
     }
   }
 
-  
+
+
 
 
 
@@ -54,11 +60,13 @@ export default function (creep: Creep) {
   // 判断是不是掉在地上的资源类型
 
   // return 
+  // log.warn('behavior/take4', 'target', target, target.store)
   const success = Object.keys(target.store).some(sourceType => {
 
+
+
+
     const res = creep.withdraw(target, sourceType as ResourceConstant);
-
-
     if (res == ERR_NOT_IN_RANGE) {
       creep.moveTo(target);
       return true;
@@ -67,9 +75,14 @@ export default function (creep: Creep) {
     if (res === OK) {
       return true;
     } else {
-      log('take', sourceType, res)
+      log.warn('behavior/take5', 'target', creep, target, target.store, sourceType)
       return false;
     }
+
+
+
+
+
   });
 
   if (!success) {

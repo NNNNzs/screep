@@ -82,7 +82,7 @@ export const initMemory = () => {
 
 /** 查找空的 可以送能量的建筑 */
 export const findEmptySourceStructure = (room: Room, rank: StructureType[]) => {
-  let sources: AnyStructure[] = [];
+  let sources: AnyStoreStructure[] = [];
   const roomName = room.name;
 
 
@@ -91,7 +91,7 @@ export const findEmptySourceStructure = (room: Room, rank: StructureType[]) => {
       filter: (s) => {
         return (s.structureType === structureType && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
       }
-    });
+    }) as AnyStoreStructure[]
     if (notFullStructures.length > 0) {
       sources = notFullStructures
       return true
@@ -173,9 +173,9 @@ export const roomRoaded = (room: Room) => {
   const roomName = room.name;
   const roomMemory = Memory.rooms[roomName];
 
-  runPerTime(() => {
+  runPerTime(function resetRoaded() {
     roomMemory.roaded = false;
-  }, 601)
+  }, 601);
 
   if (roomMemory.roaded) {
     return true

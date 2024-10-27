@@ -7,6 +7,8 @@ import { TaskType } from "@/modules/Task.js";
 import { StructureType } from "@/modules/Scanner.js";
 import { CREEP_LIFE_TIME_MIN, assignRenewTask, shouldRenew } from "@/behavior/renew.js";
 import taskRunner from "@/task/run.js";
+import { assignTakeTask } from "@/behavior/take.js";
+import { assignCarryTask } from "@/behavior/carry.js";
 
 // 建造列表的优先级
 const BUILD_PRIORITY = {
@@ -89,8 +91,13 @@ const assignTasks = (creep: Creep) => {
       });
     }
 
-    creep.memory.task = TaskType.take;
-    creep.memory.targetId = sourceStructure[0];
+    assignTakeTask(creep, {
+      targetId: sourceStructure[0],
+      taskType: TaskType.take,
+      targetType: STRUCTURE_CONTAINER,
+      sourceType: RESOURCE_ENERGY,
+      takeFrom: Game.getObjectById(sourceStructure[0]) as StructureContainer
+    })
 
   }
 
@@ -123,6 +130,12 @@ const assignTasks = (creep: Creep) => {
       const bdistance = bSource.pos.getRangeTo(creep.pos)
       // 返回距离最近的
       return adistance - bdistance
+    });
+
+    assignCarryTask(creep, {
+      targetId: freeSpawn[0],
+      targetType: STRUCTURE_EXTENSION,
+      sourceType: RESOURCE_ENERGY,
     })
 
     creep.memory.task = TaskType.carry;
