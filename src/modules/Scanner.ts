@@ -152,17 +152,22 @@ export const scanStructure = () => {
     const room = Game.rooms[roomName];
     if (!room) continue;
 
-    
+    /** 自动建造 */
     autoStructure(room);
 
+    /** 更新资源列表 */
     updateSourceList(room);
 
+    /** 找到空的可以放container的建筑 */
     findEmptySourceStructure(room, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER]);
 
+    /** 找到可以拿能量的建筑 */
     findSourceStructure(room, [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]);
 
+    /** 更新控制器等级 */
     updateControllerLevel(room);
 
+    /** 更新道路 */
     roomRoaded(room);
   }
 
@@ -233,6 +238,11 @@ export const updateControllerLevel = (room: Room) => {
   if (controller) {
     const oldLevel = Memory.rooms[room.name].controllerLevel;
     const newLevel = controller.level;
+    if (newLevel < 6) {
+      Memory.rooms[room.name].maxWorker = 9 - newLevel;
+    } else {
+      Memory.rooms[room.name].maxWorker = 4;
+    }
     if (oldLevel !== newLevel) {
       Memory.rooms[room.name].controllerLevel = newLevel
       onControllerLevelChange(room)

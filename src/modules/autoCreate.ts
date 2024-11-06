@@ -345,7 +345,7 @@ export const createBody = (roleName: ROLE_NAME_ENUM, room: Room) => {
     const preMoveLength = bodyMap[MOVE];
     bodyMap[MOVE] = Math.ceil(bodyMap[MOVE] / 2);
     const nextMoveLength = bodyMap[MOVE];
-    log.warn('moudle/autoCreate', 'createBody', roleName, 'preMoveLength', preMoveLength, 'nextMoveLength', nextMoveLength)
+    // log.warn('moudle/autoCreate', 'createBody', roleName, 'preMoveLength', preMoveLength, 'nextMoveLength', nextMoveLength)
   }
 
 
