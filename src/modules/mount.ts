@@ -1,6 +1,6 @@
 const showDash = { visualizePathStyle: { stroke: "#ffaa00" } };
 import { log, runAfterStart } from "@/utils.js";
-import { createBody, deleteCreepMemory } from "./autoCreate";
+import {  deleteCreepMemory } from "./autoCreate";
 import { findEmptySourceStructure, findSourceStructure, } from './Scanner'
 
 import { ROLE_NAME_ENUM } from "@/var";

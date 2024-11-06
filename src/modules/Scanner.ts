@@ -223,7 +223,8 @@ export const onControllerLevelChange = (room: Room) => {
 
   // 重置 最大工人数
   for (const creepName in Game.creeps) {
-    Game.creeps[creepName].memory.isMaxCountBody = false;
+    // Game.creeps[creepName].memory.isMaxCountBody = false;
+    delete Game.creeps[creepName].memory.isMaxCountBody;
   }
 }
 

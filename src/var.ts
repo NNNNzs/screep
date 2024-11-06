@@ -45,23 +45,27 @@ export const bodyRateMap: BodyRateMap = {
     { body: CARRY, min: 1, weight: 1, max: 10 },
     { body: WORK, min: 1, weight: 1, max: 10 },
   ],
+
   /** 专职采矿者 */
   [ROLE_NAME_ENUM.harvester]: [
     { body: WORK, min: 1, max: 5, weight: 1 },
   ],
+
   /** 专职搬运者 */
   [ROLE_NAME_ENUM.carry]: [
     { body: CARRY, min: 1, weight: 1, max: 20 },
   ],
+
   /** 探索者 */
   [ROLE_NAME_ENUM.explorer]: [
-    { body: MOVE, max: 1, weight: 1 },
+    { body: MOVE, max: 2, weight: 1 },
   ],
+
   /** 士兵 */
   [ROLE_NAME_ENUM.soldier]: [
     { body: MOVE, max: 1, weight: 1 },
     { body: ATTACK, max: 1, weight: 1 },
-    { body: RANGED_ATTACK, max: 1, weight: 1 },
+    // { body: RANGED_ATTACK, max: 1, weight: 1 },
     { body: HEAL, max: 1, weight: 1 },
   ]
 }

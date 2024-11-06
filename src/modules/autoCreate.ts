@@ -184,6 +184,12 @@ export const isMaxCountBodyPart = (creep: Creep) => {
     bodyMap[t.type] += 1
   });
 
+  Object.keys(bodyMap).forEach(key => {
+    if (bodyMap[key] === 0) {
+      delete bodyMap[key];
+    }
+  });
+
 
   const maxBody = createBody(creep.memory.role, creep.room);;
 
@@ -204,6 +210,7 @@ export const isMaxCountBodyPart = (creep: Creep) => {
   const isMax = _.isEqual(bodyMap, maxBodyMap);
 
   creep.memory.isMaxCountBody = isMax;
+  log('module/autoCreate', 'isMaxCountBody', creep.name, isMax, bodyMap, maxBodyMap)
 
   return isMax
 
