@@ -1,6 +1,6 @@
-import { TaskType } from "@/modules/Task";
 import { log } from "@/utils";
 import { showDash } from "@/var";
+import { TaskType } from "@/modules/Task";
 
 /** 从creep的store中 转移资源 */
 export default function (creep: Creep) {

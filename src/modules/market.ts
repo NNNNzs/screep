@@ -1,118 +1,110 @@
+/**
+ * 市场交易配置接口
+ */
+interface MarketConfig {
+  /** 各资源的最低库存配置 */
+  minReserves: {
+    [resourceType: string]: number;
+  };
+  /** 价格偏差阈值（相对于市场均价的百分比） */
+  priceThreshold: number;
+}
 
-// // const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
-// // const storage: StructureStorage = Game.getObjectById(Memory.storage)
+/**
+ * 市场管理模块
+ */
+export class MarketManager {
+  private config: MarketConfig;
 
-// import { useCpu } from "@/utils";
+  constructor(config: MarketConfig) {
+    this.config = config;
+  }
 
-// const market = {
-//   // 计算收益
-//   sortFun(a: Order, b: Order) {
-//     const costA = Game.market.calcTransactionCost(a.amount, 'W24S33', a.roomName) / a.amount
-//     const costB = Game.market.calcTransactionCost(b.amount, 'W24S33', b.roomName) / b.amount
-//     const profitA = a.price - costA;
-//     const profitB = b.price - costB
-//     a.profit = profitA
-//     b.profit = profitB
-//     return profitA > profitB ? -1 : 1;
-//   },
-//   getOrder() {
-//     const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
-//     // const transferList: transferItem[] = Memory.transferList;
-//     const orders = Memory.transferList.map(ele => {
-//       const { sourceType, profit } = ele;
-//       // terminal库存为0 直接跳过该类型的订单
-//       const used = terminal.store.getUsedCapacity(sourceType);
+  /**
+   * 运行市场管理逻辑
+   */
+  public run(): void {
+    this.autoSell();
+  }
 
-//       if (used === 0) {
-//         return []
-//       }
-//       // const startCpu = Game.cpu.getUsed();
-//       const order = Game.market.getAllOrders({
-//         type: ORDER_BUY,
-//         resourceType: sourceType
-//       }).sort(market.sortFun).filter(o => {
-//         return o.profit > profit
-//       });
+  /**
+   * 自动售货逻辑
+   */
+  private autoSell(): void {
+    // 获取所有房间
+    for (const roomName in Game.rooms) {
+      const room = Game.rooms[roomName];
+      if (!room.controller?.my) continue;
 
-//       return order
-//     })
-//     // console.log(orders)
-//     return orders
-//   },
-//   // 创建出售的订单，这个要收费
-//   createSellOrder() {
-//     Game.market.createOrder({
-//       type: ORDER_SELL,
-//       resourceType: RESOURCE_ENERGY,
-//       price: 0.28,
-//       totalAmount: 100000,
-//       roomName: "W24S33"
-//     });
-//   },
-//   // 交易
-//   deal(arr = []) {
-//     const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
+      // 获取储存设施
+      const storage = room.storage;
+      if (!storage) continue;
 
-//     // Game.market.deal('606dc5adf5ceb112d9c1d522', 26309, "W24S33");
-//     const status = arr.map(order => {
-//       const { resourceType } = order
-//       const has = terminal.store.getUsedCapacity(resourceType)
-//       // const mount = order.amount > terminal.store.getUsedCapacity()
-//       // console.log(resourceType, has, order.amount)
-//       //梭哈，不留
-//       const num = has < order.amount ? has : order.amount
-//       // console.log(num);
-//       return Game.market.deal(order.id, num, "W24S33");
-//     });
-//     if (arr.length > 0) {
-//       // Game.notify(JSON.stringify(arr))
-//       // console.log(status)
-//     }
-//   },
-//   showTransfer() {
-//     const terminal: StructureTerminal = Game.getObjectById(Memory.terminal);
-//     const storage: StructureStorage = Game.getObjectById(Memory.storage)
+      // 检查每种资源
+      for (const resourceType in storage.store) {
+        this.handleResource(room, resourceType as ResourceConstant);
+      }
+    }
+  }
 
-//     // const taskList = Memory.transferList;
-//     const terminalNotFull = terminal.store.getFreeCapacity() > 10000
-//     // console.log(terminalNotFull)
-//     const shouldTransfer = (taskList: transferItem[]) => {
-//       return taskList.some(task => {
-//         const { sourceType, mount, remain } = task;
-//         // store里面超过一定的数量
-//         const storageExis = storage.store.getUsedCapacity(sourceType)
-//         const isStorageExisEnough = storageExis > mount + remain;
-//         //terminal还可以存这么多
-//         const terminalFree = terminal.store.getFreeCapacity(sourceType)
-//         const isTerminalCanSave = terminalFree > mount;
-//         //terminal已经存在这么多
-//         const terminalExis = terminal.store.getUsedCapacity(sourceType);
-//         const isTerminalExis = terminalExis < mount;
+  /**
+   * 处理单个资源的售卖
+   * @param room - 房间对象
+   * @param resourceType - 资源类型
+   */
+  private handleResource(room: Room, resourceType: ResourceConstant): void {
+    const storage = room.storage;
+    if (!storage) return;
 
-//         const flag = isStorageExisEnough && isTerminalCanSave && isTerminalExis;
-//         // 这里有问题，TODO
-//         if (flag) {
-//           // console.log(sourceType, 'storageExis', storageExis, 'terminalFree', terminalFree, 'terminalExis', terminalExis)
-//           // console.log(storageExis, terminalCanSave, sourceType)
-//           // Memory.transferSrouceType = sourceType
-//         }
-//         return flag
-//       })
-//     }
-//     // console.log(terminalNotFull)
-//     // const shouldTransferFlag = terminalNotFull && shouldTransfer(taskList);
-//     // Memory.showTransfer = shouldTransferFlag
-//   },
-//   run() {
-//     market.showTransfer()
-//     market.getOrder().forEach(orders => {
-//       if (orders.length > 0) {
-//         market.deal(orders)
-//       }
-//     });
+    const currentAmount = storage.store[resourceType] || 0;
+    const minReserve = this.config.minReserves[resourceType] || 0;
 
+    // 检查是否有足够的资源可以出售
+    if (currentAmount <= minReserve) return;
 
+    // 计算可出售数量
+    const amountToSell = currentAmount - minReserve;
 
-//   }
-// }
-// export default market
+    // 获取市场均价
+    const avgPrice = this.getAveragePrice(resourceType);
+    if (!avgPrice) return;
+
+    // 计算我们的目标售价（略低于市场均价以确保能售出）
+    const targetPrice = avgPrice * (1 - this.config.priceThreshold);
+
+    // 检查是否已有相同的订单
+    const existingOrders = Game.market.orders;
+    const hasExistingOrder = Object.values(existingOrders).some(
+      order => order.roomName === room.name &&
+        order.resourceType === resourceType &&
+        order.type === ORDER_SELL
+    );
+
+    if (!hasExistingOrder) {
+      // 创建新的售卖订单
+      Game.market.createOrder({
+        type: ORDER_SELL,
+        resourceType: resourceType,
+        price: targetPrice,
+        totalAmount: amountToSell,
+        roomName: room.name
+      });
+    }
+  }
+
+  /**
+   * 获取资源的市场均价
+   * @param resourceType - 资源类型
+   * @returns 市场均价
+   */
+  private getAveragePrice(resourceType: ResourceConstant): number | null {
+    const history = Game.market.getHistory(resourceType);
+    if (!history || history.length === 0) return null;
+
+    // 计算最近5天的均价
+    const recentHistory = history.slice(-5);
+    const avgPrice = recentHistory.reduce((sum, day) => sum + day.avgPrice, 0) / recentHistory.length;
+
+    return avgPrice;
+  }
+}

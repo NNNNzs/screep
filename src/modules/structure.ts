@@ -1,5 +1,5 @@
 import { log, runPerTime, useCpu } from "@/utils";
-import { onControllerLevelChange } from "./Scanner";
+// import { onControllerLevelChange } from "./Scanner";
 
 /**
  * 
@@ -231,14 +231,6 @@ export const toFixedList = () => {
       return a.hits / a.hitsMax - b.hits / b.hitsMax
     });
 
-    // toFixedStructures.forEach((s, index) => {
-    //   globalTask.add({
-    //     targetId: s.id,
-    //     type: TaskType.repair,
-    //     orderNum: 5
-    //   })
-    // });
-
     Memory.rooms[roomName].toFixedStructures = toFixedStructures;
   })
 };
@@ -252,15 +244,6 @@ export const toBuildList = () => {
     const room = Game.rooms[roomName];
     const constructionSites = room.find(FIND_CONSTRUCTION_SITES) as ConstructionSite[];
     Memory.rooms[room.name].toConstructionSite = constructionSites;
-
-    // constructionSites.forEach((s, index) => {
-    //   globalTask.add({
-    //     targetId: s.id,
-    //     type: TaskType.build,
-    //     orderNum: 6
-    //   })
-    // });
-
   });
 }
 
@@ -290,7 +273,7 @@ export const isMaxExtension = (room: Room) => {
   const extensions = _.filter(room.find(FIND_STRUCTURES), (structure) => structure.structureType === STRUCTURE_EXTENSION);
 
   if (extensions.length === maxExtensions) {
-    onControllerLevelChange(room)
+    // onControllerLevelChange(room)
     Memory.rooms[room.name].maxExtension = true;
     return true
   }
@@ -663,11 +646,12 @@ export const buildLink = (room: Room) => {
 
   // 如果是
   // 
-
-
-
 }
 
+/**
+ * 自动建造
+ * @param room 
+ */
 export const autoStructure = (room: Room) => {
   // 有控制器的房间
   if (room.controller && room.controller.my) {

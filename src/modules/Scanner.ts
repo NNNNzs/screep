@@ -1,415 +1,212 @@
-import { findBestContainerPosition, toFixedList, toBuildList, autoStructure, isRoomExist } from '@/modules/structure';
+import { toFixedList, toBuildList, autoStructure, isRoomExist } from '@/modules/structure';
 import { ROLE_NAME_ENUM } from '@/var';
 import { SpawnQueue, deleteCreepMemory } from './autoCreate';
 import { log, runAfterTickTask, runPerTime, useCpu } from '@/utils';
 
 export type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CONTAINER | STRUCTURE_STORAGE | STRUCTURE_TERMINAL | STRUCTURE_TOWER;
 
-/** 扫描所有可见范围的房间，添加Memory */
-export const initMemory = () => {
-
-  if (!Memory.logLevel) {
-    Memory.logLevel = ['info', 'warn', 'error'];
-  }
-
-  if (!Memory.rooms) {
-    Memory.rooms = {};
-  }
-
-  Object.keys(Game.rooms).forEach((roomName) => {
-
-    // 找到资源点附近可以放container的位置
-    if (!Memory.rooms[roomName]) {
-
-      Memory.rooms[roomName] = {
-
-        noSource: false,
-
-        creepIndex: 0,
-
-        maxWorker: 4,
-
-        carrysLength: 0,
-
-        harvestersLength: 0,
-
-        toFixedStructures: [],
-
-        toConstructionSite: [],
-        // 产房队列
-        spawnQueue: [],
-
-        sourcesList: [],
-
-        emptyStructureList: [],
-      };
-    };
-
-    if (!Memory.rooms[roomName].emptyStructureList) {
-      Memory.rooms[roomName].emptyStructureList = [];
-    }
-    // sourceStructure
-
-    if (!Memory.rooms[roomName].sourceStructure) {
-      Memory.rooms[roomName].sourceStructure = [];
-    }
-
-    if (!Memory.rooms[roomName].creepIndex) {
-      Memory.rooms[roomName].creepIndex = 0
-    }
-
-
-    // 最大工人数设置
-    if (!Memory.rooms[roomName].maxWorker) {
-      Memory.rooms[roomName].maxWorker = 4;
-
-    }
-
-    // 产房队列
-    if (!Memory.rooms[roomName].spawnQueue) {
-      Memory.rooms[roomName].spawnQueue = []
-    }
-
-    if (!Memory.rooms[roomName].controllerLevel) {
-      Memory.rooms[roomName].controllerLevel = 0
-    }
-
-
-  })
-
-}
-
-/** 查找空的 可以送能量的建筑 */
-export const findEmptySourceStructure = (room: Room, rank: StructureType[]) => {
-  let sources: AnyStoreStructure[] = [];
-  const roomName = room.name;
-
-
-  rank.some((structureType) => {
-    const notFullStructures = room.find(FIND_STRUCTURES, {
-      filter: (s) => {
-        return (s.structureType === structureType && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0)
-      }
-    }) as AnyStoreStructure[]
-    if (notFullStructures.length > 0) {
-      sources = notFullStructures
-      return true
-    } else {
-      return false
-    }
-  });
-
-  Memory.rooms[roomName].emptyStructureList = sources.map(e => {
-
-    // globalTask.add({
-    //   id: e.id,
-    //   type: TaskType.take,
-    //   targetId: e.id,
-    //   executorId: []
-    // })
-
-    return e.id
-  });
-}
-
 /**
- * 
- * @param room 
- * @param rank 
- * @description 可以拿能量的建筑
- * @returns {sourceStructure} 
+ * 房间扫描器类
+ * @class RoomScanner
+ * @description 负责扫描房间内的各种信息并更新到Memory中
  */
-export const findSourceStructure = (room: Room, rank: StructureType[] = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]) => {
+export class RoomScanner {
+  private room: Room;
+  private roomName: string;
+  private roomMemory: RoomMemory;
 
-  let sources: AnyStoreStructure[] = [];
-  const roomName = room.name;
-
-
-  rank.some((structureType) => {
-    const hasSourceStructure = room.find(FIND_STRUCTURES, {
-      filter: (s) => {
-        return (s.structureType === structureType && s.store.getUsedCapacity(RESOURCE_ENERGY) > 0)
-      }
-    }) as AnyStoreStructure[]
-
-    if (hasSourceStructure.length > 0) {
-      sources = hasSourceStructure
-      return true
-    } else {
-      return false
-    }
-  });
-
-  Memory.rooms[roomName].sourceStructure = sources.map(e => e.id);
-
-}
-
-/**  */
-export const scanStructure = () => {
-
-  for (const roomName in Memory.rooms) {
-    const room = Game.rooms[roomName];
-    if (!room) continue;
-
-    /** 自动建造 */
-    autoStructure(room);
-
-    /** 更新资源列表 */
-    updateSourceList(room);
-
-    /** 找到空的可以放container的建筑 */
-    findEmptySourceStructure(room, [STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER]);
-
-    /** 找到可以拿能量的建筑 */
-    findSourceStructure(room, [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]);
-
-    /** 更新控制器等级 */
-    updateControllerLevel(room);
-
-    /** 更新道路 */
-    roomRoaded(room);
+  constructor(room: Room) {
+    this.room = room;
+    this.roomName = room.name;
+    this.roomMemory = Memory.rooms[this.roomName];
   }
 
-}
-
-export const roomRoaded = (room: Room) => {
-
-
-  const roomName = room.name;
-  const roomMemory = Memory.rooms[roomName];
-
-  runPerTime(function resetRoaded() {
-    roomMemory.roaded = false;
-  }, 601);
-
-  if (roomMemory.roaded) {
-    return true
-  };
-
-  if (room.controller && room.controller.my) {
-    const controller = room.controller;
-    const level = controller.level;
-
-    const energyContainerRoaded = () => {
-      const sourceNotRoaded = roomMemory.sourcesList.some(s => {
-        if (s.sourceType === RESOURCE_ENERGY && !s.roaded) {
-          return true
-        }
-        return false
-      });
-      return !sourceNotRoaded
-    }
-    let checkList = [];
-
-    if (level >= 2) {
-      const roaded = energyContainerRoaded();
-      checkList.push(roaded);
-      // log.warn('module/Scanner/roomRoaded', 'roaded', roaded)
+  /**
+   * 初始化房间Memory
+   */
+  public static initMemory(): void {
+    if (!Memory.logLevel) {
+      Memory.logLevel = ['info', 'warn', 'error'];
     }
 
-    if (level >= 3) {
-      const controllerRoaded = roomMemory.controllerRoaded;
-      // log.warn('module/Scanner/roomRoaded', 'controllerRoaded', controllerRoaded)
-      checkList.push(controllerRoaded);
+    if (!Memory.rooms) {
+      Memory.rooms = {};
     }
-    log.warn('module/Scanner/roomRoaded', 'checkList', checkList)
-    roomMemory.roaded = checkList.every(e => e);
 
-  }
-}
-
-
-export const onControllerLevelChange = (room: Room) => {
-  // 重置 最大扩展 
-  Memory.rooms[room.name].maxExtension = false;
-  // 重置 道路
-  Memory.rooms[room.name].roaded = false;
-
-  // 重置 最大工人数
-  for (const creepName in Game.creeps) {
-    // Game.creeps[creepName].memory.isMaxCountBody = false;
-    delete Game.creeps[creepName].memory.isMaxCountBody;
-  }
-}
-
-export const updateControllerLevel = (room: Room) => {
-  const controller = room.controller;
-  if (controller) {
-    const oldLevel = Memory.rooms[room.name].controllerLevel;
-    const newLevel = controller.level;
-    if (newLevel < 6) {
-      Memory.rooms[room.name].maxWorker = 9 - newLevel;
-    } else {
-      Memory.rooms[room.name].maxWorker = 4;
-    }
-    if (oldLevel !== newLevel) {
-      Memory.rooms[room.name].controllerLevel = newLevel
-      onControllerLevelChange(room)
-    }
-  }
-}
-
-/**
- * Updates the source list for the given room. This is called every tick and manages the
- * following tasks:
- * - Finds the best container position for each source
- * - Creates a construction site for the container
- * - Checks if the container is built and assigns a harvester creep to each source
- * - Assigns a harvester creep to each source if the container is built
- * - Replaces dead harvester creeps
- * @param room The room to update
- * @param spawnName The name of the spawn to use for creating new creeps
- */
-export const updateSourceList = (room: Room) => {
-  const roomName = room.name;
-  const roomMemory = Memory.rooms[roomName];
-
-  if (roomMemory.noSource) {
-    return;
-  }
-
-  // 资源列表
-  if (roomMemory.sourcesList.length === 0) {
-    // 找到资源点
-    const sources = room.find(FIND_SOURCES);
-
-    const mineral = room.find(FIND_MINERALS);
-
-
-    // 初始化container点的数据
-    roomMemory.sourcesList = sources.map(s => {
-      return {
-        sourceType: RESOURCE_ENERGY,
-        id: s.id,
-        containerId: null,
-        creepId: null,
-        containerPos: null
+    Object.keys(Game.rooms).forEach((roomName) => {
+      if (!Memory.rooms[roomName]) {
+        Memory.rooms[roomName] = {
+          noSource: false,
+          creepIndex: 0,
+          maxWorker: 4,
+          carrysLength: 0,
+          harvestersLength: 0,
+          toFixedStructures: [],
+          toConstructionSite: [],
+          spawnQueue: [],
+          sourcesList: [],
+          emptyStructureList: [],
+          sourceStructure: [],
+          controllerLevel: 0
+        };
       }
     });
+  }
 
+  /**
+   * 扫描房间内的所有结构
+   */
+  public scanStructure(): void {
+    autoStructure(this.room);
+    this.findEmptySourceStructure([STRUCTURE_SPAWN, STRUCTURE_EXTENSION, STRUCTURE_TOWER]);
+    this.findSourceStructure([STRUCTURE_STORAGE, STRUCTURE_CONTAINER]);
+    this.updateControllerLevel();
+  }
 
-    if (mineral.length > 0) {
-      // 有矿物
-      mineral.forEach(m => {
-        roomMemory.sourcesList.push({
-          sourceType: m.mineralType,
-          id: m.id,
-          containerId: null,
-          creepId: null,
-          containerPos: null
-        })
-      });
-    }
+  /**
+   * 查找空的可以送能量的建筑
+   */
+  private findEmptySourceStructure(rank: StructureType[]): void {
+    let sources: AnyStoreStructure[] = [];
 
-    if (sources.length === 0) {
-      roomMemory.noSource = true
+    rank.some((structureType) => {
+      const notFullStructures = this.room.find(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === structureType && s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+      }) as AnyStoreStructure[];
+
+      if (notFullStructures.length > 0) {
+        sources = notFullStructures;
+        return true;
+      }
+      return false;
+    });
+
+    this.roomMemory.emptyStructureList = sources.map(e => e.id);
+  }
+
+  /**
+   * 查找可以拿能量的建筑
+   */
+  private findSourceStructure(rank: StructureType[] = [STRUCTURE_STORAGE, STRUCTURE_CONTAINER]): void {
+    let sources: AnyStoreStructure[] = [];
+
+    rank.some((structureType) => {
+      const hasSourceStructure = this.room.find(FIND_STRUCTURES, {
+        filter: (s) => s.structureType === structureType && s.store.getUsedCapacity(RESOURCE_ENERGY) > 0
+      }) as AnyStoreStructure[];
+
+      if (hasSourceStructure.length > 0) {
+        sources = hasSourceStructure;
+        return true;
+      }
+      return false;
+    });
+
+    this.roomMemory.sourceStructure = sources.map(e => e.id);
+  }
+
+  /**
+   * 更新控制器等级
+   */
+  private updateControllerLevel(): void {
+    const controller = this.room.controller;
+    if (controller) {
+      const oldLevel = this.roomMemory.controllerLevel;
+      const newLevel = controller.level;
+
+      this.roomMemory.maxWorker = newLevel < 6 ? 9 - newLevel : 4;
+
+      if (oldLevel !== newLevel) {
+        this.roomMemory.controllerLevel = newLevel;
+        this.onControllerLevelChange();
+      }
     }
   }
 
-  roomMemory.sourcesList.forEach((s, index) => {
+  /**
+   * 控制器等级变化时的处理
+   */
+  private onControllerLevelChange(): void {
+    this.roomMemory.maxExtension = false;
+    this.roomMemory.roaded = false;
 
-    // 检查container 是否过期
-    if (s.containerId) {
-      const container = Game.getObjectById(s.containerId) as StructureContainer;
-
-      if (!container) {
-        s.containerId = null;
-      }
-
-      // 如果有container 检查采集者是否过期
-      if (container) {
-
-        const creepDied = !Game.creeps[s.creepId];
-
-        // 如果采集者过期
-        if (creepDied) {
-          s.creepId = null
-        }
-
-        // 如果 creepId的target不是这个 清除
-
-        if (!creepDied && Game.creeps[s.creepId].memory.targetId !== s.id) {
-          s.creepId = null
-        }
-      };
-
+    for (const creepName in Game.creeps) {
+      delete Game.creeps[creepName].memory.isMaxCountBody;
     }
-
-
-
-  });
+  }
 
 }
 
-/** 查找敌人 */
-export const findAttackers = () => {
-  Object.keys(Memory.rooms).forEach(roomName => {
+/**
+ * 全局扫描器
+ */
+export class GlobalScanner {
+  /**
+   * 执行全局扫描
+   */
+  public static scan(): void {
+    RoomScanner.initMemory();
 
-    if (!Game.rooms[roomName]) return;
+    for (const roomName in Memory.rooms) {
+      const room = Game.rooms[roomName];
+      if (!room) continue;
 
-    if (!Memory.rooms[roomName].attackers) {
-      Memory.rooms[roomName].attackers = [];
-    };
-
-    const attackers = Game.rooms[roomName].find(FIND_HOSTILE_CREEPS)
-
-    if (attackers.length > 0) {
-
-      Memory.rooms[roomName].attackers = attackers.map(a => {
-        return {
-          id: a.id
-        }
-      })
-      Game.notify(`房间${roomName}有${attackers.length}个攻击者, 请注意! 时间是${Game.time}`);
+      const scanner = new RoomScanner(room);
+      scanner.scanStructure();
     }
 
-    const towns = Game.rooms[roomName].find(FIND_MY_STRUCTURES, {
-      filter: object => {
-        return object.structureType === STRUCTURE_TOWER
+    deleteCreepMemory();
+    toFixedList();
+    this.findAttackers();
+    toBuildList();
+  }
+
+  /**
+   * 查找敌人
+   */
+  private static findAttackers(): void {
+    Object.keys(Memory.rooms).forEach(roomName => {
+      const room = Game.rooms[roomName];
+      if (!room) return;
+
+      if (!Memory.rooms[roomName].attackers) {
+        Memory.rooms[roomName].attackers = [];
       }
+
+      const attackers = room.find(FIND_HOSTILE_CREEPS);
+
+      if (attackers.length > 0) {
+        Memory.rooms[roomName].attackers = attackers.map(a => ({ id: a.id }));
+        Game.notify(`房间${roomName}有${attackers.length}个攻击者, 请注意! 时间是${Game.time}`);
+
+        this.handleTowerDefense(room, attackers);
+      }
+    });
+  }
+
+  /**
+   * 处理防御塔的防御逻辑
+   */
+  private static handleTowerDefense(room: Room, attackers: Creep[]): void {
+    const towers = room.find(FIND_MY_STRUCTURES, {
+      filter: object => object.structureType === STRUCTURE_TOWER
     }) as StructureTower[];
 
-    if (towns.length === 0) {
-      return
-    }
+    if (towers.length === 0) return;
 
-    towns.forEach(t => {
-      t.attack(attackers[0])
+    // 攻击敌人
+    towers.forEach(tower => tower.attack(attackers[0]));
+
+    // 治疗受伤的爬虫
+    const toHeal = room.find(FIND_MY_CREEPS, {
+      filter: creep => creep.hits < creep.hitsMax
     });
 
-    if (towns.length > 0) {
-      const toHeal = Game.rooms[roomName].find(FIND_MY_CREEPS, {
-        filter: object => {
-          // 生命值不慢的
-          return object.hits < object.hitsMax;
-        }
-      });
-
-      if (toHeal.length > 0) {
-        towns[0].heal(toHeal[0])
-      }
-
+    if (toHeal.length > 0 && towers.length > 0) {
+      towers[0].heal(toHeal[0]);
     }
-
-  });
-
-};
-
-export const roomScanner = () => {
-  // 初始化rooms 
-
-  initMemory();
-
-  scanStructure();
-
-  deleteCreepMemory();
-
-  toFixedList();
-  findAttackers();
-
-  toBuildList();
-
-  runAfterTickTask();
-
-
+  }
 }
+
+// 导出一个便捷的扫描函数
+export const roomScanner = () => GlobalScanner.scan();

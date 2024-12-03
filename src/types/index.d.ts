@@ -13,6 +13,7 @@ interface stateItem {
   bucket: number;
 }
 declare global {
+  // @ts-ignore
   const _: typeof import('lodash');
 
   type toConstructionSite = ConstructionSite<BuildableStructureConstant>[];
@@ -22,7 +23,7 @@ declare global {
 
 
   interface Creep {
-    run: () => void
+    run(): void;
   }
 
   type AfterTickTask = {
@@ -143,4 +144,3 @@ declare global {
   }
 
 }
-
