@@ -2,7 +2,6 @@ import { findBestContainerPosition, toFixedList, toBuildList, autoStructure, isR
 import { ROLE_NAME_ENUM } from '@/var';
 import { SpawnQueue, deleteCreepMemory } from './autoCreate';
 import { log, runAfterTickTask, runPerTime, useCpu } from '@/utils';
-import { globalTask, TaskType } from './Task'
 
 export type StructureType = STRUCTURE_SPAWN | STRUCTURE_EXTENSION | STRUCTURE_CONTAINER | STRUCTURE_STORAGE | STRUCTURE_TERMINAL | STRUCTURE_TOWER;
 

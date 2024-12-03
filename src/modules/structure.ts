@@ -1,5 +1,4 @@
 import { log, runPerTime, useCpu } from "@/utils";
-import { globalTask, TaskType } from "./Task";
 import { onControllerLevelChange } from "./Scanner";
 
 /**
