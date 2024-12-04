@@ -19,6 +19,8 @@ export enum TaskType {
   take = "take",
   /** 续命 */
   renew = "renew",
+  /** 转移 */
+  transfer = "transfer",
 
   /** 发呆 */
   wait = "wait"

@@ -247,7 +247,7 @@ export const toBuildList = () => {
   });
 }
 
-/**  */
+/** 判断是否达到最大扩展 */
 export const isMaxExtension = (room: Room) => {
 
   // 每个600tick 重置maxExtension
@@ -294,17 +294,18 @@ export const isMaxExtension = (room: Room) => {
   }
 }
 
-
+/** 判断是否超过边界 */
 export const isOverBorder = (pos: RoomPosition) => {
   return pos.x > 49 || pos.y > 49 || pos.x < 0 || pos.y < 0
 }
 
-// 拆除某个坐标的所有建筑 和 建设中的建筑
+/** 拆除某个坐标的所有建筑 和 建设中的建筑 */
 export const destroyStructure = (pos: RoomPosition) => {
   pos.lookFor(LOOK_STRUCTURES).forEach(s => s.destroy());
   pos.lookFor(LOOK_CONSTRUCTION_SITES).forEach(s => s.remove());
 }
 
+/** 可以被拆除的建筑 */
 const canBeDestroyedStructure: StructureConstant[] = [STRUCTURE_ROAD, STRUCTURE_EXTENSION,];
 
 /** 环 stoage 周围 可以建造的点 */
@@ -334,6 +335,7 @@ export const randStorageBuildAble = (pos: RoomPosition, destroyStructureType: St
   return false;
 }
 
+/** 判断是否可建造 */
 export function isBuildable(pos: RoomPosition): boolean {
   // Check if the terrain is not a wall
   const terrain = Game.map.getRoomTerrain(pos.roomName);
