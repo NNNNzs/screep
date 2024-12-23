@@ -4,6 +4,7 @@ import renew, { CREEP_LIFE_TIME_MIN, assignRenewTask, shouldRenew } from "@/beha
 import taskRunner from "@/task/run";
 import { log, sortByRange, sortByUsedCapacity } from "@/utils";
 import { assignTakeTask } from "@/behavior/take";
+import { assignTransferTask } from "@/behavior/transfer";
 
 export default class CarryRole extends BaseRole {
   // 保持原有的TASK_PRIORITY不变
@@ -84,15 +85,15 @@ export default class CarryRole extends BaseRole {
     /** 从容器中取能量 */
     const getFromContainer = (sourceType?: ResourceConstant) => {
       const containers = room.find(FIND_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_CONTAINER && 
-                      s.store.getUsedCapacity(sourceType) > 0
+        filter: (s) => s.structureType === STRUCTURE_CONTAINER &&
+          s.store.getUsedCapacity(sourceType) > 0
       }) as StructureContainer[];
 
       if (!containers || containers.length === 0) return false;
 
-      const newContainers = sortByUsedCapacity(containers, { 
-        orderBy: 'desc', 
-        resource: sourceType 
+      const newContainers = sortByUsedCapacity(containers, {
+        orderBy: 'desc',
+        resource: sourceType
       });
       const target = newContainers[0];
 
@@ -185,12 +186,12 @@ export default class CarryRole extends BaseRole {
 
     const sendToTower = () => {
       const towers = room.find(FIND_MY_STRUCTURES, {
-        filter: (s) => s.structureType === STRUCTURE_TOWER && 
-                      s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
+        filter: (s) => s.structureType === STRUCTURE_TOWER &&
+          s.store.getFreeCapacity(RESOURCE_ENERGY) > 0
       }) as StructureTower[];
-      
+
       if (towers.length === 0) return;
-      
+
       sortByRange(creep.pos, towers);
       creep.memory.task = TaskType.carry;
       creep.memory.targetId = towers[0].id;
@@ -202,6 +203,13 @@ export default class CarryRole extends BaseRole {
       creep.memory.task = TaskType.wait;
       creep.memory.waitTime = Game.time + 10;
     };
+    // 检查Memory是否有搬运任务
+
+    const taskList = Memory.taskList.filter(task => task.type === TaskType.transfer);
+
+    if (taskList.length > 0) {
+      // assignTransferTask(creep, taskList[0]);
+    }
 
     if (hasResource) {
       if (hasEnergy) {

@@ -172,6 +172,7 @@ export const scanStructure = () => {
 
 }
 
+/** 更新道路 */
 export const roomRoaded = (room: Room) => {
 
 
@@ -360,7 +361,7 @@ export const findAttackers = () => {
           id: a.id
         }
       })
-      Game.notify(`房间${roomName}有${attackers.length}个攻击者, 请注意! 时间是${Game.time}`);
+      // Game.notify(`房间${roomName}有${attackers.length}个攻击者, 请注意! 时间是${Game.time}`);
     }
 
     const towns = Game.rooms[roomName].find(FIND_MY_STRUCTURES, {

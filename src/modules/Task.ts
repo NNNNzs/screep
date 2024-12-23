@@ -1,4 +1,4 @@
-enum TaskStatus {
+export enum TaskStatus {
   READY = 1,
   RUNNING = 2,
   DONE = 3
@@ -41,6 +41,9 @@ export interface TaskItem {
 
   /** 任务目标 */
   targetId?: string
+
+  /** 任务来源 */
+  sourceId?: string
 
   /** 任务所在房间 */
   roomName?: string
