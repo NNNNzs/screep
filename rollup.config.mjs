@@ -33,7 +33,7 @@ function screepsBuildId() {
       console.log(`screeps build id: ${buildId}`);
     },
     transform(code, id) {
-      if (!id.endsWith("/src/v2/runtime/build.ts") && !id.endsWith("\\src\\v2\\runtime\\build.ts")) {
+      if (!id.endsWith("/src/runtime/build.ts") && !id.endsWith("\\src\\runtime\\build.ts")) {
         return null;
       }
 
@@ -146,7 +146,7 @@ export default {
     // 清除上次编译成果
     clear({ targets: ["dist"] }),
 
-    // 将本次编译时间写入 V2 顶级 Memory.lastModified
+    // 将本次编译时间写入 Schema 3 顶级 Memory.lastModified
     screepsBuildId(),
 
     // 先由 TypeScript 插件转换源码，再解析 TS 和 JS 模块

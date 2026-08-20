@@ -18,7 +18,6 @@
     ],
     "include": [
         "@types/screeps",
-        "src/main.ts",
-        "src/v2/**/*.ts"
+        "src/**/*.ts"
     ]
 }
