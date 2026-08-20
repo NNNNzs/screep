@@ -12,6 +12,7 @@
 - `src/types/`：Schema 3 全局 Memory/Creep 类型声明。
 - `docs/architecture.md`：当前架构、运行边界和验收入口。
 - `docs/strategy-principles.md`：提炼后的本项目策略原则和开源参考。
+- `docs/development-and-control-strategy.md`：参考 Overmind/Hivemind 的发展阶段、Empire/Colony 控制模型和落地路线。
 - `.agents/skills/screeps-strategy/`：Screeps 策略与架构任务的按需上下文路由 Skill。
 
 ## 工作约定

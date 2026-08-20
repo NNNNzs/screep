@@ -1,5 +1,7 @@
 # 策略原则与参考
 
+完整的发展阶段、Empire/Colony/Cluster 控制模型、Tick 控制流程和落地路线见：[Screeps Bot 发展与控制策略](./development-and-control-strategy.md)。本文件保留具体的单房间经济原则，作为实现时的快速检查表。
+
 ## 本项目保留的策略原则
 
 - Source 必须有固定所有者；Container 就绪后由固定 Miner 负责采集，不让采集者携带少量能量往返基地。
