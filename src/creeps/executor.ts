@@ -19,11 +19,9 @@ function reserveRequest(creep: Creep, request: RoomRequestMemory): void {
 }
 
 function selectRequest(creep: Creep, memory: ColonyMemory, kinds: RequestKind[]): RoomRequestMemory | undefined {
-  const current = creep.memory.action?.requestId ? memory.requests[creep.memory.action.requestId] : undefined;
-  if (current && current.amount > 0 && kinds.includes(current.kind)) return current;
   return Object.values(memory.requests)
     .filter(request => request.amount > 0 && kinds.includes(request.kind))
-    .filter(request => request.assignedCreeps.length === 0 || request.assignedCreeps.includes(creep.name))
+    .filter(request => request.kind === "refill" || request.assignedCreeps.length === 0 || request.assignedCreeps.includes(creep.name))
     .sort((left, right) => right.priority - left.priority || left.assignedCreeps.length - right.assignedCreeps.length)[0];
 }
 
@@ -67,8 +65,9 @@ function energyProvider(creep: Creep, memory: ColonyMemory, preferStorage: boole
     const container = actions.objectById<StructureContainer>(source.containerId);
     if (container?.store.getUsedCapacity(RESOURCE_ENERGY)) containers.push(container);
   }
-  const container = containers.sort((left, right) =>
-    right.store.getUsedCapacity(RESOURCE_ENERGY) - left.store.getUsedCapacity(RESOURCE_ENERGY) || creep.pos.getRangeTo(left) - creep.pos.getRangeTo(right),
+  const container = containers.sort((left, right) => preferStorage
+    ? creep.pos.getRangeTo(left) - creep.pos.getRangeTo(right)
+    : right.store.getUsedCapacity(RESOURCE_ENERGY) - left.store.getUsedCapacity(RESOURCE_ENERGY) || creep.pos.getRangeTo(left) - creep.pos.getRangeTo(right),
   )[0];
   return container ?? (storage?.store.getUsedCapacity(RESOURCE_ENERGY) ? storage : undefined);
 }
@@ -85,6 +84,7 @@ export class CreepExecutorProcess implements Process {
   private runCreep(creep: Creep, memory: ColonyMemory): actions.ActionResult {
     if (creep.memory.role === "miner") return this.runMiner(creep, memory);
     if (creep.memory.role === "hauler") return this.runHauler(creep, memory);
+    if (creep.memory.role === "upgrader") return this.runUpgrader(creep, memory);
     if (creep.memory.role === "worker") return this.runWorker(creep, memory);
     return this.runPioneer(creep, memory);
   }
@@ -97,12 +97,18 @@ export class CreepExecutorProcess implements Process {
     if (!container) return { kind: "invalid", reason: "source-container-missing" };
     if (!creep.pos.isEqualTo(container.pos)) return actions.moveToPosition(creep, container.pos);
 
-    if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
+    const link = source.linkId ? actions.objectById<StructureLink>(source.linkId) : undefined;
+    const linkAvailable = Boolean(link?.store.getFreeCapacity(RESOURCE_ENERGY));
+    const containerAvailable = container.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
+    if (creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0 && (containerAvailable || linkAvailable)) {
       setAction(creep, { kind: "harvest", sourceId, startedAt: Game.time });
       return actions.harvest(creep, sourceId);
     }
-    const link = source.linkId ? actions.objectById<StructureLink>(source.linkId) : undefined;
-    const targetId = link?.store.getFreeCapacity(RESOURCE_ENERGY) ? link.id : container.id;
+    if (creep.store.getUsedCapacity(RESOURCE_ENERGY) <= 0) {
+      return { kind: "blocked", reason: "source-buffer-full" };
+    }
+    const targetId = linkAvailable ? link?.id : container.id;
+    if (!targetId) return { kind: "blocked", reason: "source-buffer-full" };
     setAction(creep, { kind: "transfer", targetId, sourceId, startedAt: Game.time });
     return actions.transfer(creep, targetId);
   }
@@ -131,9 +137,21 @@ export class CreepExecutorProcess implements Process {
       setAction(creep, { kind: "withdraw", targetId: provider.id, startedAt: Game.time });
       return actions.withdraw(creep, provider.id);
     }
-    const request = selectRequest(creep, memory, ["refill", "build", "repair", "upgrade"]);
+    const request = selectRequest(creep, memory, ["refill", "build", "repair"]);
     if (request) return executeRequest(creep, request);
     return { kind: "blocked", reason: "no-work-request" };
+  }
+
+  private runUpgrader(creep: Creep, memory: ColonyMemory): actions.ActionResult {
+    if (creep.store.getUsedCapacity(RESOURCE_ENERGY) <= 0) {
+      const provider = energyProvider(creep, memory, true);
+      if (!provider) return { kind: "blocked", reason: "no-upgrade-provider" };
+      setAction(creep, { kind: "withdraw", targetId: provider.id, startedAt: Game.time });
+      return actions.withdraw(creep, provider.id);
+    }
+    const request = selectRequest(creep, memory, ["refill", "upgrade"]);
+    if (request) return executeRequest(creep, request);
+    return { kind: "blocked", reason: "no-upgrade-request" };
   }
 
   private runPioneer(creep: Creep, memory: ColonyMemory): actions.ActionResult {
@@ -148,8 +166,15 @@ export class CreepExecutorProcess implements Process {
     if (!creep.memory.sourceId) creep.memory.sourceId = source.id;
     if (!creep.memory.harvestPosition) {
       const position = findHarvestPositions(source.room, source)
-        .find(candidate => !claimedSlots.has(`${source.id}:${candidate.x}:${candidate.y}`));
+        .filter(candidate => !claimedSlots.has(`${source.id}:${candidate.x}:${candidate.y}`))
+        .sort((left, right) => creep.pos.getRangeTo(left.x, left.y) - creep.pos.getRangeTo(right.x, right.y) || left.x - right.x || left.y - right.y)[0];
       if (position) creep.memory.harvestPosition = position;
+    }
+    const currentBuildRequest = creep.memory.action?.requestId
+      ? memory.requests[creep.memory.action.requestId]
+      : undefined;
+    if (currentBuildRequest?.kind === "build" && currentBuildRequest.amount > 0) {
+      return executeRequest(creep, currentBuildRequest);
     }
     if (source && source.energy > 0 && creep.store.getFreeCapacity(RESOURCE_ENERGY) > 0) {
       const position = creep.memory.harvestPosition;
@@ -161,6 +186,8 @@ export class CreepExecutorProcess implements Process {
     }
 
     if (creep.store.getUsedCapacity(RESOURCE_ENERGY) <= 0) return { kind: "blocked", reason: "no-bootstrap-source" };
+    const urgentRefill = selectRequest(creep, memory, ["refill"]);
+    if (urgentRefill) return executeRequest(creep, urgentRefill);
     const sourceContainer = sourceContainerBuildRequest(creep, memory);
     if (sourceContainer) return executeRequest(creep, sourceContainer);
     const request = selectRequest(creep, memory, ["refill", "build", "repair", "upgrade"]);

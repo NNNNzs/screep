@@ -19,5 +19,11 @@ export function findHarvestPositions(room: Room, source: Source): HarvestPositio
       if (!blocked) positions.push({ x, y });
     }
   }
-  return positions;
+  const spawn = room.find(FIND_MY_SPAWNS)[0];
+  return positions.sort((left, right) => {
+    if (!spawn) return left.x - right.x || left.y - right.y;
+    const leftDistance = Math.max(Math.abs(left.x - spawn.pos.x), Math.abs(left.y - spawn.pos.y));
+    const rightDistance = Math.max(Math.abs(right.x - spawn.pos.x), Math.abs(right.y - spawn.pos.y));
+    return leftDistance - rightDistance || left.x - right.x || left.y - right.y;
+  });
 }

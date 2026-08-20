@@ -1,7 +1,7 @@
 export {};
 
 declare global {
-  type BotRole = "pioneer" | "miner" | "hauler" | "worker";
+  type BotRole = "pioneer" | "miner" | "hauler" | "worker" | "upgrader";
   type BotActionKind = "harvest" | "withdraw" | "transfer" | "build" | "repair" | "upgrade" | "wait";
   type RequestKind = "refill" | "build" | "repair" | "upgrade";
 

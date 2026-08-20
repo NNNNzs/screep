@@ -13,18 +13,25 @@ export interface RoleDemand {
 
 export function buildRoleDemand(snapshot: RoomSnapshot): RoleDemand[] {
   const sourceContainers = snapshot.sources.filter(source => source.containerId);
-  const hasAllContainers = sourceContainers.length === snapshot.sources.length && snapshot.sources.length > 0;
+  const sourcesWithoutContainers = snapshot.sources.filter(source => !source.containerId);
   const constructionLoad = snapshot.constructionSites.length + snapshot.damagedStructureIds.length;
-  const workers = hasAllContainers ? Math.min(2, Math.max(1, constructionLoad > 2 ? 2 : 1)) : 0;
+  const workers = sourceContainers.length > 0 ? Math.min(2, Math.max(1, constructionLoad)) : 0;
+  const demands: RoleDemand[] = [];
 
-  if (!hasAllContainers) {
-    const harvestSlots = snapshot.sources.flatMap(source => source.harvestPositions.map(position => ({
-      sourceId: source.id,
-      ...position,
-    })));
-    return [{ role: "pioneer", count: harvestSlots.length, harvestSlots }];
+  if (sourcesWithoutContainers.length > 0) {
+    const spawn = snapshot.stores.find(store => store.structureType === STRUCTURE_SPAWN);
+    const harvestSlots = sourcesWithoutContainers
+      .flatMap(source => source.harvestPositions.map(position => ({ sourceId: source.id, ...position })))
+      .sort((left, right) => {
+        if (!spawn) return left.sourceId.localeCompare(right.sourceId) || left.x - right.x || left.y - right.y;
+        const leftDistance = Math.max(Math.abs(left.x - spawn.x), Math.abs(left.y - spawn.y));
+        const rightDistance = Math.max(Math.abs(right.x - spawn.x), Math.abs(right.y - spawn.y));
+        return leftDistance - rightDistance || left.sourceId.localeCompare(right.sourceId) || left.x - right.x || left.y - right.y;
+      });
+    demands.push({ role: "pioneer", count: harvestSlots.length, harvestSlots });
   }
 
+  if (sourceContainers.length === 0) return demands;
   const storage = snapshot.stores.find(store => store.structureType === STRUCTURE_STORAGE);
   const averageRoundTrip = sourceContainers.reduce((total, source) => {
     const origin = snapshot.stores.find(store => store.structureType === STRUCTURE_SPAWN) ?? storage;
@@ -34,9 +41,11 @@ export function buildRoleDemand(snapshot: RoomSnapshot): RoleDemand[] {
   const carryPartsNeeded = Math.max(2, Math.ceil((sourceIncome * averageRoundTrip) / CARRY_CAPACITY));
   const haulerCount = Math.max(1, Math.ceil(carryPartsNeeded / 4));
 
-  return [
+  demands.push(
     { role: "miner", count: sourceContainers.length, sourceIds: sourceContainers.map(source => source.id) },
     { role: "hauler", count: haulerCount },
     { role: "worker", count: workers },
-  ];
+    { role: "upgrader", count: 1 },
+  );
+  return demands;
 }

@@ -38,7 +38,7 @@ export function createCreepMemory(
 export function isBotCreepMemory(memory: CreepMemory): memory is BotCreepMemory {
   return (
     memory.schemaVersion === CURRENT_SCHEMA_VERSION &&
-    (memory.role === "pioneer" || memory.role === "miner" || memory.role === "hauler" || memory.role === "worker") &&
+    (memory.role === "pioneer" || memory.role === "miner" || memory.role === "hauler" || memory.role === "worker" || memory.role === "upgrader") &&
     typeof memory.homeRoom === "string"
   );
 }

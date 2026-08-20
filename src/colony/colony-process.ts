@@ -119,13 +119,14 @@ export class ColonyProcess implements Process {
       });
     }
     if (snapshot.controllerId) {
+      const emergencyUpgrade = snapshot.controllerTicksToDowngrade !== undefined && snapshot.controllerTicksToDowngrade < 5000;
       upsert(memory, {
         id: `upgrade:${snapshot.controllerId}`,
         kind: "upgrade",
         roomName: snapshot.roomName,
         targetId: snapshot.controllerId,
         amount: 1,
-        priority: snapshot.controllerTicksToDowngrade !== undefined && snapshot.controllerTicksToDowngrade < 5000 ? 70 : 10,
+        priority: emergencyUpgrade ? 125 : 10,
       });
     }
   }

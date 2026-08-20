@@ -48,16 +48,16 @@ Creep 名称使用 `角色-房间-Game.time`，例如 `pioneer-E13S39-12345`；�
 
 ## 资源闭环
 
-1. RCL1 使用 Pioneer：Observer 每 tick 枚举每个 Source 周围实际可站立的相邻格；每个格是一个独立采集位，Spawn 为每个 Pioneer 分配 Source 与坐标。多个 Pioneer 可以同时采集同一 Source，但不会争用同一格。Container 位置从这些格中选择到 Spawn 交能范围实际路径成本最低的一格；携带能量时先建造自己绑定 Source 旁的 Container，完成或目标失效后才回退到房间请求账本。
-2. Container 完成后，每个 Source 有固定 Miner。Miner 站在 Container 上，采至自身容量阈值后转入 Source Link 或 Container。
-3. Hauler 从 Source Container 取能量，优先满足 Spawn/Extension、再满足 Tower；无补能需求时转入 Storage。
-4. Worker 从 Storage 优先、Container 其次取能量，按补能、建造、维修、升级请求执行。
+1. RCL1 使用 Pioneer：Observer 每 tick 枚举每个尚未有 Container 的 Source 周围实际可站立的相邻格；采集位按到 Spawn 的距离排序，Spawn 为每个 Pioneer 分配最近的可用格。多个 Pioneer 可以同时采集同一 Source，但不会争用同一格。某个 Source 的 Container 建成后，Spawn 立即为该 Source 补一个专门 Miner，其他尚未建好的 Source 继续由 Pioneer 自举。Container 位置从这些格中选择到 Spawn 交能范围实际路径成本最低的一格；Pioneer 会先采满或等 Source 枯竭，再处理补能和建造请求。
+2. Container 完成后，每个 Source 有固定 Miner。Miner 站在 Container 上；只有 Source Container 或 Link 有空间时才继续采集，缓存满时等待 Hauler，避免背包和矿点同时空转。
+3. Hauler 从 Source Container 取能量，优先满足 Spawn/Extension、再满足 Tower；无补能需求时转入 Storage。没有 Storage 且基地需求已满时，Hauler 等待是正常状态。
+4. Worker 从 Storage 优先、Container 其次取能量；没有 Storage 时按当前位置选择最近的有能量 Container，按补能、建造、维修请求执行；Upgrader 独占 Controller 升级请求，避免升级被普通建造长期挤压。
 5. Source Link 与 Storage 附近 Link 同时存在时，Link Network 优先传能，Hauler 处理未被 Link 覆盖的流量。
 
-请求在每 tick 根据快照更新，具有稳定 ID、优先级、数量、过期时间和 Creep 预约。Executor 每 tick 最多做一个动作；目标失效、资源耗尽或容量满时清理动作，等待下一 tick 重规划。
+请求在每 tick 根据快照更新，具有稳定 ID、优先级、数量、过期时间和 Creep 预约。Executor 每 tick 最多做一个动作；当前请求会继续参与优先级排序，紧急 Spawn/Extension/Tower 补能请求允许其他有能量的 Creep 接管，可以抢占升级等低优先级工作；Controller 剩余保护时间低于 5000 tick 时升级优先级提升到紧急级别；Spawn BodyPlan 会从可用容量中扣除自救储备，确保 RCL1 仍能生产最小 Miner/Hauler；建造、维修等未被更高优先级请求抢占的工作会保持到完成、失效或过期；目标失效、资源耗尽或容量满时清理动作，等待下一 tick 重规划。
 
 ## 验收
 
 静态检查依次执行：`pnpm run build`、`./node_modules/.bin/tsc --noEmit`、`node --check dist/main.js`、`git diff --check`。
 
-真实运行由操作者手动启动和上传后验证：空白 Memory 初始化、RCL1 自举、Container 建设、Miner 固定矿点、Hauler 缓存运输、优先级补能、Container/目标失效后的重规划。检查 `Memory.lastModified`、`Memory.bot.kernel.processes`、房间请求和 Creep 动作以区分构建成功与 tick 行为成功。
+真实运行由操作者手动启动和上传后验证：空白 Memory 初始化、RCL1 自举、Container 建设、Miner 固定矿点、Hauler 缓存运输、优先级补能、Controller 降级保护、最后一只 Creep 后的 emergency bootstrap、Container/目标失效后的重规划。检查 `Memory.lastModified`、`Memory.bot.kernel.processes`、房间请求和 Creep 动作以区分构建成功与 tick 行为成功。
