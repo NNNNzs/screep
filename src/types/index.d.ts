@@ -13,9 +13,6 @@ interface stateItem {
   bucket: number;
 }
 declare global {
-  // @ts-ignore
-  const _: typeof import('lodash');
-
   type toConstructionSite = ConstructionSite<BuildableStructureConstant>[];
   type toFixedStructures = AnyStructure[];
 

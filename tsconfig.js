@@ -6,6 +6,7 @@
         "baseUrl": "./",
         "sourceMap": true,
         "allowSyntheticDefaultImports": true,
+        "allowUmdGlobalAccess": true,
         "paths": {
             "@/*": [
                 "./src/*"
@@ -16,6 +17,7 @@
         "node_modules"
     ],
     "include": [
-        "src/**/*.ts"
+        "src/main.ts",
+        "src/v2/**/*.ts"
     ]
 }

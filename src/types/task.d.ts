@@ -2,7 +2,7 @@ export declare enum TaskStatus {
   READY = 1,
   RUNNING = 2,
   DONE = 3
-};
+}
 
 export declare enum TaskType {
   /** 挖矿任务 */
@@ -22,7 +22,7 @@ export declare enum TaskType {
 
   /** 发呆 */
   wait = "wait"
-};
+}
 
 export declare interface TaskItem {
   /** 任务id */
@@ -51,7 +51,7 @@ export declare interface TaskItem {
 
   /** 任务额外信息 */
   params?: Record<string, any>
-};
+}
 
 
 export declare type IGetTaskFilter = (t: TaskItem) => boolean

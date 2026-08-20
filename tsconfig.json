@@ -6,6 +6,7 @@
         "baseUrl": "./",
         "sourceMap": true,
         "allowSyntheticDefaultImports": true,
+        "allowUmdGlobalAccess": true,
         "paths": {
             "@/*": [
                 "./src/*"
@@ -17,6 +18,7 @@
     ],
     "include": [
         "@types/screeps",
-        "src/**/*.ts",
+        "src/main.ts",
+        "src/v2/**/*.ts"
     ]
 }
